@@ -1,0 +1,106 @@
+{% extends "chall_manager_base.html" %}
+
+{% block menu %}
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/settings">🔗 Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="#">Instances</a>
+    </li>
+{% endblock %}
+
+{% block panel %}
+<a class="row">
+    <div class="col-md-12">
+        <table class="table table-striped border">
+            <thead>
+            <tr>
+                <th class="border-right" data-checkbox>
+                    <div class="form-check text-center">&nbsp;
+                        <input type="checkbox" class="form-check-input" data-checkbox-all>
+                    </div>
+                </th>
+                <th class="sort-col text-center"><b>Challenge</b></td>
+                <th class="sort-col text-center"><b>Source</b></td>
+                <th class="text-center"><b>Connection Info</b></td>
+                <!-- <th class="text-center"><b>flag</b></td> -->
+                <th class="text-center"><b>Since</b></td>
+                <th class="text-center"><b>Until</b></td>
+                <th class="sort-col text-center"><b>Last Renew</b></td>
+                <th class="text-center"><b>Renew</b></td>
+                <th class="text-center"><b>Delete</b></td>
+            </tr>
+            </thead>
+
+            <tbody>
+                {% for instance in instances %}
+                <tr>
+                    <td class="border-right" data-checkbox>
+                        <div class="form-check text-center">&nbsp;
+                            <input type="checkbox" class="form-check-input" data-user-id="{{ instance.sourceId }}">
+                        </div>
+                    </td>
+                
+                    <td class="text-center">
+                        <a href="{{ url_for('admin.challenges_detail', challenge_id=instance.challengeId) }}">
+                            {{ instance.challengeId }}
+                        </a>
+                    </td>
+
+                    <td class="text-center">
+                        <a href="{{ url_for('admin.users_detail', user_id=instance.sourceId) }}">
+                            {{ instance.sourceId }}
+                        </a>
+                    </td>
+
+                    <td class="text-left">
+                        {{ instance.connectionInfo }}
+                    </td>
+
+                    <td class="text-center">
+                        {% set list1 = instance.since.split('T') %}
+                        {{ list1[0] }} &nbsp;
+                        {{ list1[1][0:8] }}
+                    </td>
+
+                    <td class="text-center">
+                        {% set list1 = instance.until.split('T') %}
+                        {{ list1[0] }} &nbsp;
+                        {{ list1[1][0:8] }}
+                    </td>
+
+                    <td class="text-left">
+                        {% set list1 = instance.lastRenew.split('T') %}
+                        {{ list1[0] }} &nbsp;
+                        {{ list1[1][0:8] }}
+                    </td>
+
+                    <td class="text-center">                        
+                        <button class="btn btn-link p-0 renew-instance"
+                           challenge-id="{{ instance.challengeId }}" data-toggle="tooltip"
+                           source-id="{{ instance.sourceId }}"
+                           data-placement="top"
+                           title="Renew">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-link p-0 delete-instance"
+                           challenge-id="{{ instance.challengeId }}" data-toggle="tooltip"
+                           source-id="{{ instance.sourceId }}" data-placement="top"
+                           title="Destroy">
+                            <i class="fas fa-times"></i>
+                    </button>
+                </tr>
+                {% endfor %}
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script defer src="{{ url_for('plugins.ctfd-chall-manager.assets', path='instances.js') }}"></script>
+{% endblock %}

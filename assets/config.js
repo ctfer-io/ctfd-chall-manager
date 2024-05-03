@@ -2,6 +2,7 @@
 
 
 const $ = CTFd.lib.$;
+const helpers = CTFd.helpers
 
 $(".config-section > form:not(.form-upload)").submit(async function (event) {
     event.preventDefault();
