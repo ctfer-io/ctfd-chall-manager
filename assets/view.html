@@ -7,8 +7,8 @@
             <div id="whale-panel-stopped" class="card" style="width: 100%;">
                 <div class="card-body">
                     <h5 class="card-title">Instance Info</h5>
-                    <button class="btn btn-primary card-link" id="whale-button-boot" type="button"
-                        onclick="CTFd._internal.challenge.boot()">Launch an instance</button>
+                    <button class="btn btn-primary card-link" style="background-color:#479abf;" id="whale-button-boot" type="button"
+                        onclick="CTFd._internal.challenge.boot()">Launch the challenge</button>
                 </div>
             </div>
             <div id="whale-panel-started" type="hidden" class="card" style="width: 100%;">
@@ -21,14 +21,16 @@
                         Lan Domain: <span id="whale-challenge-lan-domain"></span>
                     </h6>
                     <p id="whale-challenge-user-access" class="card-text"></p>
-                    <button type="button" class="btn btn-danger card-link" id="whale-button-destroy"
-                            onclick="CTFd._internal.challenge.destroy()">
-                        Destroy this instance
-                    </button>
-                    <button type="button" class="btn btn-success card-link" id="whale-button-renew"
+                    <button type="button" class="btn btn-success card-link" style="background-color:#ebb850;" id="whale-button-renew"
                             onclick="CTFd._internal.challenge.renew()">
-                        Renew this instance
+                        Renew
                     </button>
+                    
+                    <button type="button" class="btn btn-danger card-link" style="background-color:#b43c2c;" id="whale-button-destroy"
+                            onclick="CTFd._internal.challenge.destroy()">
+                        Destroy
+                    </button>
+
                 </div>
             </div>
         </div>
