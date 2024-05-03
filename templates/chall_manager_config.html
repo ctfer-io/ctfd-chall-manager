@@ -1,0 +1,26 @@
+{% extends "chall_manager_base.html" %}
+
+{% block menu %}
+    <li class="nav-item">
+        <a class="nav-link active" data-toggle="pill" href="#settings">API</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/challenges">🔗 Instances</a>
+    </li>
+{% endblock %}
+
+{% block panel %}
+    {% include "components/errors.html" %}
+    <div role="tabpanel" class="tab-pane config-section active" id="settings">
+        <form method="POST" accept-charset="utf-8" action="/admin/plugins/ctfd-chall-manager"
+              class="form-horizontal">
+            <div class="tab-content">
+                {% include "config/chall_manager.config.html" %}
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script defer src="{{ url_for('plugins.ctfd-chall-manager.assets', path='config.js') }}"></script>
+{% endblock %}

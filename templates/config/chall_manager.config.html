@@ -1,0 +1,28 @@
+<!-- This template define configuration items  -->
+
+<div class="tab-pane fade show active" id="docker" role="tabpanel" aria-autocomplete="none">
+    <h5>Common</h5>
+    <small class="form-text text-muted">
+        Common configurations to use Chall Manager by CTFer.io
+    </small><br>
+    {% for config, val in {
+        "API URL": ("chall-manager_api_url", "Challmanager API to connect to"),
+    }.items() %}
+        {% set value = get_config('chall-manager:' + val[0]) %}
+        <div class="form-group">
+            <label for="{{ val[0].replace('_', '-') }}">
+                {{ config }}
+                <small class="form-text text-muted">{{ val[1] }}</small>
+            </label>
+            <input type="text" class="form-control"
+                   id="{{ val[0].replace('_', '-') }}" name="{{ 'chall-manager:' + val[0] }}"
+                   {% if value != None %}value="{{ value }}"{% endif %}>
+        </div>
+    {% endfor %}
+
+    <div class="submit-row float-right">
+        <button type="submit" tabindex="0" class="btn btn-md btn-primary btn-outlined">
+            Submit
+        </button>
+    </div>
+</div>
