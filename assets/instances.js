@@ -1,53 +1,65 @@
-function get_all_instances() {
-    var url = "/api/v1/plugins/ctfd-chall-manager/admin/instance"
-
-    CTFd.fetch(url, {
-        method: 'GET',
-        credentials: 'same-origin',
+async function delete_instance(challengeId, sourceId) {
+    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance?challengeId=" + challengeId + "&sourceId=" + sourceId, {
+        method: "DELETE",
+        credentials: "same-origin",
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    }).then(function (response) {
-        if (response.status === 429) {
-            // User was ratelimited but process response
-            return response.json();
-        }
-        if (response.status === 403) {
-            // User is not logged in or CTF is paused.
-            return response.json();
-        }
-        return response.json();
-    }).then(function (response) {
-        if (window.t !== undefined) {
-            clearInterval(window.t);
-            window.t = undefined;
-        }
-        if (response.success) response = response.data;
-        else CTFd._functions.events.eventAlert({
-            title: "Fail",
-            html: response.message,
-            button: "OK"
-        });
-        if (response.remaining_time != undefined) {
-            $('#whale-challenge-user-access').html(response.user_access);
-            $('#whale-challenge-lan-domain').html(response.lan_domain);
-            $('#whale-challenge-count-down').text(response.remaining_time);
-            $('#whale-panel-stopped').hide();
-            $('#whale-panel-started').show();
-
-            window.t = setInterval(() => {
-                const c = $('#whale-challenge-count-down').text();
-                if (!c) return;
-                let second = parseInt(c) - 1;
-                if (second <= 0) {
-                    loadInfo();
-                }
-                $('#whale-challenge-count-down').text(second);
-            }, 1000);
-        } else {
-            $('#whale-panel-started').hide();
-            $('#whale-panel-stopped').show();
+            Accept: "application/json",
+            "Content-Type": "application/json"
         }
     });
-};
+    console.log(response)
+    response = await response.json();
+    return response;
+}
+
+async function renew_instance(challengeId, sourceId) {
+    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance?challengeId=" + challengeId + "&sourceId=" + sourceId, {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+        }
+    });
+    console.log(response)
+    response = await response.json();
+    return response;
+}
+
+
+$(".delete-instance").click(function (e) {
+    e.preventDefault();
+    let challengeId = $(this).attr("challenge-id");
+    let sourceId = $(this).attr("source-id");
+
+    console.log(sourceId)
+    console.log(challengeId)
+
+    CTFd.ui.ezq.ezQuery({
+        title: "Destroy",
+        body: "<span>Are you sure you want to delete this instance?</span>",
+        success: async function () {
+            await delete_instance(challengeId, sourceId);
+            location.reload();
+        }
+    });
+});
+
+
+$(".renew-instance").click(function (e) {
+    e.preventDefault();
+    let challengeId = $(this).attr("challenge-id");
+    let sourceId = $(this).attr("source-id");
+
+    console.log(sourceId)
+    console.log(challengeId)
+
+    CTFd.ui.ezq.ezQuery({
+        title: "Renew",
+        body: "<span>Are you sure you want to renew this instance?</span>",
+        success: async function () {
+            await renew_instance(challengeId, sourceId);
+            location.reload();
+        }
+    });
+});

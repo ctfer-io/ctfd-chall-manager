@@ -7,6 +7,8 @@ from CTFd.plugins import (
 )
 from CTFd.utils.decorators import admins_only
 from CTFd.utils import get_config, set_config
+from CTFd.utils.user import get_user_attrs, get_team_attrs
+from CTFd.utils.challenges import get_all_challenges
 from CTFd.plugins.migrations import upgrade
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 
@@ -77,7 +79,14 @@ def load(app):
                         for i in instances_of_current_chall:
                             instances.append(i)
 
-        print(instances)
-        return render_template("chall_manager_instances.html", instances=instances)
+        user_mode = get_config("user_mode")
+        for i in instances:
+            i["sourceName"] = get_user_attrs(i["sourceId"]).name
+            if user_mode == "teams":
+                i["sourceName"] = get_team_attrs(i["sourceId"]).name
+           
+            i["challengeName"] = get_all_challenges(id=i["challengeId"])[0].name
+        
+        return render_template("chall_manager_instances.html", instances=instances, user_mode=user_mode)
 
     app.register_blueprint(page_blueprint)

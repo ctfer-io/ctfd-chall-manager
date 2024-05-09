@@ -1,9 +1,7 @@
-// import { default as helpers } from "../../../themes/admin/assets/js/compat/helpers";
 
 CTFd.plugin.run((_CTFd) => {
     const $ = _CTFd.lib.$
     const md = _CTFd.lib.markdown()
-    // const helpers = _CTFd.helpers
 });
 
 // const helpers = CTFd.helpers;
@@ -47,103 +45,127 @@ $("#create-chal-entry-div form").submit(function (event) {
           button: "OK",
         });
       } // or find a way to detect changes on $("#challenge-create-options #challenge_id").val()
-    }).then(function (){ // Plugin chall-manager create scenario
-        console.log("[PLUGIN] Chall-manager create scenario")
-        let url = "/api/v1/plugins/ctfd-chall-manager/admin/scenario?challenge_id=" + curr_challenge_id + "&scenario=pouet";
-        // let data = {
-        //   challenge_id: curr_challenge_id,
-        //   scenario, scenario_id,
+    }).then(function(){
+      const input = document.getElementById('scenario');
+      const file = input.files[0]; // Get the first file selected
+
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        // send scenario
+        CTFd.fetch("/api/v1/files", {
+          method: 'POST',
+          credentials: 'same-origin',
+          body: formData,
+        }).then(function (response){
+          console.log(response)
+      })}})});
+      
+        // readFileContent(file).then(({ fileName, byteArray }) => {
+
+        // console.log("[PLUGIN] Chall-manager upload scenario to CTFd")
+        // let url = "/api/v1/files";
+
+        // var params = {
+        //   Name: fileName,
+        //   Content: byteArray
         // }
-        CTFd.fetch(url, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        }).then(function (response) {
-            if (response.status === 429) {
-                // User was ratelimited but process response
-                return response.json();
-            }
-            if (response.status === 403) {
-                // User is not logged in or CTF is paused.
-                return response.json();
-            }
-            return response.json();
-        })
-      });
+
+        // CTFd.fetch(url, {
+        //   method: 'POST',
+        //   credentials: 'same-origin',
+        //   headers: {
+        //       'Accept': 'application/json',
+        //       'Content-Type': 'application/json'
+        //   },
+        //   body: params
+        // }).then(function (response){
+        //   console.log(response)
+        // })})}})});
 
 
-      Promise.all([
-        // Upload files
-        new Promise(function (resolve, _reject) {
-          console.log("[PLUGIN] Promise")
-          let form = event.target;
-          console.log(form)
-          let filepath = $(form.elements["scenario"]).val();
-          console.log(filepath)
-          if (filepath) {
-            console.log("[PLUGIN] Upload scenario")
-            // CTFd.helpers.files.upload(form);
-            CTFd.plugin.run(CTFd.helpers.files.upload(form))
-          }
-          resolve();
-        })
-      ]);
+
+
+
+
+
+        // send file to CTFd
+
+
+      
+    // }).then(function (){ // Plugin chall-manager create scenario
+    //     console.log("[PLUGIN] Chall-manager create scenario")
+    //     
+
+    //     // var params = {
+    //     //   challengeId: curr_challenge_id,
+    //     //   scenario_location, scenario_id
+    //     // }
+
+    //     CTFd.fetch(url, {
+    //         method: 'POST',
+    //         credentials: 'same-origin',
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json'
+    //         }
+    //         //, body: JSON.stringify(params)
+    //     }).then(function (response) {
+    //         if (response.status === 429) {
+    //             // User was ratelimited but process response
+    //             return response.json();
+    //         }
+    //         if (response.status === 403) {
+    //             // User is not logged in or CTF is paused.
+    //             return response.json();
+    //         }
+    //         return response.json();
+    //     })
+    //   });
+
+      
+      // Promise.all([
+      //   // Upload files
+      //   new Promise(function (resolve, _reject) {
+      //     console.log("[PLUGIN] Promise")
+      //     let form = event.target;
+      //     console.log(form)
+      //     let filepath = $(form.elements["scenario"]).val();
+      //     console.log(filepath)
+      //     if (filepath) {
+      //       console.log("[PLUGIN] Upload scenario")
+      //       // CTFd.helpers.files.upload(form);
+      //       CTFd.plugin.run(CTFd.helpers.files.upload(form))
+      //     }
+      //     resolve();
+      //   })
+      // ]);
     
-});
 
-// const files = {
-//   upload: (form, extra_data, cb) => {
-//     const CTFd = window.CTFd;
-//     if (form instanceof jQuery) {
-//       form = form[0];
-//     }
-//     var formData = new FormData(form);
-//     formData.append("nonce", CTFd.config.csrfNonce);
-//     for (let [key, value] of Object.entries(extra_data)) {
-//       formData.append(key, value);
-//     }
 
-//     var pg = ezq.ezProgressBar({
-//       width: 0,
-//       title: "Upload Progress",
-//     });
-//     $.ajax({
-//       url: CTFd.config.urlRoot + "/api/v1/files",
-//       data: formData,
-//       type: "POST",
-//       cache: false,
-//       contentType: false,
-//       processData: false,
-//       xhr: function () {
-//         var xhr = $.ajaxSettings.xhr();
-//         xhr.upload.onprogress = function (e) {
-//           if (e.lengthComputable) {
-//             var width = (e.loaded / e.total) * 100;
-//             pg = ezq.ezProgressBar({
-//               target: pg,
-//               width: width,
-//             });
-//           }
-//         };
-//         return xhr;
-//       },
-//       success: function (data) {
-//         form.reset();
-//         pg = ezq.ezProgressBar({
-//           target: pg,
-//           width: 100,
-//         });
-//         setTimeout(function () {
-//           pg.modal("hide");
-//         }, 500);
+function readFileContent(file) {
+  return new Promise((resolve, reject) => {
+      if (file) {
+          var reader = new FileReader();
 
-//         if (cb) {
-//           cb(data);
-//         }
-//       },
-//     });
-//   },
-// };
+          // Définir la fonction de rappel à exécuter lorsque la lecture est terminée
+          reader.onload = function(event) {
+              // Convertir le contenu en Uint8Array
+              var buffer = event.target.result;
+              var byteArray = new Uint8Array(buffer);
+              var fileName = file.name;
+              resolve({ fileName, byteArray });
+          };
+
+          // Gestion d'erreur de lecture
+          reader.onerror = function(event) {
+              reject(event.target.error);
+          };
+
+          // Lire le contenu du fichier en tant qu'array buffer
+          reader.readAsArrayBuffer(file);
+      } else {
+          reject("Aucun fichier sélectionné.");
+      }
+  });
+}

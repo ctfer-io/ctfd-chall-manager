@@ -66,19 +66,9 @@ class AdminInstance(Resource):
         # retrieve all instance deployed by chall-manager
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
 
-        # check if Content-type is application/json
-        if not request.is_json:
-            return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
-            }}
-
-        # retrieve infos provided by js
-        data = request.get_json()
-        payload = {}
-
         ## mandatory
-        challengeId = data.get("challengeId") 
-        sourceId = data.get("sourceId")
+        challengeId = request.args.get("challengeId") 
+        sourceId = request.args.get("sourceId")
 
         if not challengeId or not sourceId:
             return {'success': False, 'data':{
@@ -108,19 +98,9 @@ class AdminInstance(Resource):
         # retrieve all instance deployed by chall-manager
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
 
-        # check if Content-type is application/json
-        if not request.is_json:
-            return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
-            }}
-
-        # retrieve infos provided by js
-        data = request.get_json()
-        payload = {}
-
         ## mandatory
-        challengeId = data.get("challengeId") 
-        sourceId = data.get("sourceId")
+        challengeId = request.args.get("challengeId") 
+        sourceId = request.args.get("sourceId")
 
         if not challengeId or not sourceId:
             return {'success': False, 'data':{
@@ -150,23 +130,18 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     #@challenge_visible
-    # trigger while GET http://localhost:4000/api/v1/plugins/ctfd-chall-manager/instance?user_id=1&challengeId=1
+    # trigger while GET http://localhost:4000/api/v1/plugins/ctfd-chall-manager/instance?challengeId=1
     def get():
         # retrieve all instance deployed by chall-manager
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
-
-        # check if Content-type is application/json
-        if not request.is_json:
-            return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
-            }}
-
-        # retrieve infos provided by js
-        data = request.get_json()
         
         ## mandatory
-        challengeId = data.get("challengeId") 
+        challengeId = request.args.get("challengeId") 
+        
+        # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        if get_config("user_mode") == "teams":
+            sourceId = str(current_user.get_current_user().team_id)
 
         if not challengeId or not sourceId:
             return {'success': False, 'data':{
@@ -213,7 +188,11 @@ class UserInstance(Resource):
 
         ## mandatory
         challengeId = data.get("challengeId") 
+        
+        # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        if get_config("user_mode") == "teams":
+            sourceId = str(current_user.get_current_user().team_id)
 
         if not challengeId or not sourceId:
             return {'success': False, 'data':{
@@ -253,18 +232,13 @@ class UserInstance(Resource):
         # retrieve all instance deployed by chall-manager
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
 
-        # check if Content-type is application/json
-        if not request.is_json:
-            return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
-            }}
-
-        # retrieve infos provided by js
-        data = request.get_json()
-        
         ## mandatory
-        challengeId = data.get("challengeId") 
+        challengeId = request.args.get("challengeId") 
+        
+        # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        if get_config("user_mode") == "teams":
+            sourceId = str(current_user.get_current_user().team_id)
 
         if not challengeId or not sourceId:
             return {'success': False, 'data':{
@@ -298,19 +272,15 @@ class UserInstance(Resource):
     def delete():
         # retrieve all instance deployed by chall-manager
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
-
-        # check if Content-type is application/json
-        if not request.is_json:
-            return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
-            }}
-
-        # retrieve infos provided by js
-        data = request.get_json()
-        
-        ## mandatory
-        challengeId = data.get("challengeId") 
+       
+        # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        if get_config("user_mode") == "teams":
+            sourceId = str(current_user.get_current_user().team_id)
+
+        ## mandatory
+        challengeId = request.args.get("challengeId") 
+        
 
         if not challengeId or not sourceId:
             return {'success': False, 'data':{

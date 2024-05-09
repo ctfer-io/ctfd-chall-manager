@@ -17,9 +17,9 @@
                     <h6 class="card-subtitle mb-2 text-muted">
                         Remaining Time: <span id="whale-challenge-count-down"></span>s
                     </h6>
-                    <h6 class="card-subtitle mb-2 text-muted">
-                        Lan Domain: <span id="whale-challenge-lan-domain"></span>
-                    </h6>
+                    <!-- <h6 class="card-subtitle mb-2 text-muted">
+                        Connection Info: <code><span id="whale-challenge-lan-domain"></span></code>
+                    </h6> -->
                     <p id="whale-challenge-user-access" class="card-text"></p>
                     <button type="button" class="btn btn-success card-link" style="background-color:#ebb850;" id="whale-button-renew"
                             onclick="CTFd._internal.challenge.renew()">
@@ -29,10 +29,16 @@
                     <button type="button" class="btn btn-danger card-link" style="background-color:#b43c2c;" id="whale-button-destroy"
                             onclick="CTFd._internal.challenge.destroy()">
                         Destroy
-                    </button>
+                    </button>                    
 
                 </div>
             </div>
         </div>
+        
     </div>
+
+    <code><span id="whale-challenge-lan-domain"></span></code>&nbsp;
+
+    
 {% endblock %}
+

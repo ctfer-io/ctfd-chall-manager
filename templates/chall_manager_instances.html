@@ -42,15 +42,23 @@
                     </td>
                 
                     <td class="text-center">
-                        <a href="{{ url_for('admin.challenges_detail', challenge_id=instance.challengeId) }}">
-                            {{ instance.challengeId }}
-                        </a>
+                        <div class="form-check" id="challenge-id-div">
+                            <a href="{{ url_for('admin.challenges_detail', challenge_id=instance.challengeId) }}">
+                                {{ instance.challengeName }}
+                            </a>
+                        </div>
+                      
                     </td>
-
                     <td class="text-center">
-                        <a href="{{ url_for('admin.users_detail', user_id=instance.sourceId) }}">
-                            {{ instance.sourceId }}
+                        {% if user_mode == "teams" %}
+                        <a href="{{ url_for('admin.teams_detail', team_id=instance.sourceId) }}">
+                            {{ instance.sourceName }}
                         </a>
+                        {% else %}
+                        <a href="{{ url_for('admin.users_detail', user_id=instance.sourceId) }}">
+                            {{ instance.sourceName }}
+                        </a>
+                        {% endif %}
                     </td>
 
                     <td class="text-left">
@@ -69,7 +77,7 @@
                         {{ list1[1][0:8] }}
                     </td>
 
-                    <td class="text-left">
+                    <td class="text-center">
                         {% set list1 = instance.lastRenew.split('T') %}
                         {{ list1[0] }} &nbsp;
                         {{ list1[1][0:8] }}

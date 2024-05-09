@@ -13,9 +13,38 @@ CTFd._internal.challenge.postRender = function () {
 
 if (window.$ === undefined) window.$ = CTFd.lib.$;
 
+function formatCountDown(countdown) {
+
+    // Convert
+    var seconds = Math.floor((countdown / 1000) % 60);
+    var minutes = Math.floor((countdown / (1000 * 60)) % 60);
+    var hours = Math.floor((countdown / (1000 * 60 * 60)) % 24);    
+    var days = Math.floor((countdown / (1000 * 60 * 60 * 24 )) % 365);  
+
+    // Build str
+    var formattedCountdown = "" 
+    
+    if (days > 0) {
+      formattedCountdown = formattedCountdown + days.toString() + "d " 
+    }
+    if (hours > 0 ){
+      formattedCountdown = formattedCountdown + hours.toString().padStart(2, '0') + ":"
+    }
+    if (minutes > 0){
+      formattedCountdown = formattedCountdown + minutes.toString().padStart(2, '0') + ":"
+    }
+    
+    formattedCountdown = formattedCountdown + seconds.toString().padStart(2, '0');        
+
+    console.log(formattedCountdown)
+    return formattedCountdown;
+}
+
 function loadInfo() {
     var challenge_id = CTFd._internal.challenge.data.id;
-    var url = "/api/v1/plugins/ctfd-whale/container?challenge_id=" + challenge_id;
+    var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
+
+    //console.log(challenge_id)
 
     CTFd.fetch(url, {
         method: 'GET',
@@ -23,8 +52,9 @@ function loadInfo() {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-        }
+        },
     }).then(function (response) {
+        
         if (response.status === 429) {
             // User was ratelimited but process response
             return response.json();
@@ -35,6 +65,7 @@ function loadInfo() {
         }
         return response.json();
     }).then(function (response) {
+        console.log(response)
         if (window.t !== undefined) {
             clearInterval(window.t);
             window.t = undefined;
@@ -45,21 +76,24 @@ function loadInfo() {
             html: response.message,
             button: "OK"
         });
-        if (response.remaining_time != undefined) {
-            $('#whale-challenge-user-access').html(response.user_access);
-            $('#whale-challenge-lan-domain').html(response.lan_domain);
-            $('#whale-challenge-count-down').text(response.remaining_time);
+        var now = new Date();
+        var until = new Date(response.message.until)
+        var count_down = until - now
+        console.log(count_down)
+        if (count_down > 0) {            
+             
+            // $('#whale-challenge-user-access').html(response.connectionInfo);
+            $('#whale-challenge-lan-domain').html(response.message.connectionInfo);
+            $('#whale-challenge-count-down').text(formatCountDown(count_down)); // TODO
             $('#whale-panel-stopped').hide();
             $('#whale-panel-started').show();
 
             window.t = setInterval(() => {
-                const c = $('#whale-challenge-count-down').text();
-                if (!c) return;
-                let second = parseInt(c) - 1;
-                if (second <= 0) {
+                count_down = until - new Date();
+                if (count_down <= 0) {
                     loadInfo();
                 }
-                $('#whale-challenge-count-down').text(second);
+                $('#whale-challenge-count-down').text(formatCountDown(count_down));
             }, 1000);
         } else {
             $('#whale-panel-started').hide();
@@ -70,7 +104,7 @@ function loadInfo() {
 
 CTFd._internal.challenge.destroy = function () {
     var challenge_id = CTFd._internal.challenge.data.id;
-    var url = "/api/v1/plugins/ctfd-whale/container?challenge_id=" + challenge_id;
+    var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
 
     $('#whale-button-destroy').text("Waiting...");
     $('#whale-button-destroy').prop('disabled', true);
@@ -111,14 +145,14 @@ CTFd._internal.challenge.destroy = function () {
             });
         }
     }).finally(() => {
-        $('#whale-button-destroy').text("Destroy this instance");
+        $('#whale-button-destroy').text("Destroy");
         $('#whale-button-destroy').prop('disabled', false);
     });
 };
 
 CTFd._internal.challenge.renew = function () {
     var challenge_id = CTFd._internal.challenge.data.id;
-    var url = "/api/v1/plugins/ctfd-whale/container?challenge_id=" + challenge_id;
+    var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
 
     $('#whale-button-renew').text("Waiting...");
     $('#whale-button-renew').prop('disabled', true);
@@ -159,19 +193,21 @@ CTFd._internal.challenge.renew = function () {
             });
         }
     }).finally(() => {
-        $('#whale-button-renew').text("Renew this instance");
+        $('#whale-button-renew').text("Renew");
         $('#whale-button-renew').prop('disabled', false);
     });
 };
 
 CTFd._internal.challenge.boot = function () {
     var challenge_id = CTFd._internal.challenge.data.id;
-    var url = "/api/v1/plugins/ctfd-chall-manager/container?challenge_id=" + challenge_id;
+    var url = "/api/v1/plugins/ctfd-chall-manager/instance";
 
     $('#whale-button-boot').text("Waiting...");
     $('#whale-button-boot').prop('disabled', true);
 
-    var params = {};
+    var params = {
+        "challengeId": challenge_id.toString()
+    };
 
     CTFd.fetch(url, {
         method: 'POST',
