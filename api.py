@@ -382,10 +382,16 @@ class AdminScenario(Resource):
         # get base64 file located at full_scenario_location
         # ex: b07afae94edec5d8a74c8d7b590feb63/deploy.zip
         full_scenario_location = os.path.join(os.getcwd(), "CTFd", "uploads", scenario_location)
-        with open(full_scenario_location, "rb") as f:  
-            # TODO add hash checksum          
-            encoded_string = base64.b64encode(f.read())
-            payload["scenario"] = encoded_string.decode("utf-8")
+        try: 
+            with open(full_scenario_location, "rb") as f:  
+                # TODO add hash checksum          
+                encoded_string = base64.b64encode(f.read())
+                payload["scenario"] = encoded_string.decode("utf-8")
+        except:
+            return {'success': False, 'data':{
+                    'message': f"Error : file {full_scenario_location} cannot be founded on the server",
+            }} 
+
 
 
         ## optionnal
