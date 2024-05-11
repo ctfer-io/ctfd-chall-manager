@@ -20,8 +20,12 @@ class DynamicIaCChallenge(DynamicChallenge):
 
     # FIXME wrong type 
     until = db.Column(db.Text, default=0) # date
-    timeout = db.Column(db.Text, default=0) # duration
-    scenario = db.Column(db.Text, default=0) # file / base64 / blob ?
+    timeout = db.Column(db.Integer, default=0) # duration
+    mode = db.Column(db.Text, default=0) # duration.can be "until" or "timeout"
+
+    scenario_id = db.Column(
+        db.Integer, db.ForeignKey("files.id")
+    )
 
     def __init__(self, *args, **kwargs):
         super(DynamicIaCChallenge, self).__init__(**kwargs)
