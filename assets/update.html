@@ -1,12 +1,79 @@
 {% extends "admin/challenges/update.html" %}
 
+<style>
+	#cm-mode-until {
+	  display: none;
+	}
+</style>
+
 {% block value %}
-<!-- Chall-manager specifics -->
-<!-- TODO -->
-<!-- Chall-manager specifics -->
+
+<!-- CM Plugins -->
+<div class="form-group">
+	<label for="value">Mana Cost<br>
+		<small class="form-text text-muted">
+			This is how many points the challenge will cost to User to start it.
+		</small>
+	</label>
+	<input type="number" class="form-control" name="mana_cost" value="{{ challenge.mana_cost }}">
+</div>
+
+<div id="cm-mode-selector" class="form-group">
+	<label for="select-option">Select mode </label>
+	<select id="select-option" name="mode">
+		<option value="until">Until</option>
+		<option value="timeout" selected>Timeout</option>
+	</select>
+</div>
+
+<div id="cm-mode-until" style="display: none;" class="form-group">
+	<label for="value">Until<br>
+		<small class="form-text text-muted">
+			This is when the Scenario has to end. 
+		</small>
+	</label>
+	<input type="datetime-local" id="until-input" class="form-control" name="until" value="{{ challenge.until }}">
+</div>
+
+<div id="cm-mode-timeout" class="form-group">
+	<label for="value">Timeout<br>
+		<small class="form-text text-muted">
+			This is default timeout (int) <b>in seconds</b> for the Scenario to shutdown itself.
+		</small>
+	</label>
+	<input type="number" id="timeout-input" class="form-control" name="timeout" value="{{ challenge.timeout }}">
+</div>
+
+<div id="current-scenario-id" style="display: none;">{{ challenge.scenario_id }}</div>
+
+<div id="scenario_file">
+	<!-- <tr>
+		<td class="text-center">
+			<a href="{{ url_for('views.files', path=challenge.scenario_id) }}">
+				{{ challenge.scenario_id }}
+			</a>
+		</td>
+		<td class="text-center">
+			<i role="button" class="btn-fa fas fa-times delete-file"></i>
+		</td>
+	</tr> -->
+
+</div>
 
 <div class="form-group">
-	<label for="value">Current Value<br>
+	<label for="value">Scenario archive<br>
+		<small class="form-text text-muted">
+			This is the IaC Archives
+		</small>
+	</label>
+	<input type="file" class="form-control" id="scenario" name="scenario" accept=".zip">
+</div>
+
+
+<!-- CM Plugins -->
+
+<div class="form-group">
+	<label for="value">Current Value<br> 
 		<small class="form-text text-muted">
 			This is how many points the challenge is worth right now.
 		</small>
