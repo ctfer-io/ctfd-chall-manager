@@ -1,3 +1,5 @@
+
+import json
 from flask import Blueprint, render_template
 
 from CTFd.api import CTFd_API_v1
@@ -12,12 +14,12 @@ from CTFd.utils.challenges import get_all_challenges
 from CTFd.plugins.migrations import upgrade
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 
+import requests
 from .api import user_namespace, admin_namespace
 from .utils.setup import setup_default_configs
 from .models import DynamicIaCChallenge, DynamicIaCValueChallenge
 
-import requests
-import json
+
 
 def load(app):
 
@@ -35,8 +37,9 @@ def load(app):
     )
 
     upgrade(plugin_name="ctfd-chall-manager") # don't knonw what does this
-    CHALLENGE_CLASSES["dynamic_iac"] = DynamicIaCValueChallenge # register our challenge type in http://localhost:4000/admin/challenges/new
 
+    # register our challenge type in http://localhost:4000/admin/challenges/new
+    CHALLENGE_CLASSES["dynamic_iac"] = DynamicIaCValueChallenge 
 
     page_blueprint = Blueprint(
         "ctfd-chall-manager",
@@ -87,6 +90,8 @@ def load(app):
            
             i["challengeName"] = get_all_challenges(id=i["challengeId"])[0].name
         
-        return render_template("chall_manager_instances.html", instances=instances, user_mode=user_mode)
+        return render_template("chall_manager_instances.html", 
+                                instances=instances, 
+                                user_mode=user_mode)
 
     app.register_blueprint(page_blueprint)
