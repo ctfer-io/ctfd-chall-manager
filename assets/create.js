@@ -1,23 +1,22 @@
-// selector : hide div
+// selector
 document.getElementById('select-option').addEventListener('change', function() {
   var selectedOption = this.value;
   if (selectedOption === 'until') {
     document.getElementById('cm-mode-until').style.display = 'block';
     document.getElementById('cm-mode-timeout').style.display = 'none';
     document.getElementById('timeout-input').disabled = true;
-    document.getElementById('until-input').disabled = false;
-    document.getElementById('until-input').required = true;
+    document.getElementById('until-input-local').disabled = false;
+    document.getElementById('until-input-local').required = true;
     document.getElementById('timeout-input').value = ''; // Reset timeout input
   } else if (selectedOption === 'timeout') {
     document.getElementById('cm-mode-until').style.display = 'none';
     document.getElementById('cm-mode-timeout').style.display = 'block';
-    document.getElementById('until-input').disabled = true;
+    document.getElementById('until-input-local').disabled = true;
     document.getElementById('timeout-input').disabled = false;
     document.getElementById('timeout-input').required = true;
-    document.getElementById('until-input').value = ''; // Reset until input
+    document.getElementById('until-input-local').value = ''; // Reset until input
   }
 });
-
 // upload scenario as file type=standard
 function sendFile(file){
   return new Promise(function(resolve, reject) {

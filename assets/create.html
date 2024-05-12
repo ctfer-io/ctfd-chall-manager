@@ -33,13 +33,14 @@
 	</select>
 </div>
 
-<div id="cm-mode-until" class="form-group">
+<div id="cm-mode-until" style="display: none;" class="form-group">
 	<label for="value">Until<br>
 		<small class="form-text text-muted">
 			This is when the Scenario has to end. 
 		</small>
 	</label>
-	<input type="datetime-local" id="until-input" class="form-control" name="until" placeholder="Enter value" >
+	<input type="datetime-local" id="until-input-local" class="form-control">
+	<input type="hidden" id="until-input-utc" class="form-control" name="until">
 </div>
 
 <div id="cm-mode-timeout" class="form-group">
@@ -48,7 +49,7 @@
 			This is default timeout (int) <b>in seconds</b> for the Scenario to shutdown itself.
 		</small>
 	</label>
-	<input type="number" id="timeout-input" class="form-control" name="timeout" placeholder="Enter value" >
+	<input type="number" id="timeout-input" class="form-control" name="timeout">
 </div>
 
 <div class="form-group">
