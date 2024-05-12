@@ -63,3 +63,57 @@ $(".renew-instance").click(function (e) {
         }
     });
 });
+
+
+$('#instances-delete-button').click(function (e) {
+    let sourceId = $("input[data-source-id]:checked").map(function () {
+        return $(this).data("source-id");
+    });
+
+    let challengeId = $("input[data-challenge-id]:checked").map(function () {
+        return $(this).data("challenge-id");
+    });
+
+    let challengeIds = challengeId.toArray()
+    let sourceIds = sourceId.toArray()
+
+    CTFd.ui.ezq.ezQuery({
+        title: "Delete Containers",
+        body: `Are you sure you want to delete the selected ${sourceId.length} instance(s)?`,
+        success: async function () {
+            for (let i=0; i< sourceId.length; i++){
+                console.log(challengeIds[i], sourceIds[i])
+                await delete_instance(challengeIds[i], sourceIds[i])
+            }
+            //await Promise.all(users.toArray().map((user) => delete_container(user)));
+            location.reload();
+        }
+    });
+});
+
+$('#instances-renew-button').click(function (e) {
+    let sourceId = $("input[data-source-id]:checked").map(function () {
+        return $(this).data("source-id");
+    });
+
+    let challengeId = $("input[data-challenge-id]:checked").map(function () {
+        return $(this).data("challenge-id");
+    });
+
+    let challengeIds = challengeId.toArray()
+    let sourceIds = sourceId.toArray()
+
+    CTFd.ui.ezq.ezQuery({
+        title: "Delete Containers",
+        body: `Are you sure you want to delete the selected ${sourceId.length} instance(s)?`,
+        success: async function () {
+            for (let i=0; i< sourceId.length; i++){
+                console.log(challengeIds[i], sourceIds[i])
+                await renew_instance(challengeIds[i], sourceIds[i])
+            }
+            //await Promise.all(users.toArray().map((user) => delete_container(user)));
+            location.reload();
+        }
+    });
+});
+

@@ -10,8 +10,17 @@
 {% endblock %}
 
 {% block panel %}
-<a class="row">
+<a class="row">    
     <div class="col-md-12">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary" data-toggle="tooltip" title="" id="instances-renew-button" data-original-title="Renew Instances">
+                    <i class="btn-fa fas fa-sync"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="" id="instances-delete-button" data-original-title="Delete Instances">
+                    <i class="btn-fa fas fa-trash-alt"></i>
+                </button>
+            </div>
         <table class="table table-striped border">
             <thead>
             <tr>
@@ -37,7 +46,9 @@
                 <tr>
                     <td class="border-right" data-checkbox>
                         <div class="form-check text-center">&nbsp;
-                            <input type="checkbox" class="form-check-input" data-user-id="{{ instance.sourceId }}">
+                            <input type="checkbox" class="form-check-input" 
+                            data-challenge-id="{{ instance.challengeId }}"
+                            data-source-id="{{ instance.sourceId }}">
                         </div>
                     </td>
                 
@@ -84,18 +95,21 @@
                     </td>
 
                     <td class="text-center">                        
-                        <button class="btn btn-link p-0 renew-instance"
-                           challenge-id="{{ instance.challengeId }}" data-toggle="tooltip"
+                        <button class="btn btn-link p-0 renew-instance"                            
+                           challenge-id="{{ instance.challengeId }}" 
                            source-id="{{ instance.sourceId }}"
                            data-placement="top"
+                           data-toggle="tooltip"
                            title="Renew">
                             <i class="fas fa-sync"></i>
                         </button>
                     </td>
                     <td class="text-center">
                         <button class="btn btn-link p-0 delete-instance"
-                           challenge-id="{{ instance.challengeId }}" data-toggle="tooltip"
-                           source-id="{{ instance.sourceId }}" data-placement="top"
+                           challenge-id="{{ instance.challengeId }}" 
+                           source-id="{{ instance.sourceId }}" 
+                           data-placement="top"
+                           data-toggle="tooltip"
                            title="Destroy">
                             <i class="fas fa-times"></i>
                     </button>
