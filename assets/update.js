@@ -1,3 +1,4 @@
+// selector
 document.getElementById('select-option').addEventListener('change', function() {
   var selectedOption = this.value;
   if (selectedOption === 'until') {

@@ -1,24 +1,30 @@
-
-CTFd.plugin.run((_CTFd) => {
-    const $ = _CTFd.lib.$
-    const md = _CTFd.lib.markdown()
+// selector : hide div
+document.getElementById('select-option').addEventListener('change', function() {
+  var selectedOption = this.value;
+  if (selectedOption === 'until') {
+    document.getElementById('cm-mode-until').style.display = 'block';
+    document.getElementById('cm-mode-timeout').style.display = 'none';
+    document.getElementById('timeout-input').disabled = true;
+    document.getElementById('until-input').disabled = false;
+    document.getElementById('until-input').required = true;
+    document.getElementById('timeout-input').value = ''; // Reset timeout input
+  } else if (selectedOption === 'timeout') {
+    document.getElementById('cm-mode-until').style.display = 'none';
+    document.getElementById('cm-mode-timeout').style.display = 'block';
+    document.getElementById('until-input').disabled = true;
+    document.getElementById('timeout-input').disabled = false;
+    document.getElementById('timeout-input').required = true;
+    document.getElementById('until-input').value = ''; // Reset until input
+  }
 });
 
-// This will be triggered after challenge creation
-$('#challenge-create-options #challenge_id').on('DOMSubtreeModified', function(){
-  // Step 0: retrieve challengeId provided by CTFd
-  var challengeId = $(this).val();
-
-  const CTFd = window.CTFd;
-
-  // Step 1: Send the scenario file to CTFd
-  const input = document.getElementById('scenario');
-  const file = input.files[0]; // Get the first file selected
-
-  if (file){
+// upload scenario as file type=standard
+function sendFile(file){
+  return new Promise(function(resolve, reject) {
     var formData = new FormData();
     formData.append('file', file);
-    formData.append("nonce", CTFd.config.csrfNonce);
+    formData.append('nonce', CTFd.config.csrfNonce);
+    formData.append('type', 'standard') // explicit configuration
 
     $.ajax({
       url: '/api/v1/files',
@@ -28,30 +34,60 @@ $('#challenge-create-options #challenge_id').on('DOMSubtreeModified', function()
       contentType: false,
       credentials: 'same-origin', // Include credentials
       success: function(response){
-
-        // Step 2: Send the scenario file location to plugin that will create it on Chall-manager API
-          var scenario_location = response.data[0].location          
-          var params = {
-            "challengeId": challengeId,
-            "scenario_location": scenario_location
-          };
-
-          return CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/scenario", {
-            method: 'POST',
-            credentials: "same-origin",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(params)
-          });
+        resolve(response); // Résoudre la promesse avec la réponse de la requête AJAX
       },
       error: function(xhr, status, error){
-          console.error('Error occurred while uploading file:', error);
+        reject(error); // Rejeter la promesse avec l'erreur de la requête AJAX
       }
+    });
   });
+}
 
-  } 
+CTFd.plugin.run((_CTFd) => {
+    const $ = _CTFd.lib.$
+    const md = _CTFd.lib.markdown()
+});
+
+// This will be triggered after challenge creation
+$('#challenge-create-options #challenge_id').on('DOMSubtreeModified', function(){
+  var params = {}
+  // Step 0: retrieve challengeId provided by CTFd
+  params['challengeId'] = $(this).val();
+
+  // Step 1: Send the scenario file to CTFd
+  const input = document.getElementById('scenario');
+  const file = input.files[0]; // Get the first file selected 
+
+  if (file) {
+    sendFile(file).then(function(response) {
+    console.log(response)
+    params['scenarioId'] = response.data[0].id 
+    
+    // Step 2: Send the scenario file location to plugin that will create it on Chall-manager API
+    console.log(params)
+
+    CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/scenario", {
+      method: 'POST',
+      credentials: "same-origin",
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(params)
+    }).then(function (a) {      
+        return a.json();   
+    }).then(function (json) {
+      console.log(json)
+      if (json.success){
+        console.log(json.success)
+        console.log(json.data.message.toString())
+        CTFd.ui.ezq.ezToast({
+          title: "Success",
+          body: "Scenario is upload on Chall-manager, hash : " + json.data.message.hash
+      });
+      }
+    })});
+  }
 
   
 });
