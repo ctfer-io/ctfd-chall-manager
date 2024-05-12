@@ -403,35 +403,41 @@ class AdminScenario(Resource):
             }} 
 
 
-        # get until or timeout of challengeId 
-        until = challenge.until
-        timeout = challenge.timeout
+        # get current mode
+        mode = challenge.mode
 
-        # raise an error, or take until > timeout ?
-        if until and timeout:
-            return {'success': False, 'data':{
-                    'message': "only one parameter must be provided: until or timeout",
-            }} 
+        if mode == "until":
+            # reset other mode
+            challenge.timeout = None
+            db.session.commit()
 
-        # if until is not a date
-        if until:
+            # check input and crarf payload
             try:
-                datetime.fromisoformat(until)
-                payload["until"] = f"{until}"
+                datetime.fromisoformat(challenge.until)
+                payload["until"] = f"{challenge.until}"
             except Exception as e:
                 return {'success': False, 'data':{
-                        'message': f"until invalid format with {until}: {e}",
+                        'message': f"until invalid format with {challenge.until}: {e}",
                 }} 
 
-        if timeout:            
+        elif mode == "timeout":
+            # reset other mode
+            challenge.until = None
+            db.session.commit()      
+
+             # check input and crarf payload      
             try: 
-                int(timeout)
+                int(challenge.timeout)
             except Exception as e:
                 return {'success': False, 'data':{
-                        'message': f"timeout invalid format, must be XXXs, where XXX is digits, got {timeout}: {e}",
+                        'message': f"timeout invalid format, must be XXXs, where XXX is digits, got {challenge.timeout}: {e}",
                 }} 
         
-            payload["timeout"] = f"{timeout}s" 
+            payload["timeout"] = f"{challenge.timeout}s" 
+        else:
+            return {'success': False, 'data':{
+                    'message': f"Unsupported mode, got : {challenge.mode}",
+            }} 
     
         # craft request
         headers = {
@@ -521,6 +527,8 @@ class AdminScenario(Resource):
 
         # TODO check 
         if mode == "until":
+            challenge.timeout = None
+            db.session.commit()
             try:
                 datetime.fromisoformat(challenge.until)
                 payload["until"] = f"{challenge.until}"
@@ -529,7 +537,9 @@ class AdminScenario(Resource):
                         'message': f"until invalid format, got {challenge.until}: {e}",
                 }} 
 
-        elif mode == "timeout":            
+        elif mode == "timeout": 
+            challenge.until = None
+            db.session.commit()         
             try: 
                 int(challenge.timeout)
                 payload["timeout"] = f"{challenge.timeout}s" 
@@ -539,9 +549,9 @@ class AdminScenario(Resource):
                 }} 
         else:
             return {'success': False, 'data':{
-                        'message': f"Unsupported mode , got {mode}",
-                }} 
-   
+                    'message': f"Unsupported mode , got {mode}",
+            }} 
+
  
         # craft request
         headers = {
