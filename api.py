@@ -4,7 +4,6 @@ import requests
 import json
 import os
 import base64
-import datetime
 
 from flask import request
 from flask_restx import Namespace, Resource, abort
@@ -417,11 +416,11 @@ class AdminScenario(Resource):
         # if until is not a date
         if until:
             try:
-                datetime.datetime.strptime(until, '%Y-%m-%dT%H:%M')
-                payload["until"] = f"{until}:00.000Z"
+                datetime.fromisoformat(until)
+                payload["until"] = f"{until}"
             except Exception as e:
                 return {'success': False, 'data':{
-                        'message': f"until invalid format, must be YYYY-MM-DDTHH:MM, got {until}: {e}",
+                        'message': f"until invalid format with {until}: {e}",
                 }} 
 
         if timeout:            
@@ -523,11 +522,11 @@ class AdminScenario(Resource):
         # TODO check 
         if mode == "until":
             try:
-                datetime.datetime.strptime(challenge.until, '%Y-%m-%dT%H:%M')
-                payload["until"] = f"{challenge.until}:00.000Z"
+                datetime.fromisoformat(challenge.until)
+                payload["until"] = f"{challenge.until}"
             except Exception as e:
                 return {'success': False, 'data':{
-                        'message': f"until invalid format, must be YYYY-MM-DDTHH:MM, got {challenge.until}: {e}",
+                        'message': f"until invalid format, got {challenge.until}: {e}",
                 }} 
 
         elif mode == "timeout":            

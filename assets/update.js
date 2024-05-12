@@ -5,18 +5,26 @@ document.getElementById('select-option').addEventListener('change', function() {
     document.getElementById('cm-mode-until').style.display = 'block';
     document.getElementById('cm-mode-timeout').style.display = 'none';
     document.getElementById('timeout-input').disabled = true;
-    document.getElementById('until-input').disabled = false;
-    document.getElementById('until-input').required = true;
+    document.getElementById('until-input-local').disabled = false;
+    document.getElementById('until-input-local').required = true;
     document.getElementById('timeout-input').value = ''; // Reset timeout input
   } else if (selectedOption === 'timeout') {
     document.getElementById('cm-mode-until').style.display = 'none';
     document.getElementById('cm-mode-timeout').style.display = 'block';
-    document.getElementById('until-input').disabled = true;
+    document.getElementById('until-input-local').disabled = true;
     document.getElementById('timeout-input').disabled = false;
     document.getElementById('timeout-input').required = true;
-    document.getElementById('until-input').value = ''; // Reset until input
+    document.getElementById('until-input-local').value = ''; // Reset until input
   }
 });
+
+// convert Local into UTC
+document.getElementById('until-input-local').addEventListener('change', function() {
+  var datetimeLocal = document.getElementById("until-input-local").value;  
+  var datetimeUTC =(new Date(datetimeLocal)).toISOString();
+  document.getElementById("until-input-utc").value = datetimeUTC;
+});
+
 // display current scenario file
 function displayScenario() {
     scenario_id_div = document.getElementById('current-scenario-id')

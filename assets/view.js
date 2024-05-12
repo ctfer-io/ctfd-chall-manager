@@ -95,9 +95,10 @@ function loadInfo() {
                 }
                 $('#whale-challenge-count-down').text(formatCountDown(count_down));
             }, 1000);
-        } else {
-            $('#whale-panel-started').hide();
-            $('#whale-panel-stopped').show();
+        } else {            
+            $('#whale-panel-started').hide(); // hide the panel instance is up       
+            $('#whale-panel-stopped').show(); // show the panel instance is down     
+            $('#whale-challenge-lan-domain').html('');  
         }
     });
 };
@@ -105,7 +106,7 @@ function loadInfo() {
 CTFd._internal.challenge.destroy = function () {
     var challenge_id = CTFd._internal.challenge.data.id;
     var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
-
+    
     $('#whale-button-destroy').text("Waiting...");
     $('#whale-button-destroy').prop('disabled', true);
 

@@ -32,7 +32,8 @@
 			This is when the Scenario has to end. 
 		</small>
 	</label>
-	<input type="datetime-local" id="until-input" class="form-control" name="until" value="{{ challenge.until }}">
+	<input type="datetime-local" id="until-input-local" class="form-control" value="{{ challenge.until }}">
+	<input type="hidden" id="until-input-utc" class="form-control" name="until">
 </div>
 
 <div id="cm-mode-timeout" class="form-group">
