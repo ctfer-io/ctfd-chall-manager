@@ -6,6 +6,10 @@
 	}
 </style>
 
+<!-- Disable CTFd connection_info -->
+{# block connection_info #}
+{# endblock #}
+
 {% block value %}
 
 <!-- CM Plugins -->
@@ -47,18 +51,19 @@
 
 <div id="current-scenario-id" style="display: none;">{{ challenge.scenario_id }}</div>
 
-<div id="scenario_file">
-	<!-- <tr>
-		<td class="text-center">
-			<a href="{{ url_for('views.files', path=challenge.scenario_id) }}">
-				{{ challenge.scenario_id }}
-			</a>
-		</td>
-		<td class="text-center">
-			<i role="button" class="btn-fa fas fa-times delete-file"></i>
-		</td>
-	</tr> -->
-
+<div class="form-text">
+	<table class="tg">
+		<thead>
+		  <tr>
+			<td class="tg-0lax">
+				<div><b>Current Scenario : </b></div>
+			</td>
+			<td class="tg-0pky">
+				<div id="scenario_file"></div>
+			</td>			
+		  </tr>
+		</thead>
+		</table>	
 </div>
 
 <div class="form-group">
