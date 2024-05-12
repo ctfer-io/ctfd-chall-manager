@@ -17,6 +17,14 @@ document.getElementById('select-option').addEventListener('change', function() {
     document.getElementById('until-input-local').value = ''; // Reset until input
   }
 });
+
+// convert Local into UTC
+document.getElementById('until-input-local').addEventListener('change', function() {
+  var datetimeLocal = document.getElementById("until-input-local").value;  
+  var datetimeUTC =(new Date(datetimeLocal)).toISOString();
+  document.getElementById("until-input-utc").value = datetimeUTC;
+});
+
 // upload scenario as file type=standard
 function sendFile(file){
   return new Promise(function(resolve, reject) {
