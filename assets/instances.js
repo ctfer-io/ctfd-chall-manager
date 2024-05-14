@@ -104,8 +104,8 @@ $('#instances-renew-button').click(function (e) {
     let sourceIds = sourceId.toArray()
 
     CTFd.ui.ezq.ezQuery({
-        title: "Delete Containers",
-        body: `Are you sure you want to delete the selected ${sourceId.length} instance(s)?`,
+        title: "Renew Containers",
+        body: `Are you sure you want to renew the selected ${sourceId.length} instance(s)?`,
         success: async function () {
             for (let i=0; i< sourceId.length; i++){
                 console.log(challengeIds[i], sourceIds[i])
