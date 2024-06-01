@@ -18,6 +18,7 @@ document.getElementById('select-option').addEventListener('change', function() {
   }
 });
 
+
 // convert Local into UTC
 document.getElementById('until-input-local').addEventListener('change', function() {
   var datetimeLocal = document.getElementById("until-input-local").value;  

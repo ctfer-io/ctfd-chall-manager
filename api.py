@@ -439,10 +439,13 @@ class AdminScenario(Resource):
                     'message': f"Unsupported mode, got : {challenge.mode}",
             }} 
     
+        # hanlde updateStrategy
+        payload["updateStrategy"] = challenge.updateStrategy
+
         # craft request
         headers = {
             "Content-Type": "application/json"
-        }        
+        }
 
         # do request
         try:        
@@ -552,11 +555,13 @@ class AdminScenario(Resource):
                     'message': f"Unsupported mode , got {mode}",
             }} 
 
- 
+        # modify updateStrategy
+        payload["updateStrategy"] = challenge.updateStrategy
+
         # craft request
         headers = {
             "Content-Type": "application/json"
-        }  
+        } 
 
         url = f"{cm_api_url}/challenge/{challengeId}"  
 

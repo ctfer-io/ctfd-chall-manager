@@ -22,6 +22,26 @@
 	<input type="number" class="form-control" name="mana_cost" value="{{ challenge.mana_cost }}">
 </div>
 
+<div class="form-group">
+	<label for="value">Update Strategy<br>
+		<small class="form-text text-muted">
+			<span>The UpdateStrategy to use in case of a Challenge scenario update with running instances.
+				Default strategy is the update-in-place.</span>
+			<ul>
+				<li>Update in place: This updates the existing state based on the new stack in the scenario. This update strategy provide high availability with low update costs.</li>
+				<li>Blue Green: spins up a second instance of the scenario in parallel and once up, delete the previous one for players to shift. This update strategy provide high availability with high update costs due to infra deduplication.</li>
+				<li>Recreate: recreate delete the previous instance then spins up a fresh instance of the scenario. This update strategy provide no availability guarantee with medium update costs due to intensive create/delete operations. It should be used at a last relief, for instance if the update is inconsistent and the outcomes are not predictable.</li>
+			</ul>
+		</small>
+	</label>
+	<select name="updateStrategy" class="custom-select">
+		<option value="update_in_place">Update in place</option>
+		<option value="blue_green">Blue Green</option>
+		<option value="recreate">Recreate</option>
+	</select>
+</div>
+
+
 <div id="cm-mode-selector" class="form-group">
 	<label for="select-option">Select mode </label>
 	<select id="select-option" name="mode">
