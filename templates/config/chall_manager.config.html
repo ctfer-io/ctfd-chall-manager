@@ -7,6 +7,7 @@
     </small><br>
     {% for config, val in {
         "API URL": ("chall-manager_api_url", "Challmanager API to connect to"),
+        "Mana total": ("chall-manager_mana_total", "Maximum mana that teams/users are allowed to use (0 = unlimited)"),
     }.items() %}
         {% set value = get_config('chall-manager:' + val[0]) %}
         <div class="form-group">

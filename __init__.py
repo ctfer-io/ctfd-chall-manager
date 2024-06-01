@@ -13,7 +13,9 @@ from CTFd.utils.user import get_user_attrs, get_team_attrs
 from CTFd.utils.challenges import get_all_challenges
 from CTFd.plugins.migrations import upgrade
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
+from CTFd.models import Users, db
 
+from sqlalchemy import text
 import requests
 from .api import user_namespace, admin_namespace
 from .utils.setup import setup_default_configs
@@ -36,7 +38,8 @@ def load(app):
         endpoint='plugins.ctfd-chall-manager.assets'
     )
 
-    upgrade(plugin_name="ctfd-chall-manager") # don't knonw what does this
+    # apply migration scripts
+    upgrade()
 
     # register our challenge type in http://localhost:4000/admin/challenges/new
     CHALLENGE_CLASSES["dynamic_iac"] = DynamicIaCValueChallenge 
@@ -84,7 +87,8 @@ def load(app):
 
         user_mode = get_config("user_mode")
         for i in instances:
-            i["sourceName"] = get_user_attrs(i["sourceId"]).name
+            if user_mode == "users":
+                i["sourceName"] = get_user_attrs(i["sourceId"]).name   
             if user_mode == "teams":
                 i["sourceName"] = get_team_attrs(i["sourceId"]).name
            
@@ -94,4 +98,36 @@ def load(app):
                                 instances=instances, 
                                 user_mode=user_mode)
 
+    # Route to monitor & manage running instances
+    @page_blueprint.route('/admin/mana')
+    @admins_only
+    def admin_list_mana():
+        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
+        user_mode = get_config("user_mode")
+
+        if user_mode == "users":
+            query_sql = """select id,name,mana from users;"""
+        
+        elif user_mode == "teams":
+            query_sql = """select id,name,mana from teams;"""
+
+        data = db.session.execute(text(query_sql)).fetchall()
+
+        # Convert to the desired dictionary format
+        sources = {
+            "data": [
+                {
+                    "id": item[0],
+                    "name": item[1],
+                    "mana": str(item[2])  # Convert the mana value to string
+                }
+                for item in data
+            ]
+        } 
+
+        return render_template("chall_manager_mana.html",
+                                user_mode=user_mode,
+                                sources=sources["data"])
+
+    
     app.register_blueprint(page_blueprint)

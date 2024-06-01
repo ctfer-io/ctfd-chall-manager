@@ -238,7 +238,7 @@ CTFd._internal.challenge.boot = function() {
             } else {
                 CTFd.ui.ezq.ezAlert({ 
                     title: "Fail",
-                    body: response.message,
+                    body: response.data.message,
                     button: "OK"
                 });
                 reject(response.message);

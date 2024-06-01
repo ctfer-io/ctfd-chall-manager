@@ -7,11 +7,14 @@ import base64
 
 from flask import request
 from flask_restx import Namespace, Resource, abort
+from sqlalchemy import text
 
 from CTFd.utils import get_config
 from CTFd.utils import user as current_user
 from CTFd.utils.decorators import admins_only, authed_only
-from CTFd.models import Files, db, Challenges
+from CTFd.models import Files, db, Challenges, Users, Teams
+
+from .models import DynamicIaCChallenge
 
 # from .decorators import challenge_visible, frequency_limited
 # from .utils.control import ControlUtil
@@ -175,16 +178,50 @@ class UserInstance(Resource):
     def post():
         # retrieve all instance deployed by chall-manager
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
+        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
+        
+        data = request.get_json()    
+        payload = {}
+
+        # check if sourceId can launch the instance 
+        if cm_mana_total > 0:
+            challenge = DynamicIaCChallenge.query.filter_by(id=data.get("challengeId")).first()            
+            if get_config("user_mode") == "users": 
+                get_mana_source = f"SELECT mana FROM users WHERE id={current_user.get_current_user().id};"
+                mana_source = db.session.execute(text(get_mana_source)).fetchall()[0][0]
+
+                if mana_source + challenge.mana_cost > cm_mana_total:
+                    print("sourceId does not have the necessary mana")
+                    return {'success': False, 'data':{
+                            'message': "You’ve used up all your mana. You must recover mana by destroying instances of other challenges to continue.",
+                    }}
+                # FIXME create lock and update mana used after CM creation
+                update_mana_source = f"UPDATE users SET mana={mana_source+challenge.mana_cost} WHERE id={current_user.get_current_user().id};"
+                db.session.execute(text(update_mana_source))
+                db.session.commit()
+
+            if get_config("user_mode") == "teams":    
+                
+                get_mana_source = f"SELECT mana FROM teams WHERE id={current_user.get_current_user().team_id};"
+                mana_source = db.session.execute(text(get_mana_source)).fetchall()[0][0]
+
+                if mana_source + challenge.mana_cost > cm_mana_total:
+                    print("sourceId does not have the necessary mana")
+                    return {'success': False, 'data':{
+                            'message': "Your team have used up all your mana. You must recover mana by destroying instances of other challenges to continue.",
+                    }}
+
+                # FIXME create lock and update mana used after CM creation
+                update_mana_source = f"UPDATE teams SET mana={mana_source+challenge.mana_cost} WHERE id={current_user.get_current_user().team_id};"
+                db.session.execute(text(update_mana_source))
+                db.session.commit()
+            
 
         # check if Content-type is application/json
         if not request.is_json:
             return {'success': False, 'data':{
                     'message': "Content-type must be application/json",
             }}
-
-        # retrieve infos provided by js
-        data = request.get_json()
-        payload = {}
 
         ## mandatory
         challengeId = data.get("challengeId") 
@@ -273,6 +310,25 @@ class UserInstance(Resource):
     def delete():
         # retrieve all instance deployed by chall-manager
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
+        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")  
+        
+        # check if sourceId can launch the instance 
+        if cm_mana_total > 0:
+            challenge = DynamicIaCChallenge.query.filter_by(id=request.args.get("challengeId")).first()            
+            if get_config("user_mode") == "users": 
+                get_mana_source = f"SELECT mana FROM users WHERE id={current_user.get_current_user().id};"
+                mana_source = db.session.execute(text(get_mana_source)).fetchall()[0][0]
+                update_mana_source = f"UPDATE users SET mana={mana_source-challenge.mana_cost} WHERE id={current_user.get_current_user().id};"
+                db.session.execute(text(update_mana_source))
+                db.session.commit()
+
+            if get_config("user_mode") == "teams":                 
+                get_mana_source = f"SELECT mana FROM teams WHERE id={current_user.get_current_user().team_id};"
+                mana_source = db.session.execute(text(get_mana_source)).fetchall()[0][0]
+                update_mana_source = f"UPDATE teams SET mana={mana_source-challenge.mana_cost} WHERE id={current_user.get_current_user().team_id};"
+                db.session.execute(text(update_mana_source))
+                db.session.commit()
+            
        
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
@@ -498,10 +554,8 @@ class AdminScenario(Resource):
 
         # handle parameters provided
         if "scenarioId" in data.keys():
-            # TODO delete previous
+            # TODO delete previous ?
             prev_scenarioId = challenge.scenario_id
-            #current_scenario = Files.query.filter_by(id=int(current_scenarioId)).first()
-            print("previous = ", prev_scenarioId)
 
             # send new scenario to CM
             new_scenario = Files.query.filter_by(id=int(data["scenarioId"])).first()
