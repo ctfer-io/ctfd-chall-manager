@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       
       - name: Wait for CTFd server
         run: |
@@ -51,14 +51,14 @@ jobs:
         uses: ctfer-io/ctfd-setup@6184bab99f91c895dae9172ba30bce87ef10a120 # v1.1.9
         with:
           url: 'http://ctfd:8000'
-          appearance_name: Plugins-Challmanager-CTFd
-          appearance_description: Plugins Challmanager for CTFd.
+          appearance_name: CTFer.io
+          appearance_description: CTFer.io plugin tests
           mode: teams
           admin_name: ${{ env.NAME }}
           admin_email: ctfer-io@protonmail.com
           admin_password: ${{ env.PASSWORD }}
 
       - name: tests with cypress
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@f88a151c986cab2e339cdbede6a5c4468bb62c17 # v6.7.0
         with: 
           env: CTFD_NAME=${{ env.NAME }},CTFD_PASSWORD=${{ env.PASSWORD }},CTFD_URL="http://localhost:8000"
