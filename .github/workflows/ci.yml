@@ -1,0 +1,64 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      NAME: ctfer
+      PASSWORD: ctfer
+
+    services:
+      mariadb:
+        image: mariadb:10.7.8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ctfer
+
+      ctfd:
+        image: ctfd/ctfd:3.7.1@sha256:6ab10e197c954f6bff3dea03bf87b8b7c8ef1072bf434030d0e5f3c61ebbd7ef
+        ports:
+          - 8000:8000
+        options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+        env:
+          DATABASE_URL: mysql+pymysql://root:ctfer@mariadb/ctfd
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Wait for CTFd server
+        run: |
+          max_attempts=60
+          base_url="http://localhost:8000"
+          for ((i=0; i<$max_attempts; i++)); do
+            if curl --head --fail --silent --show-error "$base_url" >/dev/null; then
+              echo "Server is up and running!"
+              break
+            else
+              echo "Waiting for the server to respond... (attempt $((i+1)))"
+              sleep 5
+            fi
+          done
+          if [ $i -eq $max_attempts ]; then
+            echo "Server did not respond within the allotted time. Exiting..."
+            exit 1
+          fi
+
+      - name: Setup CTFd
+        uses: ctfer-io/ctfd-setup@6184bab99f91c895dae9172ba30bce87ef10a120 # v1.1.9
+        with:
+          url: 'http://ctfd:8000'
+          appearance_name: Plugins-Challmanager-CTFd
+          appearance_description: Plugins Challmanager for CTFd.
+          mode: teams
+          admin_name: ${{ env.NAME }}
+          admin_email: ctfer-io@protonmail.com
+          admin_password: ${{ env.PASSWORD }}
+
+      - name: tests with cypress
+        uses: cypress-io/github-action@v6
+        with: 
+          env: CTFD_NAME=${{ env.NAME }},CTFD_PASSWORD=${{ env.PASSWORD }},CTFD_URL="http://localhost:8000"
