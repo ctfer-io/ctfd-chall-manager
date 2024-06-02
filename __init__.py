@@ -15,6 +15,7 @@ from CTFd.plugins.migrations import upgrade
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 from CTFd.models import Users, db
 
+import time
 from sqlalchemy import text
 import requests
 from .api import user_namespace, admin_namespace
@@ -73,18 +74,22 @@ def load(app):
         s = requests.Session()
         instances = list()
 
-        with s.get(url, headers=None, stream=True) as resp:
-            for line in resp.iter_lines():
-                if line:
-                    print(line)
-                    res = line.decode("utf-8")
-                    res = json.loads(res)
+        retries = 0
+        try:
+            with s.get(url, headers=None, stream=True) as resp:
+                for line in resp.iter_lines():
+                    if line:
+                        res = line.decode("utf-8")
+                        res = json.loads(res)
 
-                    if res['result']['instances'] :
-                        instances_of_current_chall = res['result']['instances']
-                        for i in instances_of_current_chall:
-                            instances.append(i)
+                        if res['result']['instances'] :
+                            instances_of_current_chall = res['result']['instances']
+                            for i in instances_of_current_chall:
+                                instances.append(i)
+        except requests.ConnectionError as e:
+            print(f"ConnectionError: {e}")  # Debug print
 
+        
         user_mode = get_config("user_mode")
         for i in instances:
             if user_mode == "users":
