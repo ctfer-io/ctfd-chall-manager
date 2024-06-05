@@ -71,9 +71,9 @@ function loadInfo() {
             window.t = undefined;
         }
         if (response.success) response = response.data;
-        else CTFd._functions.events.eventAlert({
+        else CTFd.ui.ezq.ezAlert({ 
             title: "Fail",
-            html: response.message,
+            body: response.data.message,
             button: "OK"
         });
         var now = new Date();
@@ -138,7 +138,7 @@ CTFd._internal.challenge.destroy = function() {
             } else {
                 CTFd.ui.ezq.ezAlert({ 
                     title: "Fail",
-                    body: response.message,
+                    body: response.data.message,
                     button: "OK"
                 });
                 reject(response.message);
@@ -191,7 +191,7 @@ CTFd._internal.challenge.renew = function () {
         } else {
             CTFd.ui.ezq.ezAlert({ 
                 title: "Fail",
-                body: response.message,
+                body: response.data.message,
                 button: "OK"
             });
         }

@@ -10,6 +10,24 @@ jobs:
       PASSWORD: ctfer
 
     services:
+      # chall-manager: 
+      #   image: registry.dev1.ctfer-io.lab/ctferio/chall-manager:ci
+      #   ports:
+      #     - 9090:9090
+      #     - 8081:8081
+      #   credentials:
+      #     username: ${{ secrets.registry_user }}
+      #     password: ${{ secrets.registry_pass }}
+
+      chall-manager: 
+        image: nicofgrx/chall-manager:ci
+        ports:
+          - 9090:9090
+          - 8081:8081
+        credentials:
+          username: ${{ secrets.docker_username }}
+          password: ${{ secrets.docker_password }}
+        
       mariadb:
         image: mariadb:10.7.8
         ports:
@@ -46,6 +64,24 @@ jobs:
             echo "Server did not respond within the allotted time. Exiting..."
             exit 1
           fi
+      
+      - name: Wait for Chall-Manager server
+        run: |
+          max_attempts=60
+          base_url="http://localhost:9090/api/v1/challenge"
+          for ((i=0; i<$max_attempts; i++)); do
+            if curl --fail --silent --show-error "$base_url" >/dev/null; then
+              echo "Server is up and running!"
+              break
+            else
+              echo "Waiting for the server to respond... (attempt $((i+1)))"
+              sleep 5
+            fi
+          done
+          if [ $i -eq $max_attempts ]; then
+            echo "Server did not respond within the allotted time. Exiting..."
+            exit 1
+          fi
 
       - name: Setup CTFd
         uses: ctfer-io/ctfd-setup@6184bab99f91c895dae9172ba30bce87ef10a120 # v1.1.9
@@ -53,12 +89,22 @@ jobs:
           url: 'http://ctfd:8000'
           appearance_name: CTFer.io
           appearance_description: CTFer.io plugin tests
-          mode: teams
+          mode: users # TODO add tests with teams 
           admin_name: ${{ env.NAME }}
           admin_email: ctfer-io@protonmail.com
           admin_password: ${{ env.PASSWORD }}
 
+      - name: Generate demo-deploy.zip for tests
+        run: |
+          cd hack
+          zip -r ${{ github.workspace }}/demo-deploy.zip deploy
+
       - name: tests with cypress
-        uses: cypress-io/github-action@f88a151c986cab2e339cdbede6a5c4468bb62c17 # v6.7.0
-        with: 
-          env: CTFD_NAME=${{ env.NAME }},CTFD_PASSWORD=${{ env.PASSWORD }},CTFD_URL="http://localhost:8000"
+        uses: cypress-io/github-action@f88a151c986cab2e339cdbede6a5c4468bb62c17 # v6.7.0        
+        env: 
+          CYPRESS_CTFD_NAME: ${{ env.NAME }}
+          CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
+          CYPRESS_CTFD_URL: "http://localhost:8000" 
+          CYPRESS_SCENARIO_PATH: "${{ github.workspace }}/demo-deploy.zip"
+          CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:9090/api/v1"
+          CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "50"
