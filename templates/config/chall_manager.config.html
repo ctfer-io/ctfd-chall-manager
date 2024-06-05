@@ -17,12 +17,15 @@
             </label>
             <input type="text" class="form-control"
                    id="{{ val[0].replace('_', '-') }}" name="{{ 'chall-manager:' + val[0] }}"
+                   data-test-id="{{ 'chall-manager:' + val[0] }}"
                    {% if value != None %}value="{{ value }}"{% endif %}>
         </div>
     {% endfor %}
 
     <div class="submit-row float-right">
-        <button type="submit" tabindex="0" class="btn btn-md btn-primary btn-outlined">
+        <button type="submit" tabindex="0" class="btn btn-md btn-primary btn-outlined"
+        data-test-id="plugin-settings-submit">
+            
             Submit
         </button>
     </div>

@@ -7,7 +7,7 @@
             <div id="whale-panel-stopped" class="card" style="width: 100%;">
                 <div class="card-body">
                     <h5 class="card-title">Instance Info</h5>
-                    <button class="btn btn-primary card-link" style="background-color:#479abf;" id="whale-button-boot" type="button"
+                    <button class="btn btn-primary card-link" style="background-color:#479abf;" id="whale-button-boot" type="button" data-test-id="cm-button-boot"
                         onclick="CTFd._internal.challenge.boot()">Launch the challenge</button>
                 </div>
             </div>
@@ -21,17 +21,17 @@
                         Connection Info: <code><span id="whale-challenge-lan-domain"></span></code>
                     </h6> -->
                     <p id="whale-challenge-user-access" class="card-text"></p>
-                    <button type="button" class="btn btn-success card-link" style="background-color:#ebb850; border-color:#000000" id="whale-button-renew"
+                    <button type="button" class="btn btn-success card-link" style="background-color:#ebb850; border-color:#000000" id="whale-button-renew" data-test-id="cm-button-renew"
                             onclick="CTFd._internal.challenge.renew()">
                         Renew
                     </button>
                     
-                    <button type="button" class="btn btn-success card-link" style="background-color:#479abf; border-color:#000000" id="whale-button-restart"
+                    <button type="button" class="btn btn-success card-link" style="background-color:#479abf; border-color:#000000" id="whale-button-restart" data-test-id="cm-button-restart"
                             onclick="CTFd._internal.challenge.restart()"> 
                         Restart
                     </button>
 
-                    <button type="button" class="btn btn-danger card-link" style="background-color:#b43c2c; border-color:#000000" id="whale-button-destroy"
+                    <button type="button" class="btn btn-danger card-link" style="background-color:#b43c2c; border-color:#000000" id="whale-button-destroy" data-test-id="cm-button-destroy"
                             onclick="CTFd._internal.challenge.destroy()">
                         Destroy
                     </button>                    

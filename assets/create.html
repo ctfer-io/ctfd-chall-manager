@@ -22,7 +22,7 @@
 			This is how many points the challenge will cost to User to start it.
 		</small>
 	</label>
-	<input type="number" class="form-control" name="mana_cost" placeholder="Enter value" required>
+	<input type="number" data-test-id="mana-create-id" class="form-control" name="mana_cost" placeholder="Enter Mana value" required>
 </div>
 
 <div class="form-group">
@@ -37,7 +37,7 @@
 			</ul>
 		</small>
 	</label>
-	<select name="updateStrategy" class="custom-select">
+	<select name="updateStrategy" data-test-id="updateStrategy-create-id" class="custom-select">
 		<option value="update_in_place">Update in place</option>
 		<option value="blue_green">Blue Green</option>
 		<option value="recreate">Recreate</option>
@@ -47,7 +47,7 @@
 
 <div id="cm-mode-selector" class="form-group">
 	<label for="select-option">Select mode </label>
-	<select id="select-option" name="mode">
+	<select id="select-option" data-test-id="mode-create-id" name="mode">
 		<option value="until">Until</option>
 		<option value="timeout" selected>Timeout</option>
 	</select>
@@ -59,7 +59,7 @@
 			This is when the Scenario has to end. 
 		</small>
 	</label>
-	<input type="datetime-local" id="until-input-local" class="form-control">
+	<input type="datetime-local" id="until-input-local" data-test-id="until-create-id" class="form-control">
 	<input type="hidden" id="until-input-utc" class="form-control" name="until">
 </div>
 
@@ -69,7 +69,7 @@
 			This is default timeout (int) <b>in seconds</b> for the Scenario to shutdown itself.
 		</small>
 	</label>
-	<input type="number" id="timeout-input" class="form-control" name="timeout">
+	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout">
 </div>
 
 <div class="form-group">
@@ -78,7 +78,7 @@
 			This is the IaC Archives
 		</small>
 	</label>
-	<input type="file" class="form-control" id="scenario" name="scenario" accept=".zip" required>
+	<input type="file" class="form-control" id="scenario" data-test-id="scenario-create-id" name="scenario" accept=".zip" required>
 </div>
 <!-- Chall-manager specifics -->
 
