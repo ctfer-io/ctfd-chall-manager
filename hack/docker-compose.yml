@@ -1,0 +1,32 @@
+services:
+  mariadb:
+    image: mariadb:10.7.8
+    ports:
+      - 3306:3306
+    networks:
+      - testing
+    environment:
+      MYSQL_ROOT_PASSWORD: ctfer
+
+  ctfd:
+    image: ctfd/ctfd:3.7.1@sha256:6ab10e197c954f6bff3dea03bf87b8b7c8ef1072bf434030d0e5f3c61ebbd7ef
+    ports:
+      - 8000:8000
+    networks:
+      - testing
+    volumes:
+      - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+    environment:
+      DATABASE_URL: mysql+pymysql://root:ctfer@mariadb/ctfd
+
+  chall-manager:
+    image: nicofgrx/chall-manager:ci
+    ports:
+      - 9090:9090
+      - 8081:8081
+    networks:
+      - testing
+
+networks:
+  testing:
+    driver: bridge
