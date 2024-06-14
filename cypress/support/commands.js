@@ -56,7 +56,12 @@ Cypress.Commands.add('create_challenge', (label, mana, updateStrategy, mode, mod
 
     // Create 
     cy.get(".create-challenge-submit").contains("Create").click()
-    cy.wait(7500)
+        
+    // Wait that pop-up of Uploading disapears
+    cy.wait(500) // wait the pop-up is created
+    cy.get('[class="modal-title"]', { timeout: 15000 })
+      .contains('Sending scenario to chall-manager')
+      .should("not.be.visible");
 
     // Final options
     cy.get("[name=\"flag\"]").type(label)

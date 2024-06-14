@@ -10,6 +10,9 @@
     <li class="nav-item">
         <a class="nav-link active" href="#">Mana</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/panel">🔗 Panel</a>
+    </li>
 {% endblock %}
 
 {% block panel %}
@@ -25,7 +28,6 @@
                     </div>
                 </th>
                 <th class="sort-col text-center"><b>ID</b></td>
-                <th class="sort-col text-center"><b>Name</b></td>
                 <th class="sort-col text-center"><b>Mana Used</b></td>
             </tr>
             </thead>
@@ -54,20 +56,6 @@
                         </div>                      
                     </td>
 
-                    <td class="text-center">
-                        <div class="form-check" id="source-name-div">
-                            {% if user_mode == "teams" %}
-                        <a href="{{ url_for('admin.teams_detail', team_id=source.id) }}">
-                            {{ source.name }}
-                        </a>
-                        {% else %}
-                        <a href="{{ url_for('admin.users_detail', user_id=source.id) }}">
-                            {{ source.name }}
-                        </a>
-                        {% endif %}
-                        </div>                      
-                    </td>
-                    
                     <td class="text-center">
                         {{ source.mana }}
                     </td>

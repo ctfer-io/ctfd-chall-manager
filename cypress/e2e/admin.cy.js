@@ -8,6 +8,7 @@ describe('Verify that admin pages is available', () => {
     cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/settings`)
     cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/instances`)
     cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/mana`)
+    cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/panel`)
   })
 
   it('Configure CM', () => {

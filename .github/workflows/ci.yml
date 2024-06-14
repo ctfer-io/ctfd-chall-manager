@@ -36,7 +36,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: ctfer
 
       ctfd:
-        image: ctfd/ctfd:3.7.1@sha256:6ab10e197c954f6bff3dea03bf87b8b7c8ef1072bf434030d0e5f3c61ebbd7ef
+        image: ctfd/ctfd:3.7.2@sha256:bb8077128668007e5130d37dbcd500b933cd449a4ae58fc327147f3811fbff7b
         ports:
           - 8000:8000
         options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       
       - name: Wait for CTFd server
         run: |
@@ -100,7 +100,7 @@ jobs:
           zip -r ${{ github.workspace }}/demo-deploy.zip deploy
 
       - name: tests with cypress
-        uses: cypress-io/github-action@f88a151c986cab2e339cdbede6a5c4468bb62c17 # v6.7.0        
+        uses: cypress-io/github-action@8d3918616d8ac34caa2b49afc8b408b6a872a6f5 # v6.7.1       
         env: 
           CYPRESS_CTFD_NAME: ${{ env.NAME }}
           CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
@@ -108,3 +108,9 @@ jobs:
           CYPRESS_SCENARIO_PATH: "${{ github.workspace }}/demo-deploy.zip"
           CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:9090/api/v1"
           CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "50"
+      
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots

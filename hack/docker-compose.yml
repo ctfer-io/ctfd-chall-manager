@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: ctfer
 
   ctfd:
-    image: ctfd/ctfd:3.7.1@sha256:6ab10e197c954f6bff3dea03bf87b8b7c8ef1072bf434030d0e5f3c61ebbd7ef
+    image: ctfd/ctfd:3.7.2@sha256:bb8077128668007e5130d37dbcd500b933cd449a4ae58fc327147f3811fbff7b
     ports:
       - 8000:8000
     networks:

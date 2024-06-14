@@ -60,14 +60,14 @@ def load(app):
     # Route to configure Chall-manager plugins
     @page_blueprint.route('/admin/settings')
     @admins_only
-    def admin_list_configs():
+    def admin_settings():
         return render_template("chall_manager_config.html")
 
 
     # Route to monitor & manage running instances
     @page_blueprint.route('/admin/instances')
     @admins_only
-    def admin_list_challenges():
+    def admin_instances():
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
         url = f"{cm_api_url}/challenge"
 
@@ -92,12 +92,7 @@ def load(app):
         
         user_mode = get_config("user_mode")
         for i in instances:
-            if user_mode == "users":
-                i["sourceName"] = get_user_attrs(i["sourceId"]).name   
-            if user_mode == "teams":
-                i["sourceName"] = get_team_attrs(i["sourceId"]).name
-           
-            i["challengeName"] = get_all_challenges(id=i["challengeId"])[0].name
+            i["challengeName"] = get_all_challenges(admin=True, id=i["challengeId"])[0].name
         
         return render_template("chall_manager_instances.html", 
                                 instances=instances, 
@@ -106,15 +101,15 @@ def load(app):
     # Route to monitor & manage running instances
     @page_blueprint.route('/admin/mana')
     @admins_only
-    def admin_list_mana():
+    def admin_mana():
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
         user_mode = get_config("user_mode")
 
         if user_mode == "users":
-            query_sql = """select id,name,mana from users;"""
+            query_sql = """select id,mana from users;"""
         
         elif user_mode == "teams":
-            query_sql = """select id,name,mana from teams;"""
+            query_sql = """select id,mana from teams;"""
 
         data = db.session.execute(text(query_sql)).fetchall()
 
@@ -123,8 +118,7 @@ def load(app):
             "data": [
                 {
                     "id": item[0],
-                    "name": item[1],
-                    "mana": str(item[2])  # Convert the mana value to string
+                    "mana": str(item[1])  # Convert the mana value to string
                 }
                 for item in data
             ]
@@ -134,5 +128,16 @@ def load(app):
                                 user_mode=user_mode,
                                 sources=sources["data"])
 
+    # Route to monitor & manage running instances
+    @page_blueprint.route('/admin/panel')
+    @admins_only
+    def admin_panel():
+        # retrieve custom challenges
+        challenges = db.session.execute(text("""select id, name from challenges c where c.type="dynamic_iac";"""))
+
+        print(f" challengee = {challenges}")
+
+        return render_template("chall_manager_panel.html",
+                                challenges=challenges)
     
     app.register_blueprint(page_blueprint)

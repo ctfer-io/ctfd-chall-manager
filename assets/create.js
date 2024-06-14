@@ -66,10 +66,21 @@ $('#challenge-create-options #challenge_id').on('DOMSubtreeModified', function()
   const input = document.getElementById('scenario');
   const file = input.files[0]; // Get the first file selected 
 
+  // define progress bar
+  var pg = CTFd.ui.ezq.ezProgressBar({
+    width: 0,
+    title: "Sending scenario to chall-manager",
+  });
+
   if (file) {
     sendFile(file).then(function(response) {
     console.log(response)
     params['scenarioId'] = response.data[0].id 
+
+    pg = CTFd.ui.ezq.ezProgressBar({
+      target: pg,
+      width: 30,
+    });
     
     // Step 2: Send the scenario file location to plugin that will create it on Chall-manager API
     console.log(params)
@@ -85,10 +96,17 @@ $('#challenge-create-options #challenge_id').on('DOMSubtreeModified', function()
     }).then(function (a) {      
         return a.json();   
     }).then(function (json) {
+      pg = CTFd.ui.ezq.ezProgressBar({
+        target: pg,
+        width: 100,
+      });
       console.log(json)
       if (json.success){
         console.log(json.success)
         console.log(json.data.message.toString())
+        setTimeout(function () {
+          pg.modal("hide");
+        }, 500);
         CTFd.ui.ezq.ezToast({
           title: "Success",
           body: "Scenario is upload on Chall-manager, hash : " + json.data.message.hash
