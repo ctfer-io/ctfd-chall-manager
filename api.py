@@ -63,6 +63,47 @@ class AdminInstance(Resource):
             'message': json.loads(r.text),
         }}
 
+    
+    @staticmethod
+    @admins_only
+    def post():
+        # retrieve all instance deployed by chall-manager
+        cm_api_url = get_config("chall-manager:chall-manager_api_url")
+
+        ## mandatory
+        challengeId = request.args.get("challengeId") 
+        sourceId = request.args.get("sourceId")
+
+        payload = {}
+
+        if not challengeId or not sourceId:
+            return {'success': False, 'data':{
+                    'message': "Missing argument : challengeId or sourceId",
+            }} 
+
+        # TODO check user inputs
+
+        url = f"{cm_api_url}/instance"
+
+        payload['sourceId'] = sourceId
+        payload['challengeId'] = challengeId
+        
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        try:        
+            r = requests.post(url, data = json.dumps(payload), headers=headers)
+        except requests.exceptions.RequestException as e :
+            return {'success': False, 'data':{
+                    'message': f"An error occured while Plugins communication with Challmanager API : {e}",
+            }}       
+            
+
+        return {'success': True, 'data': {
+            'message': json.loads(r.text),
+        }}
+
     @staticmethod
     @admins_only
     def patch():
@@ -156,7 +197,7 @@ class UserInstance(Resource):
         url = f"{cm_api_url}/instance/{challengeId}/{sourceId}"
         
         headers = {
-            "Content-type": "application/json"
+            "Content-Type": "application/json"
         }
 
         try:        
@@ -217,10 +258,10 @@ class UserInstance(Resource):
                 db.session.commit()
             
 
-        # check if Content-type is application/json
+        # check if Content-Type is application/json
         if not request.is_json:
             return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
+                    'message': "Content-Type must be application/json",
             }}
 
         ## mandatory
@@ -244,7 +285,7 @@ class UserInstance(Resource):
         payload["sourceId"] = sourceId
         
         headers = {
-            "Content-type": "application/json"
+            "Content-Type": "application/json"
         }
 
         print(payload)
@@ -287,7 +328,7 @@ class UserInstance(Resource):
         url = f"{cm_api_url}/instance/{challengeId}/{sourceId}"
         
         headers = {
-            "Content-type": "application/json"
+            "Content-Type": "application/json"
         }
 
         try:        
@@ -349,7 +390,7 @@ class UserInstance(Resource):
         url = f"{cm_api_url}/instance/{challengeId}/{sourceId}"
         
         headers = {
-            "Content-type": "application/json"
+            "Content-Type": "application/json"
         }
 
         try:        
@@ -409,10 +450,10 @@ class AdminScenario(Resource):
         # retrieve chall-manager api url
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
 
-        # check if Content-type is application/json
+        # check if Content-Type is application/json
         if not request.is_json:
             return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
+                    'message': "Content-Type must be application/json",
             }}          
 
         # retrieve infos provided by js
@@ -525,10 +566,10 @@ class AdminScenario(Resource):
         # retrieve chall-manager api url
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
 
-        # check if Content-type is application/json
+        # check if Content-Type is application/json
         if not request.is_json:
             return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
+                    'message': "Content-Type must be application/json",
             }}
 
         # retrieve infos provided by js
@@ -640,10 +681,10 @@ class AdminScenario(Resource):
         # retrieve chall-manager api url
         cm_api_url = get_config("chall-manager:chall-manager_api_url")
 
-        # check if Content-type is application/json
+        # check if Content-Type is application/json
         if not request.is_json:
             return {'success': False, 'data':{
-                    'message': "Content-type must be application/json",
+                    'message': "Content-Type must be application/json",
             }}
 
         # retrieve infos provided by js

@@ -10,6 +10,9 @@
     <li class="nav-item">
         <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/mana">🔗 Mana</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/panel">🔗 Panel</a>
+    </li>
 {% endblock %}
 
 {% block panel %}
@@ -66,11 +69,11 @@
                     <td class="text-center">
                         {% if user_mode == "teams" %}
                         <a href="{{ url_for('admin.teams_detail', team_id=instance.sourceId) }}">
-                            {{ instance.sourceName }}
+                            {{ instance.sourceId }}
                         </a>
                         {% else %}
                         <a href="{{ url_for('admin.users_detail', user_id=instance.sourceId) }}">
-                            {{ instance.sourceName }}
+                            {{ instance.sourceId }}
                         </a>
                         {% endif %}
                     </td>
