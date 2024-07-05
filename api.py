@@ -5,7 +5,7 @@ import json
 import os
 import base64
 
-from flask import request
+from flask import request, current_app
 from flask_restx import Namespace, Resource, abort
 from sqlalchemy import text
 
@@ -488,7 +488,7 @@ class AdminScenario(Resource):
 
         # get base64 file located at full_scenario_location and send it to Chall-Manager
         # ex: b07afae94edec5d8a74c8d7b590feb63/deploy.zip
-        full_scenario_location = os.path.join(os.getcwd(), "CTFd", "uploads", scenario.location)
+        full_scenario_location = os.path.join(current_app.config.get("UPLOAD_FOLDER"), scenario.location)
         try: 
             with open(full_scenario_location, "rb") as f:  
                 # TODO add hash checksum          
@@ -600,10 +600,8 @@ class AdminScenario(Resource):
 
             # send new scenario to CM
             new_scenario = Files.query.filter_by(id=int(data["scenarioId"])).first()
-
-            print("new_scenario = ", new_scenario)
        
-            full_scenario_location = os.path.join(os.getcwd(), "CTFd", "uploads", new_scenario.location)
+            full_scenario_location = os.path.join(current_app.config.get("UPLOAD_FOLDER"), new_scenario.location)
             try: 
                 with open(full_scenario_location, "rb") as f:  
                     # TODO add hash checksum          
