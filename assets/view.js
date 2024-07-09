@@ -36,7 +36,6 @@ function formatCountDown(countdown) {
     
     formattedCountdown = formattedCountdown + seconds.toString().padStart(2, '0');        
 
-    console.log(formattedCountdown)
     return formattedCountdown;
 }
 
@@ -44,7 +43,6 @@ function loadInfo() {
     var challenge_id = CTFd._internal.challenge.data.id;
     var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
 
-    //console.log(challenge_id)
 
     CTFd.fetch(url, {
         method: 'GET',
@@ -79,7 +77,6 @@ function loadInfo() {
         var now = new Date();
         var until = new Date(response.message.until)
         var count_down = until - now
-        console.log(count_down)
         if (count_down > 0) {            
              
             // $('#whale-challenge-user-access').html(response.connectionInfo);
