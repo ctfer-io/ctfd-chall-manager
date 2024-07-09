@@ -70,44 +70,50 @@ function sendFile(file){
     });
   });
 }
-function patchScenario(){
-
+function patchScenario() {
   const input = document.getElementById('scenario');
   const file = input.files[0]; // Get the first file selected
 
-  var scenarioId = "" 
-  var params = {}
+  var scenarioId = "";
+  var params = {};
 
   if (file) {
-    // Step 1: Send file 
+    // Step 1: Send file
     sendFile(file).then(function(response) {
-    console.log(response)
-    scenarioId = response.data[0].id   
-    })
-  }  
+      scenarioId = response.data[0].id;
 
-    // Step 2: Send the scenarioId to plugin that will update it on Chall-manager API
-  console.log(scenarioId)
-  if (scenarioId != "") {
-    
-    params = {
-      "scenarioId": scenarioId
-    };
+      // Step 2: Send the scenarioId to plugin that will update it on Chall-manager API
+      if (scenarioId != "") {
+        params = {
+          "scenarioId": scenarioId
+        };
+      }
 
-  }  
-
-  console.log(params)
-  CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/scenario?challengeId=" + CHALLENGE_ID , {
-    method: 'PATCH',
-    credentials: "same-origin",
-    headers: {
+      console.log(params);
+      CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/scenario?challengeId=" + CHALLENGE_ID, {
+        method: 'PATCH',
+        credentials: "same-origin",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(params)
+      });
+    });
+  } else {
+    // If no file is provided, call CTFd.fetch immediately
+    console.log(params);
+    CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/scenario?challengeId=" + CHALLENGE_ID, {
+      method: 'PATCH',
+      credentials: "same-origin",
+      headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(params)
-  });
-    
+      },
+      body: JSON.stringify(params)
+    });
   }
+}
 
 // Detect if UPDATE button is trigger
 function handleElementCreation(mutationsList, observer) {
