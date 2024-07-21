@@ -1,3 +1,6 @@
-name: no-sdk
-runtime: go
-description: A challenge scenario written without the SDK, while still compliant with the chall-manager API.
+name: prebuilt
+runtime:
+  name: go
+  options:
+   binary: ./main
+description: A prebuilt Go Pulumi entrypoint

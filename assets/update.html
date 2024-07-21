@@ -13,6 +13,20 @@
 {% block value %}
 
 <!-- CM Plugins -->
+
+<div class="form-group">
+	<label for="value">Global Scope<br>
+		<small class="form-text text-muted">
+			<span>If global scope is enabled, the instance will be shared for all Users/Teams.
+				By default, global scope is disabled</span>
+		</small>
+	</label>
+	<select id="select-scope" data-test-id="scope-selector-id" class="custom-select" name="scope_global">
+		<option value="true" {% if challenge.scope_global %}selected{% endif %} >Enabled</option>
+		<option value="false" {% if not challenge.scope_global %}selected{% endif %}>Disabled</option>
+	</select>
+</div>
+
 <div class="form-group">
 	<label for="value">Mana Cost<br>
 		<small class="form-text text-muted">
@@ -23,30 +37,21 @@
 </div>
 
 <div class="form-group">
-	<label for="value">Update Strategy<br>
+	<label for="value">Janitoring Strategy<br>
 		<small class="form-text text-muted">
-			<span>The UpdateStrategy to use in case of a Challenge scenario update with running instances.
-				Default strategy is the update-in-place.</span>
+			<span>The Janitoring Strategy is used to define how (or if) the instance will be Janitoring.
+				Default strategy is None</span>
 			<ul>
-				<li>Update in place: This updates the existing state based on the new stack in the scenario. This update strategy provide high availability with low update costs.</li>
-				<li>Blue Green: spins up a second instance of the scenario in parallel and once up, delete the previous one for players to shift. This update strategy provide high availability with high update costs due to infra deduplication.</li>
-				<li>Recreate: recreate delete the previous instance then spins up a fresh instance of the scenario. This update strategy provide no availability guarantee with medium update costs due to intensive create/delete operations. It should be used at a last relief, for instance if the update is inconsistent and the outcomes are not predictable.</li>
+				<li>None: The instance will NOT be destroyed by the janitor at all</li>
+				<li>Until: Define a timestamp where all the instances will be detroyed (e.g 2024-07-10 15:00)</li>
+				<li>Timeout: Define a timeout that the instance will be destroyed by the janitor (e.g 600s for 10 min)</li>
 			</ul>
 		</small>
 	</label>
-	<select name="updateStrategy" class="custom-select">
-		<option value="update_in_place">Update in place</option>
-		<option value="blue_green">Blue Green</option>
-		<option value="recreate">Recreate</option>
-	</select>
-</div>
-
-
-<div id="cm-mode-selector" class="form-group">
-	<label for="select-option">Select mode </label>
-	<select id="select-option" name="mode">
-		<option value="until">Until</option>
-		<option value="timeout" selected>Timeout</option>
+	<select id="select-option" data-test-id="mode-create-id" class="custom-select">
+		<option value="none" {% if challenge.until == "" and challenge.timeout == ""%}selected{% endif %}>None</option>
+		<option value="until" {% if challenge.until != "" %}selected{% endif %}>Until</option>
+		<option value="timeout" {% if challenge.timeout != "" %}selected{% endif %}>Timeout</option>
 	</select>
 </div>
 
@@ -56,17 +61,17 @@
 			This is when the Scenario has to end. 
 		</small>
 	</label>
-	<input type="datetime-local" id="until-input-local" class="form-control" value="{{ challenge.until }}">
-	<input type="hidden" id="until-input-utc" class="form-control" name="until">
+	<input type="datetime-local" id="until-input-local" data-test-id="until-create-id" class="form-control">
+	<input type="hidden" id="until-input-utc" class="form-control" name="until" {% if challenge.until != "" %}value={{challenge.until}}{% endif %}>
 </div>
 
-<div id="cm-mode-timeout" class="form-group">
+<div id="cm-mode-timeout" style="display: none;" class="form-group">
 	<label for="value">Timeout<br>
 		<small class="form-text text-muted">
 			This is default timeout (int) <b>in seconds</b> for the Scenario to shutdown itself.
 		</small>
 	</label>
-	<input type="number" id="timeout-input" class="form-control" name="timeout" value="{{ challenge.timeout }}">
+	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout" {% if challenge.timeout != "" %}value={{challenge.timeout}}{% endif %}>
 </div>
 
 <div id="current-scenario-id" style="display: none;">{{ challenge.scenario_id }}</div>
@@ -86,13 +91,33 @@
 		</table>	
 </div>
 
+<div id="update-strategy-div" class="form-group" style="display: none;">
+	<label for="value">Update Strategy<br>
+		<small class="form-text text-muted">
+			<span>The UpdateStrategy to use in case of a Challenge scenario update with running instances.
+				Default strategy is the update-in-place.</span>
+			<ul>
+				<li>Update in place: This updates the existing state based on the new stack in the scenario. This update strategy provide high availability with low update costs.</li>
+				<li>Blue Green: spins up a second instance of the scenario in parallel and once up, delete the previous one for players to shift. This update strategy provide high availability with high update costs due to infra deduplication.</li>
+				<li>Recreate: recreate delete the previous instance then spins up a fresh instance of the scenario. This update strategy provide no availability guarantee with medium update costs due to intensive create/delete operations. It should be used at a last relief, for instance if the update is inconsistent and the outcomes are not predictable.</li>
+			</ul>
+		</small>
+	</label>
+	<select id="update-strategy" name="updateStrategy" class="custom-select">
+		<option value="update_in_place">Update in place</option> 
+		<option value="blue_green">Blue Green</option>
+		<option value="recreate">Recreate</option>
+	</select>
+</div>
+
 <div class="form-group">
 	<label for="value">Scenario archive<br>
 		<small class="form-text text-muted">
 			This is the IaC Archives
 		</small>
 	</label>
-	<input type="file" class="form-control" id="scenario" name="scenario" accept=".zip">
+	<input type="file" class="form-control" id="scenario" data-test-id="scenario-create-id" name="scenario" accept=".zip">
+	<input type="hidden" id="scenario_id" class="form-control" name="scenario_id">
 </div>
 
 

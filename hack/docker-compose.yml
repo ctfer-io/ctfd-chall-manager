@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: ctfer
 
   ctfd:
-    image: ctfd/ctfd:3.7.2@sha256:bb8077128668007e5130d37dbcd500b933cd449a4ae58fc327147f3811fbff7b
+    image: ctfd/ctfd:3.7.3@sha256:90470e1fe0f93028ce6ac197b8942916ee157d4b5d33c8266c5bec7662e55ac3
     ports:
       - 8000:8000
     networks:
@@ -20,10 +20,13 @@ services:
       DATABASE_URL: mysql+pymysql://root:ctfer@mariadb/ctfd
 
   chall-manager:
-    image: nicofgrx/chall-manager:ci
+    image: ctferio/chall-manager:dev
     ports:
       - 9090:9090
       - 8081:8081
+    environment:
+      CI: true
+      TRACING: true
     networks:
       - testing
 

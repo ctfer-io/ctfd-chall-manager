@@ -10,20 +10,14 @@ jobs:
       PASSWORD: ctfer
 
     services:
-      # chall-manager: 
-      #   image: registry.dev1.ctfer-io.lab/ctferio/chall-manager:ci
-      #   ports:
-      #     - 9090:9090
-      #     - 8081:8081
-      #   credentials:
-      #     username: ${{ secrets.registry_user }}
-      #     password: ${{ secrets.registry_pass }}
-
       chall-manager: 
-        image: nicofgrx/chall-manager:ci
+        image: ctferio/chall-manager:dev
         ports:
           - 9090:9090
           - 8081:8081
+        env:
+          CI: true
+          TRACING: true # workaround defer nil
         credentials:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_password }}
@@ -36,7 +30,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: ctfer
 
       ctfd:
-        image: ctfd/ctfd:3.7.2@sha256:bb8077128668007e5130d37dbcd500b933cd449a4ae58fc327147f3811fbff7b
+        image: ctfd/ctfd:3.7.3@sha256:90470e1fe0f93028ce6ac197b8942916ee157d4b5d33c8266c5bec7662e55ac3
         ports:
           - 8000:8000
         options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
@@ -84,33 +78,64 @@ jobs:
           fi
 
       - name: Setup CTFd
-        uses: ctfer-io/ctfd-setup@6184bab99f91c895dae9172ba30bce87ef10a120 # v1.1.9
+        uses: ctfer-io/ctfd-setup@f76c764b07af9c6292de3f75009876e26c77bb1f # v1.2.1
         with:
           url: 'http://ctfd:8000'
           appearance_name: CTFer.io
           appearance_description: CTFer.io plugin tests
-          mode: users # TODO add tests with teams 
+          mode: teams 
           admin_name: ${{ env.NAME }}
           admin_email: ctfer-io@protonmail.com
           admin_password: ${{ env.PASSWORD }}
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
+      - name: Generate token and store it for GH Actions
+        run: |-
+          cd hack/token  
+          go run main.go
+        env:
+          CTFD_URL: http://localhost:8000
+          CTFD_NAME: ${{ env.NAME }}
+          CTFD_PASSWORD: ${{ env.PASSWORD }}
+
+      - name: Install pulumi
+        uses: pulumi/actions@v4
+
+      - name: Additionnal configuration for CTFd (users and teams)
+        run: |-
+          cd hack/config
+          pulumi login --local 
+          pulumi stack init tmp
+          pulumi up --yes --stack tmp
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ""
+          CTFD_URL: http://localhost:8000        
+
+        # go build -o monbinaire mon/path/vers/main.go => go build -o main main.go entre le cd et le zip 
       - name: Generate demo-deploy.zip for tests
-        run: |
-          cd hack
-          zip -r ${{ github.workspace }}/demo-deploy.zip deploy
+        run: |-
+          cd hack/deploy          
+          zip ${{ github.workspace }}/demo-deploy.zip main
+          zip ${{ github.workspace }}/demo-deploy.zip Pulumi.yaml
+        env:
+          CGO_ENABLED: 0
+          GOPRIVATE: github.com/ctfer-io/chall-manager # remove when chall-manager will be released
 
       - name: tests with cypress
-        uses: cypress-io/github-action@8d3918616d8ac34caa2b49afc8b408b6a872a6f5 # v6.7.1       
+        uses: cypress-io/github-action@df7484c5ba85def7eef30db301afa688187bc378 # v6.7.2  
         env: 
           CYPRESS_CTFD_NAME: ${{ env.NAME }}
           CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
           CYPRESS_CTFD_URL: "http://localhost:8000" 
           CYPRESS_SCENARIO_PATH: "${{ github.workspace }}/demo-deploy.zip"
           CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:9090/api/v1"
-          CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "50"
+          CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "10"
       
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
+      - uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # 4.3.5
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+          if-no-files-found: ignore

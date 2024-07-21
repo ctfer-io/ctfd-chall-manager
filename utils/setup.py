@@ -1,4 +1,4 @@
-from CTFd.utils import set_config
+from CTFd.utils import set_config # type: ignore
 
 
 def setup_default_configs():
