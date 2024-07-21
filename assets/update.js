@@ -1,22 +1,59 @@
-// selector
+// selector for janitoring method
 document.getElementById('select-option').addEventListener('change', function() {
-  var selectedOption = this.value;
+  displayCurrentJanitorStrategy() 
+});
+
+function displayCurrentJanitorStrategy(){
+  var selectedOption = document.getElementById('select-option').value
   if (selectedOption === 'until') {
     document.getElementById('cm-mode-until').style.display = 'block';
     document.getElementById('cm-mode-timeout').style.display = 'none';
-    document.getElementById('timeout-input').disabled = true;
-    document.getElementById('until-input-local').disabled = false;
+    document.getElementById('timeout-input').required = false;
     document.getElementById('until-input-local').required = true;
     document.getElementById('timeout-input').value = ''; // Reset timeout input
   } else if (selectedOption === 'timeout') {
     document.getElementById('cm-mode-until').style.display = 'none';
     document.getElementById('cm-mode-timeout').style.display = 'block';
-    document.getElementById('until-input-local').disabled = true;
-    document.getElementById('timeout-input').disabled = false;
+    document.getElementById('until-input-local').required = false;
     document.getElementById('timeout-input').required = true;
     document.getElementById('until-input-local').value = ''; // Reset until input
+    document.getElementById('until-input-utc').value = ''; // Reset until input
+  } else {
+    document.getElementById('cm-mode-until').style.display = 'none';
+    document.getElementById('cm-mode-timeout').style.display = 'none';
+    document.getElementById('timeout-input').required = false;
+    document.getElementById('until-input-local').required = false; 
+    document.getElementById('until-input-local').value = ''; // Reset until input
+    document.getElementById('until-input-utc').value = ''; // Reset until input
+    document.getElementById('timeout-input').value = ''; // Reset timeout input    
+  }
+
+}
+
+// selector for update-strategy
+function displayUpdateStrategy() {
+  document.getElementById('update-strategy-div').style.display = 'block'; 
+}
+
+
+// auto send the scenario and display the update-strategy-div
+document.getElementById('scenario').addEventListener('change', function(event) {
+  if (event.target.files.length > 0) {
+      // send file and get filesId
+      if (document.getElementById('scenario_id').value) {
+        // delete previous file upload
+        deleteFile(document.getElementById('scenario_id').value)
+      }
+
+      displayUpdateStrategy()
+
+      sendFile(event.target.files[0]).then(function(response) {
+        document.getElementById('scenario_id').value = response.data[0].id ;
+      });
+
   }
 });
+
 
 // convert Local into UTC
 document.getElementById('until-input-local').addEventListener('change', function() {
@@ -26,7 +63,7 @@ document.getElementById('until-input-local').addEventListener('change', function
 });
 
 // display current scenario file
-function displayScenario() {
+function displayCurrentScenario() {
     scenario_id_div = document.getElementById('current-scenario-id')
     CTFd.fetch("/api/v1/files/" + scenario_id_div.innerText, {
       method: 'GET',
@@ -70,76 +107,9 @@ function sendFile(file){
     });
   });
 }
-function patchScenario() {
-  const input = document.getElementById('scenario');
-  const file = input.files[0]; // Get the first file selected
-
-  var scenarioId = "";
-  var params = {};
-
-  if (file) {
-    // Step 1: Send file
-    sendFile(file).then(function(response) {
-      scenarioId = response.data[0].id;
-
-      // Step 2: Send the scenarioId to plugin that will update it on Chall-manager API
-      if (scenarioId != "") {
-        params = {
-          "scenarioId": scenarioId
-        };
-      }
-
-      console.log(params);
-      CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/scenario?challengeId=" + CHALLENGE_ID, {
-        method: 'PATCH',
-        credentials: "same-origin",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(params)
-      });
-    });
-  } else {
-    // If no file is provided, call CTFd.fetch immediately
-    console.log(params);
-    CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/scenario?challengeId=" + CHALLENGE_ID, {
-      method: 'PATCH',
-      credentials: "same-origin",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(params)
-    });
-  }
-}
-
-// Detect if UPDATE button is trigger
-function handleElementCreation(mutationsList, observer) {
-  mutationsList.forEach(mutation => {
-    mutation.addedNodes.forEach(node => {
-      if (node.parentNode && node.parentNode.id === 'ezq--notifications-toast-container') {
-        // Vérifier si un enfant de ezq--notifications-toast-container est créé
-        console.log('Un enfant de ezq--notifications-toast-container a été créé !');
-        // Appelez ici la fonction que vous souhaitez exécuter lorsque l'enfant est créé
-        patchScenario();
-      }
-    });
-  });
-}
 
 
-const parentElement = document.body;
-const observerOptions = {
-  childList: true, // Check childs (notification)
-  subtree: true    // Check childs s(notification)
-};
-
-// Monitoring 
-const observer = new MutationObserver(handleElementCreation);
-observer.observe(parentElement, observerOptions);
-
-displayScenario()
-
+displayCurrentJanitorStrategy()
+// displayCurrentUntil()
+displayCurrentScenario()
 

@@ -4,9 +4,9 @@ from flask import request, current_app, session
 from flask_restx import abort
 from sqlalchemy.sql import and_
 
-from CTFd.models import Challenges
-from CTFd.utils.user import is_admin, get_current_user
-from .utils.cache import CacheProvider
+from CTFd.models import Challenges # type: ignore
+from CTFd.utils.user import is_admin, get_current_user # type: ignore
+from .utils.cache import CacheProvider # type: ignore
 
 
 def challenge_visible(func):

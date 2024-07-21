@@ -27,7 +27,7 @@
                         <input type="checkbox" class="form-check-input" data-checkbox-all>
                     </div>
                 </th>
-                <th class="sort-col text-center"><b>ID</b></td>
+                <th class="sort-col text-center"><b>Source ID</b></td>
                 <th class="sort-col text-center"><b>Mana Used</b></td>
             </tr>
             </thead>
@@ -38,19 +38,19 @@
                     <td class="border-right" data-checkbox>
                         <div class="form-check text-center">&nbsp;
                             <input type="checkbox" class="form-check-input" 
-                            data-source-id="{{ source.id }}">
+                            data-source-id="{{ source.sourceId }}">
                         </div>
                     </td>
                 
                     <td class="text-center">
                         <div class="form-check" id="source-id-div">
                             {% if user_mode == "teams" %}
-                        <a href="{{ url_for('admin.teams_detail', team_id=source.id) }}">
-                            {{ source.id }}
+                        <a href="{{ url_for('admin.teams_detail', team_id=source.sourceId) }}">
+                            {{ source.sourceId }}
                         </a>
                         {% else %}
-                        <a href="{{ url_for('admin.users_detail', user_id=source.id) }}">
-                            {{ source.id }}
+                        <a href="{{ url_for('admin.users_detail', user_id=source.sourceId) }}">
+                            {{ source.sourceId }}
                         </a>
                         {% endif %}
                         </div>                      

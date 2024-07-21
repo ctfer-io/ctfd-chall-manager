@@ -63,7 +63,6 @@ function loadInfo() {
         }
         return response.json();
     }).then(function (response) {
-        console.log(response)
         if (window.t !== undefined) {
             clearInterval(window.t);
             window.t = undefined;
@@ -74,29 +73,81 @@ function loadInfo() {
             body: response.data.message,
             button: "OK"
         });
-        var now = new Date();
-        var until = new Date(response.message.until)
-        var count_down = until - now
-        if (count_down > 0) {            
-             
-            // $('#whale-challenge-user-access').html(response.connectionInfo);
-            $('#whale-challenge-lan-domain').html(response.message.connectionInfo);
-            $('#whale-challenge-count-down').text(formatCountDown(count_down)); // TODO
+        $('#cm-panel-loading').hide();
+        $('#cm-panel-until').hide(); 
+       
+        if (response.message.connectionInfo && response.message.until) { // if instance has an until 
+           
+            // check instance is not expired
+            var now = new Date();
+            var until = new Date(response.message.until)
+            console.log(until)
+            var count_down = until - now
+            if (count_down > 0) {   // if the instance is not expired         
+                
+                $('#whale-panel-stopped').hide();
+                $('#whale-panel-started').show();
+                $('#whale-challenge-lan-domain').html(response.message.connectionInfo);                
+                $('#whale-challenge-count-down').text(formatCountDown(count_down)); 
+                $('#cm-panel-until').show();
+                
+                
+
+                window.t = setInterval(() => {
+                    count_down = until - new Date();
+                    if (count_down <= 0) {
+                        loadInfo();
+                    }
+                    $('#whale-challenge-count-down').text(formatCountDown(count_down));
+                }, 1000);
+            } else {
+                $('#whale-panel-started').hide(); // hide the panel instance is up       
+                $('#whale-panel-stopped').show(); // show the panel instance is down     
+                $('#whale-challenge-lan-domain').html(''); 
+            }
+                    
+        } else if (response.message.connectionInfo) {    // if instance has no until         
             $('#whale-panel-stopped').hide();
             $('#whale-panel-started').show();
-
-            window.t = setInterval(() => {
-                count_down = until - new Date();
-                if (count_down <= 0) {
-                    loadInfo();
-                }
-                $('#whale-challenge-count-down').text(formatCountDown(count_down));
-            }, 1000);
-        } else {            
+            $('#whale-challenge-lan-domain').html(response.message.connectionInfo);
+        } else { // if instance is expired
             $('#whale-panel-started').hide(); // hide the panel instance is up       
             $('#whale-panel-stopped').show(); // show the panel instance is down     
-            $('#whale-challenge-lan-domain').html('');  
+            $('#whale-challenge-lan-domain').html(''); 
         }
+ 
+        
+    });
+
+    // get renaming mana for user
+    CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/mana", {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+    }).then(function (response) {
+        
+        if (response.status === 429) {
+            // User was ratelimited but process response
+            return response.json();
+        }
+        if (response.status === 403) {
+            // User is not logged in or CTF is paused.
+            return response.json();
+        }
+        return response.json();
+    }).then(function (response) {
+        if (response.success) response = response.data;
+        else CTFd.ui.ezq.ezAlert({ 
+            title: "Fail",
+            body: response.data.message,
+            button: "OK"
+        });
+        return response
+    }).then(function (response){
+        $('#cm-challenge-mana-remaining').html(response.remaining); 
     });
 };
 
@@ -238,7 +289,6 @@ CTFd._internal.challenge.boot = function() {
                     body: response.data.message,
                     button: "OK"
                 });
-                reject(response.message);
             }
         }).catch(error => {
             reject(error);

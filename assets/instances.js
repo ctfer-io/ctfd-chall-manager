@@ -110,7 +110,7 @@ $('#instances-delete-button').click(function (e) {
     let sourceIds = sourceId.toArray();
 
     CTFd.ui.ezq.ezQuery({
-        title: "Delete Containers",
+        title: "Delete Instances",
         body: `Are you sure you want to delete the selected ${sourceIds.length} instance(s)?`,
         success: async function () {
             var pg = CTFd.ui.ezq.ezProgressBar({

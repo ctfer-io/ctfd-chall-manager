@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ctfer-io/chall-manager/sdk"
 	"github.com/pulumi/pulumi-random/sdk/v4/go/random"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
@@ -9,7 +10,7 @@ import (
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		// 1. Load config
-		cfg := config.New(ctx, "no-sdk")
+		cfg := config.New(ctx, "prebuilt")
 		config := map[string]string{
 			"identity": cfg.Get("identity"),
 		}
@@ -23,7 +24,9 @@ func main() {
 		}
 
 		// 3. Export outputs
-		ctx.Export("connection_info", pulumi.Sprintf("curl https://%s.bzhctf2025.ctfer.io", config["identity"]))
+		ctx.Export("connection_info", pulumi.Sprintf("curl https://%s.brefctf.ctfer.io", config["identity"]))
+		ctx.Export("flag", pulumi.String(sdk.VariateFlag(config["identity"], "BREFCTF{Cypress_testing}")))
+
 		return nil
 	})
 }

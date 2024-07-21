@@ -2,26 +2,22 @@
 import json
 from flask import Blueprint, render_template
 
-from CTFd.api import CTFd_API_v1
-from CTFd.plugins import (
+from CTFd.api import CTFd_API_v1 # type: ignore
+from CTFd.plugins import ( # type: ignore
     register_plugin_assets_directory,
-    register_admin_plugin_menu_bar,
 )
-from CTFd.utils.decorators import admins_only
-from CTFd.utils import get_config, set_config
-from CTFd.utils.user import get_user_attrs, get_team_attrs
-from CTFd.utils.challenges import get_all_challenges
-from CTFd.plugins.migrations import upgrade
-from CTFd.plugins.challenges import CHALLENGE_CLASSES
-from CTFd.models import Users, db
+from CTFd.utils.decorators import admins_only # type: ignore
+from CTFd.utils import get_config, set_config # type: ignore # type: ignore
+from CTFd.utils.challenges import get_all_challenges # type: ignore
+from CTFd.plugins.migrations import upgrade # type: ignore
+from CTFd.plugins.challenges import CHALLENGE_CLASSES # type: ignore
 
-import time
-from sqlalchemy import text
-import requests
 from .api import user_namespace, admin_namespace
 from .utils.setup import setup_default_configs
-from .models import DynamicIaCChallenge, DynamicIaCValueChallenge
+from .utils.challenge_store import query_challenges
+from .models import DynamicIaCValueChallenge
 
+from .utils.mana_coupon import get_all_mana
 
 
 def load(app):
@@ -68,27 +64,19 @@ def load(app):
     @page_blueprint.route('/admin/instances')
     @admins_only
     def admin_instances():
-        cm_api_url = get_config("chall-manager:chall-manager_api_url")
-        url = f"{cm_api_url}/challenge"
 
-        s = requests.Session()
+        result = list()
+
+        try:
+            result = query_challenges()
+        except Exception as e:
+            print(f"ERROR : {e}") # TODO use logging
+        
         instances = list()
 
-        retries = 0
-        try:
-            with s.get(url, headers=None, stream=True) as resp:
-                for line in resp.iter_lines():
-                    if line:
-                        res = line.decode("utf-8")
-                        res = json.loads(res)
-
-                        if res['result']['instances'] :
-                            instances_of_current_chall = res['result']['instances']
-                            for i in instances_of_current_chall:
-                                instances.append(i)
-        except requests.ConnectionError as e:
-            print(f"ConnectionError: {e}")  # Debug print
-
+        for challenge in result:
+            for instance in challenge["instances"]:
+                instances.append(instance)
         
         user_mode = get_config("user_mode")
         for i in instances:
@@ -102,40 +90,20 @@ def load(app):
     @page_blueprint.route('/admin/mana')
     @admins_only
     def admin_mana():
-        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
         user_mode = get_config("user_mode")
 
-        if user_mode == "users":
-            query_sql = """select id,mana from users;"""
-        
-        elif user_mode == "teams":
-            query_sql = """select id,mana from teams;"""
-
-        data = db.session.execute(text(query_sql)).fetchall()
-
-        # Convert to the desired dictionary format
-        sources = {
-            "data": [
-                {
-                    "id": item[0],
-                    "mana": str(item[1])  # Convert the mana value to string
-                }
-                for item in data
-            ]
-        } 
+        sources = get_all_mana()
 
         return render_template("chall_manager_mana.html",
                                 user_mode=user_mode,
-                                sources=sources["data"])
+                                sources=sources)
 
     # Route to monitor & manage running instances
     @page_blueprint.route('/admin/panel')
     @admins_only
     def admin_panel():
         # retrieve custom challenges
-        challenges = db.session.execute(text("""select id, name from challenges c where c.type="dynamic_iac";"""))
-
-        print(f" challengee = {challenges}")
+        challenges = get_all_challenges(admin=True, type="dynamic_iac")
 
         return render_template("chall_manager_panel.html",
                                 challenges=challenges)

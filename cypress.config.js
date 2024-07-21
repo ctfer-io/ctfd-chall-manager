@@ -6,5 +6,7 @@ module.exports = defineConfig({
       // implement node event listeners here
     },
   },
-  defaultCommandTimeout: 600000 
+  defaultCommandTimeout: 150000
 });
+
+
