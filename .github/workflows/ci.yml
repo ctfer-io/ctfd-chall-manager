@@ -84,7 +84,7 @@ jobs:
           fi
 
       - name: Setup CTFd
-        uses: ctfer-io/ctfd-setup@6184bab99f91c895dae9172ba30bce87ef10a120 # v1.1.9
+        uses: ctfer-io/ctfd-setup@f76c764b07af9c6292de3f75009876e26c77bb1f # v1.2.1
         with:
           url: 'http://ctfd:8000'
           appearance_name: CTFer.io
