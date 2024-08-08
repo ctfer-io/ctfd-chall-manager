@@ -1,7 +1,10 @@
 import requests
 import json
 
-from CTFd.utils import get_config # type: ignore
+from CTFd.utils import get_config  # type: ignore
+from .logger import configure_logger
+
+logger = configure_logger(__name__)
 
 def query_challenges() -> list:
     """
@@ -11,10 +14,10 @@ def query_challenges() -> list:
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/challenge"
-
     s = requests.Session()
-
     result = []
+
+    logger.debug(f"Querying challenges from {url}")
 
     try:
         with s.get(url, headers=None, stream=True) as resp:
@@ -22,9 +25,10 @@ def query_challenges() -> list:
                 if line:
                     res = line.decode("utf-8")
                     res = json.loads(res)
-
                     result.append(res["result"])
+        logger.debug(f"Successfully queried challenges: {result}")
     except Exception as e:
+        logger.error(f"Error querying challenges: {e}")
         raise Exception(f"ConnectionError: {e}")
 
     return result
@@ -35,7 +39,7 @@ def create_challenge(id: int, scenario: str, *args) -> requests.Response:
     
     :param id: id of challenge to create (e.g: 1)
     :param scenario: base64(zip(.)),
-    :param *args: additional configuration in dictionnary format (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00')}
+    :param *args: additional configuration in dictionary format (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00'})
     
     :return Response: of chall-manager API
     """
@@ -46,30 +50,30 @@ def create_challenge(id: int, scenario: str, *args) -> requests.Response:
         "Content-Type": "application/json"
     }
 
-    # init payload 
     payload = {}
 
-    # check if args is provided
     if len(args) != 0:
-        # if invalid inputs ça dégage mon salaud
-        if type(args[0]) is not dict: 
+        if type(args[0]) is not dict:
+            logger.error("Invalid arguments provided for creating challenge")
             return
 
-        payload = args[0] # check if inputs are valid for CM ?
+        payload = args[0]
 
-    print(f"plugins debug args[0]: {args[0]}")  # TODO use logging
+    logger.debug(f"Creating challenge with id={id}")
 
-    # mandatory inputs
     payload["id"] = str(id)
     payload["scenario"] = scenario
 
-    try:    
-        r = requests.post(url, data = json.dumps(payload), headers=headers)
-    except Exception as e :
-        raise Exception(f"An exception occured while communicating with CM : {e}")
+    try:
+        r = requests.post(url, data=json.dumps(payload), headers=headers)
+        logger.debug(f"Received response: {r.status_code} {r.text}")
+    except Exception as e:
+        logger.error(f"Error creating challenge: {e}")
+        raise Exception(f"An exception occurred while communicating with CM: {e}")
     else:
         if r.status_code != 200:
-            raise Exception(f"Chall-manager return an error : {json.loads(r.text)}")
+            logger.error(f"Error from chall-manager: {json.loads(r.text)}")
+            raise Exception(f"Chall-manager returned an error: {json.loads(r.text)}")
     
     return r
 
@@ -77,19 +81,21 @@ def delete_challenge(id: int) -> requests.Response:
     """
     Delete challenge and its instances running.
     
-    :param target* (string): url of chall-manager API (e.g http://localhost:9090/api/v1)
     :param id* (int): 1
 
     :return Response: of chall-manager API
     """
-
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/challenge/{id}"
 
-    try:        
+    logger.debug(f"Deleting challenge with id={id}")
+
+    try:
         r = requests.delete(url)
-    except Exception as e :
-        return e 
+        logger.debug(f"Received response: {r.status_code} {r.text}")
+    except Exception as e:
+        logger.error(f"Error deleting challenge: {e}")
+        return e
     
     return r
 
@@ -97,58 +103,64 @@ def get_challenge(id: int) -> requests.Response:
     """
     Get challenge information and its instances running.
     
-    : :param id* (int): 1
+    :param id* (int): 1
     :return Response: of chall-manager API
     """
-
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/challenge/{id}" 
-    
-    try: 
+    url = f"{cm_api_url}/challenge/{id}"
+
+    logger.debug(f"Getting challenge information for id={id}")
+
+    try:
         r = requests.get(url)
-    except Exception as e :
-        raise Exception(f"An exception occured while communicating with CM : {e}")
+        logger.debug(f"Received response: {r.status_code} {r.text}")
+    except Exception as e:
+        logger.error(f"Error getting challenge: {e}")
+        raise Exception(f"An exception occurred while communicating with CM: {e}")
     else:
         if r.status_code != 200:
-            raise Exception(f"Chall-manager return an error : {json.loads(r.text)}")
+            logger.error(f"Error from chall-manager: {json.loads(r.text)}")
+            raise Exception(f"Chall-manager returned an error: {json.loads(r.text)}")
  
     return r
 
-def update_challenge(id: int, *args)-> requests.Response:
+def update_challenge(id: int, *args) -> requests.Response:
     """
-    Update challenge with informations provided
+    Update challenge with information provided
     
     :param id*: 1 
-    :param *args: additional configuration in dictionnary format (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00' })
+    :param *args: additional configuration in dictionary format (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00' })
     :return Response: of chall-manager API
     """
-
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/challenge/{id}"
 
     headers = {
         "Content-Type": "application/json"
-    } 
+    }
 
-    # init payload 
     payload = {}
 
-    # check if args is provided
     if len(args) != 0:
-        # if invalid inputs ça dégage mon salaud
-        if type(args[0]) is not dict: 
+        if type(args[0]) is not dict:
+            logger.error("Invalid arguments provided for updating challenge")
             return
 
-        payload = args[0] # check if inputs are valid for CM ?
+        payload = args[0]
+
+    logger.debug(f"Updating challenge with id={id}")
 
     payload["id"] = str(id)
 
-    try:        
-        r = requests.patch(url, data = json.dumps(payload), headers=headers)
-    except Exception as e :
-        raise Exception(f"An exception occured while communicating with CM : {e}")
+    try:
+        r = requests.patch(url, data=json.dumps(payload), headers=headers)
+        logger.debug(f"Received response: {r.status_code} {r.text}")
+    except Exception as e:
+        logger.error(f"Error updating challenge: {e}")
+        raise Exception(f"An exception occurred while communicating with CM: {e}")
     else:
         if r.status_code != 200:
-            raise Exception(f"Chall-manager return an error : {json.loads(r.text)}")
+            logger.error(f"Error from chall-manager: {json.loads(r.text)}")
+            raise Exception(f"Chall-manager returned an error: {json.loads(r.text)}")
     
     return r

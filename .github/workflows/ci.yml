@@ -36,6 +36,7 @@ jobs:
         options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
         env:
           DATABASE_URL: mysql+pymysql://root:ctfer@mariadb/ctfd
+          LOG_LEVEL: DEBUG
 
     steps:
       - name: Checkout repository

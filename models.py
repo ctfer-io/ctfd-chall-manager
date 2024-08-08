@@ -1,23 +1,29 @@
 from flask import Blueprint, request, current_app
-
-from CTFd.models import ( # type: ignore
+from CTFd.models import (  # type: ignore
     Flags,
     Files,
     db,
 )
-from CTFd.plugins.challenges import BaseChallenge # type: ignore 
-from CTFd.plugins.flags import FlagException, get_flag_class # type: ignore
-from CTFd.utils import user as current_user # type: ignore
-from CTFd.utils import get_config # type: ignore
+from CTFd.plugins.challenges import BaseChallenge  # type: ignore
+from CTFd.plugins.flags import FlagException, get_flag_class  # type: ignore
+from CTFd.utils import user as current_user  # type: ignore
+from CTFd.utils import get_config  # type: ignore
 
-from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge # type: ignore
-from .utils.challenge_store import create_challenge, delete_challenge, get_challenge, update_challenge
+from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge  # type: ignore
+from .utils.challenge_store import (
+    create_challenge,
+    delete_challenge,
+    get_challenge,
+    update_challenge,
+)
 from .utils.instance_manager import delete_instance, get_instance
+from .utils.logger import configure_logger
 
 import os
 import base64
 import json
 
+logger = configure_logger(__name__)
 
 class DynamicIaCChallenge(DynamicChallenge):
     __mapper_args__ = {"polymorphic_identity": "dynamic_iac"}
@@ -25,8 +31,8 @@ class DynamicIaCChallenge(DynamicChallenge):
         db.Integer, db.ForeignKey("dynamic_challenge.id", ondelete="CASCADE"), primary_key=True
     )
     mana_cost = db.Column(db.Integer, default=0)
-    until = db.Column(db.Text) # date
-    timeout = db.Column(db.Text) # duration
+    until = db.Column(db.Text)  # date
+    timeout = db.Column(db.Text)  # duration
     scope_global = db.Column(db.Boolean, default=False)
 
     scenario_id = db.Column(
@@ -71,52 +77,50 @@ class DynamicIaCValueChallenge(BaseChallenge):
         :param request:
         :return:
         """
-        data = request.form or request.get_json()        
+        data = request.form or request.get_json()
         if "scope_global" in data.keys():
-            data["scope_global"] = data["scope_global"] == 'true' # convert string to boolean
+            data["scope_global"] = data["scope_global"] == "true"  # convert string to boolean
 
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
         db.session.commit()
 
+        # create challenge on chall-manager
+        # retrieve file based on scenario id provided by user
+        scenario = Files.query.filter_by(id=int(data["scenario_id"])).first()
 
-        # create challenge on chall-manager       
-        ## retrieve file based on scenario id provided by user
-        scenario = Files.query.filter_by(id=int(data['scenario_id'])).first()
-        
-        ## retrieve content of scenario_id to send at CM
+        # retrieve content of scenario_id to send at CM
         full_scenario_location = os.path.join(current_app.config.get("UPLOAD_FOLDER"), scenario.location)
-        try: 
-            with open(full_scenario_location, "rb") as f:         
+        try:
+            with open(full_scenario_location, "rb") as f:
                 encoded_string = base64.b64encode(f.read())
-                content = encoded_string.decode("utf-8")                
+                content = encoded_string.decode("utf-8")
         except Exception as e:
-            print(f"Plugin: An exception occured while open file {int(data['scenario_id'])}: {e}")  # TODO use logging
+            logger.error(f"An exception occurred while opening file {int(data['scenario_id'])}: {e}")
+            return
 
-        # check optionnal configuration for dynamic_iac 
-        # init optionnal configuration   
-        optionnal = {}     
-        if data['timeout'] != "":
-            optionnal['timeout'] = f"{data['timeout']}s" # 500 -> 500s proto standard
+        # check optional configuration for dynamic_iac
+        # init optional configuration
+        optional = {}
+        if data["timeout"] != "":
+            optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
-        if data['until'] != "":
-            optionnal['until'] = f"{data['until']}"
-
+        if data["until"] != "":
+            optional["until"] = f"{data['until']}"
 
         # handle challenge creation on chall-manager
-        try: 
-            print(f"plugins debug len of content = {len(content)}")  # TODO use logging
-            print(f"plugins debug content of optionnal = {optionnal}")  # TODO use logging
-            create_challenge(int(challenge.id), content, optionnal)
+        try:
+            logger.debug(f"Content length: {len(content)}")
+            logger.debug(f"Optional parameters: {optional}")
+            create_challenge(int(challenge.id), content, optional)
         except Exception as e:
-            print(f"Plugin: An exception occured while scending challenge {challenge.id} at CM: {e}")   # TODO use logging 
-            print("debug: deleting challenge on CTFd due to an issue while creating it on CM")  # TODO use logging
-            cls.delete(challenge)   
-            return 
+            logger.error(f"An exception occurred while sending challenge {challenge.id} to CM: {e}")
+            logger.debug("Deleting challenge on CTFd due to an issue while creating it on CM")
+            cls.delete(challenge)
+            return
 
         # return CTFd Challenge if no error
         return challenge
-
 
     @classmethod
     def read(cls, challenge):
@@ -142,9 +146,9 @@ class DynamicIaCValueChallenge(BaseChallenge):
             "state": challenge.state,
             "max_attempts": challenge.max_attempts,
             "type": challenge.type,
-            "mana_cost": challenge.mana_cost, # plugins specific
-            "until": challenge.until, # plugins specific
-            "timeout": challenge.timeout, # plugins specific
+            "mana_cost": challenge.mana_cost,  # plugins specific
+            "until": challenge.until,  # plugins specific
+            "timeout": challenge.timeout,  # plugins specific
             "type_data": {
                 "id": cls.id,
                 "name": cls.name,
@@ -168,32 +172,30 @@ class DynamicIaCValueChallenge(BaseChallenge):
 
         # Change Scope
         if "scope_global" in data.keys():
-            data["scope_global"] = data["scope_global"] == 'true' # convert string to boolean
-            
+            data["scope_global"] = data["scope_global"] == "true"  # convert string to boolean
+
             try:
                 r = get_challenge(challenge.id)
             except Exception as e:
-                print(f"Error while patching the challenge : {e}")  # TODO use logging
+                logger.error(f"Error while patching the challenge: {e}")
                 return
-            
+
             instances = json.loads(r.text)["instances"]
 
-            if data["scope_global"]: # if true
-                for i in instances: 
-                    if i['sourceId'] == 0:
+            if data["scope_global"]:  # if true
+                for i in instances:
+                    if i["sourceId"] == 0:
                         continue
                     try:
-                        delete_instance(challenge.id, i['sourceId'])
+                        delete_instance(challenge.id, i["sourceId"])
                     except Exception as e:
-                        print(f"try to delete challenge {challenge.id} for source {i['sourceId']}, but do not exist before. SKIP")  # TODO use logging
-                
-            
+                        logger.warning(f"Failed to delete challenge {challenge.id} for source {i['sourceId']}, instance may not exist")
+
             else:
                 try:
                     delete_instance(challenge.id, 0)
                 except Exception as e:
-                    print(f"try to delete challenge {challenge.id} for source 0, but do not exist before. SKIP")  # TODO use logging
-                
+                    logger.warning(f"Failed to delete challenge {challenge.id} for source 0, instance may not exist")
 
         # Workaround
         if "state" in data.keys() and len(data.keys()) == 1:
@@ -205,8 +207,8 @@ class DynamicIaCValueChallenge(BaseChallenge):
             setattr(challenge, "until", "")
 
         if "timeout" not in data.keys():
-            setattr(challenge, "timeout", "")        
-        
+            setattr(challenge, "timeout", "")
+
         # don't touch this
         for attr, value in data.items():
             # We need to set these to floats so that the next operations don't operate on strings
@@ -215,36 +217,35 @@ class DynamicIaCValueChallenge(BaseChallenge):
             setattr(challenge, attr, value)
 
         # Patch Challenge on CM WIP
-        optionnal = {}  
+        optional = {}
         if "timeout" in data.keys():
-            optionnal['timeout'] = f"{data['timeout']}s" # 500 -> 500s proto standard
+            optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
         if "until" in data.keys():
-            optionnal['until'] = f"{data['until']}"
-        
+            optional["until"] = f"{data['until']}"
+
         if "updateStrategy" in data.keys():
-            optionnal["updateStrategy"] = data["updateStrategy"]
+            optional["updateStrategy"] = data["updateStrategy"]
 
         if "scenario_id" in data.keys():
             # retrieve file based on scenario id provided by user
-            scenario = Files.query.filter_by(id=int(data['scenario_id'])).first()
-        
-            ## retrieve content of scenario_id to send at CM
+            scenario = Files.query.filter_by(id=int(data["scenario_id"])).first()
+
+            # retrieve content of scenario_id to send at CM
             full_scenario_location = os.path.join(current_app.config.get("UPLOAD_FOLDER"), scenario.location)
-            try: 
-                with open(full_scenario_location, "rb") as f:         
+            try:
+                with open(full_scenario_location, "rb") as f:
                     encoded_string = base64.b64encode(f.read())
-                    content = encoded_string.decode("utf-8")     
-                    optionnal["scenario"] = content           
+                    content = encoded_string.decode("utf-8")
+                    optional["scenario"] = content
             except Exception as e:
-                print(f"Plugin: An exception occured while open file {int(challenge['scenario_id'])}: {e}")  # TODO use logging
+                logger.error(f"An exception occurred while opening file {int(challenge['scenario_id'])}: {e}")
 
         # send updates to CM
-        try: 
-            update_challenge(challenge.id, optionnal)
+        try:
+            update_challenge(challenge.id, optional)
         except Exception as e:
-            print(f"Error while patching the challenge : {e}")  # TODO use logging
-
+            logger.error(f"Error while patching the challenge: {e}")
 
         return DynamicValueChallenge.calculate_value(challenge)
 
@@ -256,19 +257,21 @@ class DynamicIaCValueChallenge(BaseChallenge):
         :param challenge:
         :return:
         """
-        
-        # check if challenge exists on CM
-        try: 
-            get_challenge(challenge.id)
-        except:
-            print("ignore challenge")  # TODO use logging
-        else:
-            delete_challenge(challenge.id) # FIXME handle proprely exception of challenge not found in CM
 
-        # then delete it on CTFd 
+        # check if challenge exists on CM
+        try:
+            get_challenge(challenge.id)
+        except Exception as e:
+            logger.info(f"Ignoring challenge {challenge.id} as it does not exist on CM: {e}")
+        else:
+            try:
+                delete_challenge(challenge.id)
+            except Exception as e:
+                logger.error(f"Failed to delete challenge {challenge.id} from CM: {e}")
+
+        # then delete it on CTFd
         super().delete(challenge)
 
-    
     @classmethod
     def attempt(cls, challenge, request):
         """
@@ -281,37 +284,39 @@ class DynamicIaCValueChallenge(BaseChallenge):
         :return: (boolean, string)
         """
         data = request.form or request.get_json()
-        submission = data["submission"].strip() # user input
+        submission = data["submission"].strip()  # user input
 
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
         if get_config("user_mode") == "teams":
             sourceId = str(current_user.get_current_user().team_id)
 
-        # CM Plugins extention
+        # CM Plugins extension
         if challenge.scope_global:
             sourceId = 0
 
         try:
-            result = get_instance(challenge.id, sourceId)      
+            result = get_instance(challenge.id, sourceId)
         except Exception as e:
-            return False, f"Error occured, contact admins ! {e}"       
-        
+            logger.error(f"Error occurred while getting instance: {e}")
+            return False, f"Error occurred, contact admins! {e}"
+
         # If the instance no longer exists
         if result.status_code != 200:
+            logger.info(f"Instance for challenge {challenge.id} no longer exists")
             return False, "Expired"
-        
-        data =  json.loads(result.text)
+
+        data = json.loads(result.text)
 
         # If the instance provided its flag
-        if 'flag' in data.keys():
-            cm_flag = data['flag']
+        if "flag" in data.keys():
+            cm_flag = data["flag"]
 
             # if the flag is OK
             if len(cm_flag) == len(submission):
                 result = 0
                 for x, y in zip(cm_flag, submission):
-                    result |= ord(x) ^ ord(y)            
+                    result |= ord(x) ^ ord(y)
                 if result == 0:
                     return True, "Correct"
 
@@ -322,15 +327,12 @@ class DynamicIaCValueChallenge(BaseChallenge):
                 if get_flag_class(flag.type).compare(flag, submission):
                     return True, "Correct"
             except FlagException as e:
+                logger.error(f"FlagException: {e}")
                 return False, str(e)
         return False, "Incorrect"
-    
+
     @classmethod
     def solve(cls, user, team, challenge, request):
         super().solve(user, team, challenge, request)
 
         DynamicValueChallenge.calculate_value(challenge)
-
-
-
-
