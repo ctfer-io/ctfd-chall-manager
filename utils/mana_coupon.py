@@ -1,13 +1,14 @@
 from ..models import DynamicIaCChallenge
 
-from CTFd.models import ( # type: ignore
-    db,
-)
-from CTFd.utils import get_config # type: ignore
+from CTFd.models import db  # type: ignore
+from CTFd.utils import get_config  # type: ignore
 from sqlalchemy import func
 
 from .instance_manager import query_instance
+from .logger import configure_logger
 
+# Configure logger for this module
+logger = configure_logger(__name__)
 
 class ManaCoupon(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,10 +17,8 @@ class ManaCoupon(db.Model):
     sourceId = db.Column(db.Integer)
     mana_used = db.Column(db.Integer)
     
-    @classmethod
     def __repr__(self):
-        return f"<ManaCoupon {self.id} {self.challengeId} {self.sourceId} {self.mana_used}"
-
+        return f"<ManaCoupon challengeId: {self.challengeId} sourceId: {self.sourceId} ManaCost:{self.mana_used}>"
 
 def create_coupon(challengeId: int, sourceId: int):
     """
@@ -28,9 +27,13 @@ def create_coupon(challengeId: int, sourceId: int):
     :param challengeId: ID of the challenge 
     :param sourceId: ID of the source (team_id or user_id based on user_mode)
     """
-    challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()  
+    challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
+    if not challenge:
+        logger.error(f"Challenge with ID {challengeId} not found.")
+        return
+
     coupon = ManaCoupon(challengeId=challengeId, sourceId=sourceId, mana_used=challenge.mana_cost)
-    print(f" creating {coupon}")  # TODO use logging
+    logger.debug(f"Creating coupon: {coupon}")
     db.session.add(coupon)
     db.session.commit()
 
@@ -42,10 +45,12 @@ def delete_coupon(challengeId: int, sourceId: int):
     :param sourceId: ID of the source (team_id or user_id based on user_mode)
     """
     coupon = ManaCoupon.query.filter_by(challengeId=challengeId, sourceId=sourceId).first()
-    print(f" deleting {coupon}")  # TODO use logging
-    db.session.delete(coupon)
-    db.session.commit()
-
+    if coupon:
+        logger.debug(f"Deleting coupon: {coupon}")
+        db.session.delete(coupon)
+        db.session.commit()
+    else:
+        logger.warning(f"No coupon found for challengeId {challengeId} and sourceId {sourceId}.")
 
 def get_source_mana(sourceId: int) -> int:
     """
@@ -54,10 +59,10 @@ def get_source_mana(sourceId: int) -> int:
     :param sourceId: ID of the source (team_id or user_id based on user_mode)
     :return: Sum of mana used 
     """
-    # get all coupons that exists 
+    # get all coupons that exist 
     coupons = ManaCoupon.query.filter_by(sourceId=sourceId).all()
 
-    # get all instances that exists on CM
+    # get all instances that exist on CM
     instances = query_instance(sourceId)
 
     for c in coupons:
@@ -68,6 +73,7 @@ def get_source_mana(sourceId: int) -> int:
                 break
     
         if not exists:
+            logger.info(f"Coupon {c} does not match any existing instance, deleting it.")
             delete_coupon(c.challengeId, sourceId)
 
     result = db.session.query(
@@ -75,7 +81,7 @@ def get_source_mana(sourceId: int) -> int:
     ).filter_by(sourceId=sourceId
     ).first()
 
-    if result['mana'] == None:
+    if result['mana'] is None:
         return 0 
 
     return result['mana']
@@ -86,14 +92,13 @@ def get_all_mana() -> list:
 
     :return: list(map) [{ sourceId: x, mana: y, remaining: z}, ..]
     """
-    # select u.id as id, COALESCE(SUM(t.mana_used),0) AS mana from mana_coupon t right join users u on t.sourceId = u.id group by u.id;
     data = db.session.query(
         ManaCoupon.sourceId.label("id"),
         func.sum(ManaCoupon.mana_used).label("mana")
     ).group_by(ManaCoupon.sourceId
     ).all()
 
-    mana_total = get_config('chall-manager:chall-manager_mana_total')    
+    mana_total = get_config('chall-manager:chall-manager_mana_total')
 
     result = []
     for item in data:
@@ -103,4 +108,5 @@ def get_all_mana() -> list:
         data["remaining"] = f"{mana_total-item[1]}"
         result.append(data)
 
+    logger.debug(f"Mana usage data: {result}")
     return result

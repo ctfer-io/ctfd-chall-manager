@@ -18,6 +18,7 @@ services:
       - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
     environment:
       DATABASE_URL: mysql+pymysql://root:ctfer@mariadb/ctfd
+      LOG_LEVEL: DEBUG
 
   chall-manager:
     image: ctferio/chall-manager:dev
