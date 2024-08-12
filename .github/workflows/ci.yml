@@ -101,7 +101,7 @@ jobs:
           CTFD_PASSWORD: ${{ env.PASSWORD }}
 
       - name: Install pulumi
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
 
       - name: Additionnal configuration for CTFd (users and teams)
         run: |-
