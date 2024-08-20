@@ -17,7 +17,6 @@ jobs:
           - 8081:8081
         env:
           CI: true
-          TRACING: true # workaround defer nil
         credentials:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_password }}
@@ -90,7 +89,7 @@ jobs:
           admin_password: ${{ env.PASSWORD }}
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
 
       - name: Generate token and store it for GH Actions
         run: |-
@@ -102,7 +101,7 @@ jobs:
           CTFD_PASSWORD: ${{ env.PASSWORD }}
 
       - name: Install pulumi
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@ccd8e6d0d14d7ead561274adf8837a016b9c4f4e # 5.4.0
 
       - name: Additionnal configuration for CTFd (users and teams)
         run: |-
@@ -134,7 +133,7 @@ jobs:
           CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:9090/api/v1"
           CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "10"
       
-      - uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # 4.3.5
+      - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # 4.3.6
         if: failure()
         with:
           name: cypress-screenshots

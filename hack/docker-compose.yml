@@ -27,7 +27,6 @@ services:
       - 8081:8081
     environment:
       CI: true
-      TRACING: true
     networks:
       - testing
 
