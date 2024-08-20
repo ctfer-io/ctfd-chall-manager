@@ -304,7 +304,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
         # If the instance no longer exists
         if result.status_code != 200:
             logger.info(f"Instance for challenge {challenge.id} no longer exists")
-            return False, "Expired"
+            return False, "Expired (the instance must be ON to submit)"
 
         data = json.loads(result.text)
 
