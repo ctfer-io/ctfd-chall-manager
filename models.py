@@ -77,6 +77,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
         :param request:
         :return:
         """
+        logger.debug("creating challenge on CTFd")
         data = request.form or request.get_json()
         if "scope_global" in data.keys():
             data["scope_global"] = data["scope_global"] == "true"  # convert string to boolean
@@ -84,6 +85,8 @@ class DynamicIaCValueChallenge(BaseChallenge):
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
         db.session.commit()
+
+        logger.info(f"challenge {challenge.id} created successfully on CTFd")
 
         # create challenge on chall-manager
         # retrieve file based on scenario id provided by user
@@ -110,13 +113,14 @@ class DynamicIaCValueChallenge(BaseChallenge):
 
         # handle challenge creation on chall-manager
         try:
-            logger.debug(f"Content length: {len(content)}")
-            logger.debug(f"Optional parameters: {optional}")
+            logger.debug(f"creating challenge {challenge.id} on CM")
             create_challenge(int(challenge.id), content, optional)
+            logger.info(f"challenge {challenge.id} created successfully on CM")
         except Exception as e:
             logger.error(f"An exception occurred while sending challenge {challenge.id} to CM: {e}")
-            logger.debug("Deleting challenge on CTFd due to an issue while creating it on CM")
+            logger.debug("deleting challenge on CTFd due to an issue while creating it on CM")
             cls.delete(challenge)
+            logger.info(f"challenge {challenge.id} deleted sucessfully")
             return
 
         # return CTFd Challenge if no error
@@ -258,19 +262,25 @@ class DynamicIaCValueChallenge(BaseChallenge):
         :return:
         """
 
-        # check if challenge exists on CM
+        # check if challenge exists on CM        
         try:
             get_challenge(challenge.id)
         except Exception as e:
             logger.info(f"Ignoring challenge {challenge.id} as it does not exist on CM: {e}")
         else:
             try:
+                logger.debug(f"deleting challenge {challenge.id} on CM")
                 delete_challenge(challenge.id)
+                logger.info(f"challenge {challenge.id} on CM delete successfully.")
             except Exception as e:
                 logger.error(f"Failed to delete challenge {challenge.id} from CM: {e}")
-
+        
+        
+                     
         # then delete it on CTFd
+        logger.debug(f"deleting challenge {challenge.id} on CTFd")
         super().delete(challenge)
+        logger.info(f"challenge {challenge.id} on CTFd deleted successfully.")
 
     @classmethod
     def attempt(cls, challenge, request):
@@ -295,6 +305,8 @@ class DynamicIaCValueChallenge(BaseChallenge):
         if challenge.scope_global:
             sourceId = 0
 
+        logger.info(f"submission of user {current_user.get_current_user().id} as source {sourceId} for challenge {challenge.id} : {submission}")
+
         try:
             result = get_instance(challenge.id, sourceId)
         except Exception as e:
@@ -303,14 +315,17 @@ class DynamicIaCValueChallenge(BaseChallenge):
 
         # If the instance no longer exists
         if result.status_code != 200:
-            logger.info(f"Instance for challenge {challenge.id} no longer exists")
+            logger.debug(f"instance for challenge {challenge.id} no longer exists")
+            logger.info(f"invalid submission due to expired instance for challenge {challenge.id} source {sourceId}")
             return False, "Expired (the instance must be ON to submit)"
 
         data = json.loads(result.text)
 
+        logger.debug("check if flag is provided by CM")
         # If the instance provided its flag
         if "flag" in data.keys():
             cm_flag = data["flag"]
+            logger.debug(f"flag provided by CM for challenge {challenge.id} source {sourceId}: {cm_flag}")
 
             # if the flag is OK
             if len(cm_flag) == len(submission):
@@ -318,17 +333,23 @@ class DynamicIaCValueChallenge(BaseChallenge):
                 for x, y in zip(cm_flag, submission):
                     result |= ord(x) ^ ord(y)
                 if result == 0:
+                    logger.info(f"valid submission for CM flag: challenge {challenge.id} source {sourceId}")
                     return True, "Correct"
+                
+            logger.info(f"invalid submission for CM flag: challenge {challenge.id} source {sourceId}")
 
         # CTFd behavior
+        logger.debug(f"try the CTFd flag")
         flags = Flags.query.filter_by(challenge_id=challenge.id).all()
         for flag in flags:
             try:
                 if get_flag_class(flag.type).compare(flag, submission):
+                    logger.info(f"valid submission for CTFd flag: challenge {challenge.id} source {sourceId}")
                     return True, "Correct"
             except FlagException as e:
                 logger.error(f"FlagException: {e}")
                 return False, str(e)
+        logger.info(f"invalid submission for CTFd flag: challenge {challenge.id} source {sourceId}")
         return False, "Incorrect"
 
     @classmethod
