@@ -1,0 +1,14 @@
+<!-- This template define configuration items  -->
+
+<div class="tab-pane fade show active" id="docker" role="tabpanel" aria-autocomplete="none">
+    <h5>Status</h5>
+    <small class="form-text text-muted">
+        Status of communication with chall-manager API : 
+            {% if cm_api_reachable %}
+            <b><span style="color:green">reachable</span></b>
+            {% else %}
+            <b><span style="color:red">unreachable</span></b>
+            {% endif %}
+    </small><br>
+
+</div>
