@@ -1,5 +1,6 @@
 import json
 from flask import Blueprint, render_template
+import requests
 
 from CTFd.api import CTFd_API_v1  # type: ignore
 from CTFd.plugins import register_plugin_assets_directory  # type: ignore
@@ -65,7 +66,19 @@ def load(app):
     @admins_only
     def admin_settings():
         logger.debug("Accessing admin settings page.")
-        return render_template("chall_manager_config.html")
+        
+        try:
+            logger.debug("getting connection status with chall-manager")
+            requests.get(get_config("chall-manager:chall-manager_api_url"))
+        except Exception as e:
+            logger.warning(f"cannot communicate with CM provided got {e}")
+            cm_api_reachable = False
+        else: 
+            logger.info("communication with CM configured successfully")
+            cm_api_reachable = True
+        
+        return render_template("chall_manager_config.html",
+                               cm_api_reachable=cm_api_reachable)
 
     # Route to monitor & manage running instances
     @page_blueprint.route('/admin/instances')
