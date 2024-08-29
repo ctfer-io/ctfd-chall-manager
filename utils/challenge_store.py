@@ -20,7 +20,7 @@ def query_challenges() -> list:
     logger.debug(f"Querying challenges from {url}")
 
     try:
-        with s.get(url, headers=None, stream=True) as resp:
+        with s.get(url, headers=None, stream=True, timeout=10) as resp:
             for line in resp.iter_lines():
                 if line:
                     res = line.decode("utf-8")
@@ -112,7 +112,7 @@ def get_challenge(id: int) -> requests.Response:
     logger.debug(f"Getting challenge information for id={id}")
 
     try:
-        r = requests.get(url)
+        r = requests.get(url, timeout=10)
         logger.debug(f"Received response: {r.status_code} {r.text}")
     except Exception as e:
         logger.error(f"Error getting challenge: {e}")
