@@ -108,8 +108,20 @@ function sendFile(file){
   });
 }
 
+function displayCurrentUntil() {
+  var datetimeUTC = document.getElementById("until-input-utc").value; 
+  if (datetimeUTC) {
+    var datetimeLocal = new Date(datetimeUTC);
+
+    // Format the local date to match 'datetime-local' input format
+    var formattedLocalDate = datetimeLocal.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:mm
+
+    // Set the formatted local date to the datetime-local input
+    document.getElementById("until-input-local").value = formattedLocalDate;
+  }
+}
 
 displayCurrentJanitorStrategy()
-// displayCurrentUntil()
+displayCurrentUntil()
 displayCurrentScenario()
 
