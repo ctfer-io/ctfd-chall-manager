@@ -26,7 +26,7 @@ This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/cha
 
 # How install and use
 To install the plugin, you need to clone the repository in `CTFd/plugins` folders. <br>
-To use the plugin, refer to the documentation at https://ctfer.io/docs#ctfd-chall-manager .
+To use the plugin, refer to the documentation at https://ctfer.io/docs/ctfd-chall-manager.
 
 # Glossaries
 
