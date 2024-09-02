@@ -42,7 +42,7 @@ class AdminInstance(Resource):
         sourceId = request.args.get("sourceId")
 
         adminId = str(current_user.get_current_user().id)
-        logger.info(f"Admin {adminId} request instance delete for challengeId: {challengeId}, sourceId: {sourceId}")
+        logger.info(f"Admin {adminId} get instance info for challengeId: {challengeId}, sourceId: {sourceId}")
 
         try:
             logger.debug(f"Getting instance for challengeId: {challengeId}, sourceId: {sourceId}")
@@ -66,7 +66,7 @@ class AdminInstance(Resource):
         sourceId = request.args.get("sourceId")
 
         adminId = str(current_user.get_current_user().id)
-        logger.info(f"Admin {adminId} request instance delete for challengeId: {challengeId}, sourceId: {sourceId}")
+        logger.info(f"Admin {adminId} request instance creation for challengeId: {challengeId}, sourceId: {sourceId}")
 
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
         
@@ -99,7 +99,7 @@ class AdminInstance(Resource):
         sourceId = request.args.get("sourceId")
 
         adminId = str(current_user.get_current_user().id)
-        logger.info(f"Admin {adminId} request instance delete for challengeId: {challengeId}, sourceId: {sourceId}")
+        logger.info(f"Admin {adminId} request instance update for challengeId: {challengeId}, sourceId: {sourceId}")
 
         try:
             logger.debug(f"Updating instance for challengeId: {challengeId}, sourceId: {sourceId}")
