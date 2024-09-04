@@ -115,7 +115,7 @@ jobs:
           GOPRIVATE: github.com/ctfer-io/chall-manager # remove when chall-manager will be released
 
       - name: tests with cypress
-        uses: cypress-io/github-action@df7484c5ba85def7eef30db301afa688187bc378 # v6.7.2  
+        uses: cypress-io/github-action@496e7dc0edc421a9de8a36a31c793340e00c61bf # v6.7.5
         env: 
           CYPRESS_CTFD_NAME: ${{ env.NAME }}
           CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
@@ -124,7 +124,7 @@ jobs:
           CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:9090/api/v1"
           CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "10"
       
-      - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # 4.3.6
+      - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # 4.4.0
         if: failure()
         with:
           name: cypress-screenshots
