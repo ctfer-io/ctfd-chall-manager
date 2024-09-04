@@ -5,49 +5,33 @@ from flask_restx import abort
 from sqlalchemy.sql import and_
 
 from CTFd.models import Challenges # type: ignore
-from CTFd.utils.user import is_admin, get_current_user # type: ignore
-from .utils.cache import CacheProvider # type: ignore
-
+from CTFd.utils.user import is_admin # type: ignore
 
 def challenge_visible(func):
     @functools.wraps(func)
     def _challenge_visible(*args, **kwargs):
-        challenge_id = request.args.get('challenge_id')
+        # Get challengeId from query string
+        challengeId = request.args.get('challengeId')
+
+        if not challengeId :
+            data = request.get_json()
+            if data:
+                challengeId = data.get('challengeId')
+
+        if not challengeId:
+            abort(400, 'missing args', success=False)
+
         if is_admin():
             if not Challenges.query.filter(
-                Challenges.id == challenge_id
+                Challenges.id == challengeId
             ).first():
                 abort(404, 'no such challenge', success=False)
         else:
             if not Challenges.query.filter(
-                Challenges.id == challenge_id,
+                Challenges.id == challengeId,
                 and_(Challenges.state != "hidden", Challenges.state != "locked"),
             ).first():
                 abort(403, 'challenge not visible', success=False)
         return func(*args, **kwargs)
 
     return _challenge_visible
-
-
-def frequency_limited(func):
-    @functools.wraps(func)
-    def _frequency_limited(*args, **kwargs):
-        if is_admin():
-            return func(*args, **kwargs)
-        redis_util = CacheProvider(app=current_app, user_id=get_current_user().id)
-        if not redis_util.acquire_lock():
-            abort(403, 'Request Too Fast!', success=False)
-            # last request was unsuccessful. this is for protection.
-
-        if "limit" not in session:
-            session["limit"] = int(time.time())
-        else:
-            if int(time.time()) - session["limit"] < 60:
-                abort(403, 'Frequency limit, You should wait at least 1 min.', success=False)
-        session["limit"] = int(time.time())
-
-        result = func(*args, **kwargs)
-        redis_util.release_lock()  # if any exception is raised, lock will not be released
-        return result
-
-    return _frequency_limited

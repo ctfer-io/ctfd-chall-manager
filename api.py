@@ -12,6 +12,7 @@ from .models import DynamicIaCChallenge
 from .utils.instance_manager import create_instance, delete_instance, get_instance, update_instance
 from .utils.mana_coupon import create_coupon, delete_coupon, get_source_mana
 from .utils.logger import configure_logger
+from .decorators import challenge_visible
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -61,9 +62,11 @@ class AdminInstance(Resource):
     @staticmethod
     @admins_only
     def post():
+        
+        data = request.get_json()
         # mandatory
-        challengeId = request.args.get("challengeId")
-        sourceId = request.args.get("sourceId")
+        challengeId = data.get("challengeId")
+        sourceId = data.get("sourceId")
 
         adminId = str(current_user.get_current_user().id)
         logger.info(f"Admin {adminId} request instance creation for challengeId: {challengeId}, sourceId: {sourceId}")
@@ -152,15 +155,17 @@ class AdminInstance(Resource):
 class UserInstance(Resource):
     @staticmethod
     @authed_only
-    # @challenge_visible
+    @challenge_visible
     def get():
-        # mandatory
+        # mandatory     
         challengeId = request.args.get("challengeId")
 
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        logger.info(f"user {sourceId} request GET on challenge {challengeId}")
+
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)
+            sourceId = str(current_user.get_current_user().team_id)        
 
         if not challengeId or not sourceId:
             logger.warning("Missing argument: challengeId or sourceId")
@@ -198,9 +203,8 @@ class UserInstance(Resource):
 
     @staticmethod
     @authed_only
-    # @challenge_visible
-    # @frequency_limited
-    def post():
+    @challenge_visible
+    def post(): 
         # retrieve all instance deployed by chall-manager
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
 
@@ -210,6 +214,7 @@ class UserInstance(Resource):
 
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        logger.info(f"user {sourceId} request instance creation of challenge {challengeId}")
         if get_config("user_mode") == "teams":
             sourceId = str(current_user.get_current_user().team_id)
 
@@ -268,14 +273,14 @@ class UserInstance(Resource):
 
     @staticmethod
     @authed_only
-    # @challenge_visible
-    # @frequency_limited
+    @challenge_visible
     def patch():
         # mandatory
         challengeId = request.args.get("challengeId")
 
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        logger.info(f"user {sourceId} request instance update of challenge {challengeId}")
         if get_config("user_mode") == "teams":
             sourceId = str(current_user.get_current_user().team_id)
 
@@ -308,8 +313,7 @@ class UserInstance(Resource):
 
     @staticmethod
     @authed_only
-    # @frequency_limited
-    # @challenge_visible
+    @challenge_visible
     def delete():
         # retrieve all instances deployed by chall-manager
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
@@ -318,6 +322,7 @@ class UserInstance(Resource):
 
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
+        logger.info(f"user {sourceId} requests instance destroy of challenge {challengeId}")
         if get_config("user_mode") == "teams":
             sourceId = str(current_user.get_current_user().team_id)
 
