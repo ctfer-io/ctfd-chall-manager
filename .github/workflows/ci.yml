@@ -14,19 +14,11 @@ jobs:
         image: ctferio/chall-manager:dev
         ports:
           - 9090:9090
-          - 8081:8081
         env:
-          CI: true
+          GATEWAY: true
         credentials:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_password }}
-        
-      mariadb:
-        image: mariadb:10.7.8
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: ctfer
 
       ctfd:
         image: ctfd/ctfd:3.7.3@sha256:90470e1fe0f93028ce6ac197b8942916ee157d4b5d33c8266c5bec7662e55ac3
@@ -34,7 +26,6 @@ jobs:
           - 8000:8000
         options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
         env:
-          DATABASE_URL: mysql+pymysql://root:ctfer@mariadb/ctfd
           LOG_LEVEL: DEBUG
 
     steps:
@@ -139,3 +130,51 @@ jobs:
           name: cypress-screenshots
           path: cypress/screenshots
           if-no-files-found: ignore
+
+      - name: Generate token and store it for GH Actions
+        run: |-
+          cd hack/token  
+          go run main.go
+        env:
+          CTFD_URL: http://localhost:8000
+          CTFD_NAME: "user1"
+          CTFD_PASSWORD: "user1"
+          CTFD_OUTPUT_KEY: CTFD_API_TOKEN_USER
+
+      - name: Generate token and store it for GH Actions
+        run: |-
+          cd hack/token  
+          go run main.go
+        env:
+          CTFD_URL: http://localhost:8000
+          CTFD_NAME: ${{ env.NAME }}
+          CTFD_PASSWORD: ${{ env.PASSWORD }}
+          CTFD_OUTPUT_KEY: CTFD_API_TOKEN_ADMIN
+ 
+      - name: Setup Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+
+      - name: Run Fonctional Tests in mode Teams
+        run: |- 
+          cd test
+          python -m unittest test_api.py
+        env:
+          CTFD_URL: http://localhost:8000
+        
+      - name: Update CTFd into mode users
+        uses: ctfer-io/ctfd-setup@f76c764b07af9c6292de3f75009876e26c77bb1f # v1.2.1
+        with:
+          url: 'http://ctfd:8000'
+          appearance_name: CTFer.io
+          appearance_description: CTFer.io plugin tests
+          mode: users 
+          admin_name: ${{ env.NAME }}
+          admin_email: ctfer-io@protonmail.com
+          admin_password: ${{ env.PASSWORD }}
+
+      - name: Run Fonctional Tests in mode Users
+        run: |- 
+          cd test
+          python -m unittest test_api.py
+        env:
+          CTFD_URL: http://localhost:8000
