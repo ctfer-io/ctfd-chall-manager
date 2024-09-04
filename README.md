@@ -2,8 +2,8 @@
 <h1>CTFd-chall-manager</h1>
 <p><b>Level Up CTFd with Infra-as-Code Challenges!</b><p>
 <a href=""><img src="https://img.shields.io/github/license/ctfer-io/ctfd-chall-manager?style=for-the-badge" alt="License"></a>
-<a href="https://github.com/ctfer-io/ctfd-chall-manager/actions?query=workflow%3Aci+"><img src="https://img.shields.io/github/actions/workflow/status/ctfer-io/ctfd-chall-manager/ci.yml?style=for-the-badge&label=CI" alt="CI"></a>
-	<a href="https://github.com/ctfer-io/ctfd-chall-manager/actions/workflows/codeql-analysis.yml"><img src="https://img.shields.io/github/actions/workflow/status/ctfer-io/ctfd-chall-manager/codeql-analysis.yml?style=for-the-badge&label=CodeQL" alt="CodeQL"></a>
+<a href="https://github.com/ctfer-io/ctfd-chall-manager/actions?query=workflow%3Aci+"><img src="https://img.shields.io/github/actions/workflow/status/ctfer-io/ctfd-chall-manager/ci.yaml?style=for-the-badge&label=CI" alt="CI"></a>
+	<a href="https://github.com/ctfer-io/ctfd-chall-manager/actions/workflows/codeql-analysis.yaml"><img src="https://img.shields.io/github/actions/workflow/status/ctfer-io/ctfd-chall-manager/codeql-analysis.yaml?style=for-the-badge&label=CodeQL" alt="CodeQL"></a>
 </div>
 
 This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/chall-manager), to manage scenario and permit Player's to deploy their instances.
