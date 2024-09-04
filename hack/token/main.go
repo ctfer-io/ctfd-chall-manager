@@ -12,6 +12,10 @@ import (
 // and creates an API key ready to work.
 
 func main() {
+	key := "CTFD_API_KEY"
+	if k, ok := os.LookupEnv("CTFD_OUTPUT_KEY"); ok {
+		key = k
+	}
 	url := os.Getenv("CTFD_URL")
 	name := os.Getenv("CTFD_NAME")
 	password := os.Getenv("CTFD_PASSWORD")
@@ -47,7 +51,7 @@ func main() {
 		log.Fatalf("Opening $GITHUB_ENV file (%s): %s", ghf, err)
 	}
 	defer f.Close()
-	if _, err := f.WriteString(fmt.Sprintf("CTFD_API_KEY=%s\n", *token.Value)); err != nil {
-		log.Fatalf("Writing CTFD_API_KEY to $GITHUB_ENV file (%s): %s", ghf, err)
+	if _, err := f.WriteString(fmt.Sprintf("%s=%s\n", key, *token.Value)); err != nil {
+		log.Fatalf("Writing %s to $GITHUB_ENV file (%s): %s", key, ghf, err)
 	}
 }
