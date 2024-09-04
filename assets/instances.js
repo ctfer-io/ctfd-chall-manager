@@ -27,13 +27,18 @@ async function renew_instance(challengeId, sourceId) {
 }
 
 async function create_instance(challengeId, sourceId) {
-    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance?challengeId=" + challengeId + "&sourceId=" + sourceId, {
+    var params = {
+        "challengeId": challengeId.toString(),
+        "sourceId": sourceId.toString()
+    };
+    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance", {
         method: "POST",
         credentials: "same-origin",
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify(params)
     });
     console.log(response)
     response = await response.json();
