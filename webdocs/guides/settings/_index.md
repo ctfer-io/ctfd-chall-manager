@@ -14,7 +14,7 @@ This guide assumes you are a CTF administrator with a properly configured infras
 
 ## Monitoring
 
-To perform an update, Go to `Guides` > `Settings`, (1) select the text input, edit it, then (2) submit form, as shown below:
+To perform an update, Go to `CTFd Admin Panel` > `Plugins` > `chall-manager` > `Settings`, (1) select the text input, edit it, then (2) submit form, as shown below:
 
 {{% imgproc setting-update Fit "800x800" %}}
 {{% /imgproc %}}
