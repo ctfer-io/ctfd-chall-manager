@@ -15,7 +15,7 @@ Here, we assume that you are a CTF administrator, the infrastructure is already 
 During your event you may need to monitor the consumed mana for Source.
 
 ## How to do it 
-Access the plugin settings configuration in the CTFd UI, then Mana. 
+Access the plugin settings configuration in the `CTFd Admin Panel` > `Plugins` > `chall-manager` > `Mana`
 
 {{% imgproc mana-monitoring Fit "800x800" %}}
 {{% /imgproc %}}

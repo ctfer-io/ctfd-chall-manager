@@ -16,7 +16,7 @@ During your event, you may need to monitor or manage instances associated with S
 
 ## How to do it
 ### Monitoring
-To monitor instances, go to the plugin settings in the CTFd UI and select the "Instances" section.
+To monitor instances, go to the plugin settings in the `CTFd Admin Panel` > `Plugins` > `chall-manager` > `Instances` section.
 
 {{% imgproc instances-monitoring Fit "800x800" %}}
 {{% /imgproc %}}
