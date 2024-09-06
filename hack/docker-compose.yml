@@ -9,6 +9,8 @@ services:
       - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
     environment:
       LOG_LEVEL: DEBUG
+      PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:9090/api/v1
+      PLUGIN_SETTINGS_CM_MANA_TOTAL: 15
 
   chall-manager:
     image: ctferio/chall-manager:dev
