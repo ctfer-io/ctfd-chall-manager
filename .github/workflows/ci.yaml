@@ -27,6 +27,8 @@ jobs:
         options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
         env:
           LOG_LEVEL: DEBUG
+          PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:9090/api/v1
+          PLUGIN_SETTINGS_CM_MANA_TOTAL: 15
 
     steps:
       - name: Checkout repository
