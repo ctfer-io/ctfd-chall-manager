@@ -10,11 +10,24 @@ categories: [How-to Guides]
 ---
 
 ## Goal
-This guide assumes you are a CTF administrator with a properly configured infrastructure and an understanding of key concepts.Before or during your event, you may need to update the total amount of mana for Source or change the chall-manager API URL.
+This guide assumes you are a CTF administrator and you understand the key concepts. Before or during your event, you may need to configure or update the plugin. At the moment, you can configure the total amount of mana for Source or and the chall-manager API URL.
 
-## Monitoring
+## Configure with environment variables
 
-To perform an update, Go to `CTFd Admin Panel` > `Plugins` > `chall-manager` > `Settings`, (1) select the text input, edit it, then (2) submit form, as shown below:
+To configure the plugin at CTFd startup, you can use the next environment variables:
+
+| Variable                      	| Default                      	| Description                                 	|
+|-------------------------------	|------------------------------	|---------------------------------------------	|
+| PLUGIN_SETTINGS_CM_API_URL    	| http://localhost:9090/api/v1 	| URL of Chall-Manager API                    	|
+| PLUGIN_SETTINGS_CM_MANA_TOTAL 	| 0                            	| Maximum mana that source are allowed to use 	|
+
+{{% alert title="Note" color="primary" %}}
+The environment variable lookup is triggered at CTFd first startup. To modify settings, you need to change it on CTFd UI.
+{{% /alert %}}
+
+## Configure in UI
+
+To configure or perform an update, Go to `CTFd Admin Panel` > `Plugins` > `chall-manager` > `Settings`, (1) select the text input, edit it, then (2) submit form, as shown below:
 
 {{% imgproc setting-update Fit "800x800" %}}
 {{% /imgproc %}}
