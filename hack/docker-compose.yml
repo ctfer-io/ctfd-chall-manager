@@ -15,7 +15,7 @@ services:
     ports:
       - 9090:9090
     environment:
-      CI: true
+      GATEWAY: true
     networks:
       - testing
 
