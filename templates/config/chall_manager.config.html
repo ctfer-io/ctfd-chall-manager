@@ -6,8 +6,8 @@
         Common configurations to use Chall Manager by CTFer.io
     </small><br>
     {% for config, val in {
-        "API URL": ("chall-manager_api_url", "Challmanager API to connect to"),
-        "Mana total": ("chall-manager_mana_total", "Maximum mana that teams/users are allowed to use (0 = unlimited)"),
+        "API URL": ("chall-manager_api_url", "Chall-Manager API to connect to", "text"),
+        "Mana total": ("chall-manager_mana_total", "Maximum mana that teams/users are allowed to use (0 = unlimited)", "number"),
     }.items() %}
         {% set value = get_config('chall-manager:' + val[0]) %}
         <div class="form-group">
@@ -15,7 +15,7 @@
                 {{ config }}
                 <small class="form-text text-muted">{{ val[1] }}</small>
             </label>
-            <input type="text" class="form-control"
+            <input type="{{ val[2] }}" class="form-control"
                    id="{{ val[0].replace('_', '-') }}" name="{{ 'chall-manager:' + val[0] }}"
                    data-test-id="{{ 'chall-manager:' + val[0] }}"
                    {% if value != None %}value="{{ value }}"{% endif %}>
