@@ -367,8 +367,7 @@ class UserMana(Resource):
         logger.debug(f"Retrieved mana for sourceId: {sourceId}, mana: {mana}")
 
         return {'success': True, 'data': {
-            'sourceId': f"{sourceId}",
-            'mana': f"{mana}",
-            'remaining': f"{get_config('chall-manager:chall-manager_mana_total') - mana}",
+            'mana_used': f"{mana}",
+            'mana_total': f"{get_config('chall-manager:chall-manager_mana_total')}",
         }}
 

@@ -147,7 +147,13 @@ function loadInfo() {
         });
         return response
     }).then(function (response){
-        $('#cm-challenge-mana-remaining').html(response.remaining); 
+        if (response.mana_total == 0){
+            $('.cm-panel-mana-cost-div').hide();  // hide the mana cost div if mana is disabled
+        }
+        else {
+            let remaining = response.mana_total - response.mana_used
+            $('#cm-challenge-mana-remaining').html(remaining);
+        }
     });
 };
 

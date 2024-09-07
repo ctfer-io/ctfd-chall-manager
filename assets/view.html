@@ -16,9 +16,12 @@
                 <div class="card-body">
                     <h5 class="card-title">Instance Info</h5>
                     {% if challenge.mana_cost > 0 %}
-                    <h6 id="cm-panel-mana-cost" class="card-subtitle mb-2 text-muted">
-                        Mana Cost :  <span id="cm-challenge-mana-cost" data-test-id="cm-challenge-mana-cost">{{ challenge.mana_cost }}</span> (remaining: <span id="cm-challenge-mana-remaining" data-test-id="cm-challenge-mana-remaining"></span>)
-                    </h6>
+                    <div class="cm-panel-mana-cost-div">
+                        <h6 id="cm-panel-mana-cost" class="card-subtitle mb-2 text-muted">
+                            Mana Cost :  <span id="cm-challenge-mana-cost" data-test-id="cm-challenge-mana-cost">{{ challenge.mana_cost }}</span> (remaining: <span id="cm-challenge-mana-remaining" data-test-id="cm-challenge-mana-remaining"></span>)
+                        </h6>
+                    </div>
+
                     {% endif %}
                     <button class="btn btn-primary card-link" style="background-color:#479abf;" id="whale-button-boot" type="button" data-test-id="cm-button-boot"
                         onclick="CTFd._internal.challenge.boot()">Launch the challenge</button>
@@ -29,9 +32,11 @@
                 <div class="card-body">
                     <h5 class="card-title">Instance Info</h5>
                     {% if challenge.mana_cost > 0 and not challenge.scope_global %}
-                    <h6 id="cm-panel-mana-cost" class="card-subtitle mb-2 text-muted">
-                        Mana Cost :  <span id="cm-challenge-mana-cost">{{ challenge.mana_cost }}</span>
-                    </h6>
+                    <div class="cm-panel-mana-cost-div">
+                        <h6 id="cm-panel-mana-cost" class="card-subtitle mb-2 text-muted">
+                            Mana Cost :  <span id="cm-challenge-mana-cost">{{ challenge.mana_cost }}</span>
+                        </h6>
+                    </div>
                     {% endif %}
                     <h6 id="cm-panel-until" class="card-subtitle mb-2 text-muted">
                         Remaining Time: <span id="whale-challenge-count-down" data-test-id="cm-challenge-count-down"></span>s
