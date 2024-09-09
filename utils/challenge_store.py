@@ -129,7 +129,7 @@ def update_challenge(id: int, *args) -> requests.Response:
     Update challenge with information provided
     
     :param id*: 1 
-    :param *args: additional configuration in dictionary format (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00' })
+    :param *args: additional configuration in dictionary format (e.g {'timeout': '600s', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00' })
     :return Response: of chall-manager API
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
@@ -150,7 +150,16 @@ def update_challenge(id: int, *args) -> requests.Response:
 
     logger.debug(f"Updating challenge with id={id}")
 
-    payload["id"] = str(id)
+    updateMask = []
+
+
+    if "timeout" in payload.keys():
+        updateMask.append("timeout")
+
+    if "until" in payload.keys():
+        updateMask.append("until")
+
+    payload["updateMask"] = ",".join(updateMask)
 
     try:
         r = requests.patch(url, data=json.dumps(payload), headers=headers)

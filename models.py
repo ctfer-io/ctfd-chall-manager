@@ -207,10 +207,13 @@ class DynamicIaCValueChallenge(BaseChallenge):
             return DynamicValueChallenge.calculate_value(challenge)
 
         # Patch Challenge on CTFd
+        optional = {}
         if "until" not in data.keys():
+            optional["until"] = None
             setattr(challenge, "until", "")
 
         if "timeout" not in data.keys():
+            optional["timeout"] = None
             setattr(challenge, "timeout", "")
 
         # don't touch this
@@ -220,13 +223,16 @@ class DynamicIaCValueChallenge(BaseChallenge):
                 value = float(value)
             setattr(challenge, attr, value)
 
-        # Patch Challenge on CM WIP
-        optional = {}
+        # Patch Challenge on CM
         if "timeout" in data.keys():
-            optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
+            optional["timeout"] = None
+            if data["timeout"] != "":
+                optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
         if "until" in data.keys():
-            optional["until"] = f"{data['until']}"
+            optional["until"] = None
+            if data["until"] != "":
+                optional["until"] = f"{data['until']}"
 
         if "updateStrategy" in data.keys():
             optional["updateStrategy"] = data["updateStrategy"]

@@ -1,34 +1,3 @@
-// selector for janitoring method
-document.getElementById('select-option').addEventListener('change', function() {
-  displayJanitorStrategy()  
-});
-
-function displayJanitorStrategy(){
-  var selectedOption = document.getElementById('select-option').value
-  if (selectedOption === 'until') {
-    document.getElementById('cm-mode-until').style.display = 'block';
-    document.getElementById('cm-mode-timeout').style.display = 'none';
-    document.getElementById('timeout-input').required = false;
-    document.getElementById('until-input-local').required = true;
-    document.getElementById('timeout-input').value = ''; // Reset timeout input
-  } else if (selectedOption === 'timeout') {
-    document.getElementById('cm-mode-until').style.display = 'none';
-    document.getElementById('cm-mode-timeout').style.display = 'block';
-    document.getElementById('until-input-local').required = false;
-    document.getElementById('timeout-input').required = true;
-    document.getElementById('until-input-local').value = ''; // Reset until input
-    document.getElementById('until-input-utc').value = ''; // Reset until input
-  } else {
-    document.getElementById('cm-mode-until').style.display = 'none';
-    document.getElementById('cm-mode-timeout').style.display = 'none';
-    document.getElementById('timeout-input').required = false;
-    document.getElementById('until-input-local').required = false; 
-    document.getElementById('until-input-local').value = ''; // Reset until input
-    document.getElementById('until-input-utc').value = ''; // Reset until input
-    document.getElementById('timeout-input').value = ''; // Reset timeout input    
-  }
-}
-
 
 // convert Local into UTC
 document.getElementById('until-input-local').addEventListener('change', function() {
