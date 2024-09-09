@@ -1,9 +1,3 @@
-<style>
-	#cm-mode-until {
-	  display: none;
-	}
-</style>
-  
 {% extends "admin/challenges/create.html" %}
 
 {% block header %}
@@ -38,39 +32,20 @@
 	<input type="number" data-test-id="mana-create-id" class="form-control" name="mana_cost" placeholder="Enter Mana value" required>
 </div>
 
-<div class="form-group">
-	<label for="value">Janitoring Strategy<br>
-		<small class="form-text text-muted">
-			<span>The Janitoring Strategy is used to define how (or if) the instance will be Janitoring.
-				Default strategy is None</span>
-			<ul>
-				<li>None: The instance will NOT be destroyed by the janitor at all</li>
-				<li>Until: Define a timestamp where all the instances will be detroyed (e.g 2024-07-10 15:00)</li>
-				<li>Timeout: Define a timeout that the instance will be destroyed by the janitor (e.g 600s for 10 min)</li>
-			</ul>
-		</small>
-	</label>
-	<select id="select-option" data-test-id="mode-create-id" class="custom-select">
-		<option value="none" selected>None</option>
-		<option value="until">Until</option>
-		<option value="timeout">Timeout</option>
-	</select>
-</div>
-
-<div id="cm-mode-until" style="display: none;" class="form-group">
+<div id="cm-mode-until" class="form-group">
 	<label for="value">Until<br>
 		<small class="form-text text-muted">
-			This is when the Scenario has to end. 
+			Until: Define a timestamp where all the instances will be detroyed (e.g 2024-07-10 15:00)
 		</small>
 	</label>
 	<input type="datetime-local" id="until-input-local" data-test-id="until-create-id" class="form-control">
 	<input type="hidden" id="until-input-utc" class="form-control" name="until">
 </div>
 
-<div id="cm-mode-timeout" style="display: none;" class="form-group">
+<div id="cm-mode-timeout" class="form-group">
 	<label for="value">Timeout<br>
 		<small class="form-text text-muted">
-			This is default timeout (int) <b>in seconds</b> for the Scenario to shutdown itself.
+			Timeout: Define a timeout that the instance will be destroyed by the janitor (e.g 600s for 10 min)
 		</small>
 	</label>
 	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout">

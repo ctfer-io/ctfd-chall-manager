@@ -1,34 +1,3 @@
-// selector for janitoring method
-document.getElementById('select-option').addEventListener('change', function() {
-  displayCurrentJanitorStrategy() 
-});
-
-function displayCurrentJanitorStrategy(){
-  var selectedOption = document.getElementById('select-option').value
-  if (selectedOption === 'until') {
-    document.getElementById('cm-mode-until').style.display = 'block';
-    document.getElementById('cm-mode-timeout').style.display = 'none';
-    document.getElementById('timeout-input').required = false;
-    document.getElementById('until-input-local').required = true;
-    document.getElementById('timeout-input').value = ''; // Reset timeout input
-  } else if (selectedOption === 'timeout') {
-    document.getElementById('cm-mode-until').style.display = 'none';
-    document.getElementById('cm-mode-timeout').style.display = 'block';
-    document.getElementById('until-input-local').required = false;
-    document.getElementById('timeout-input').required = true;
-    document.getElementById('until-input-local').value = ''; // Reset until input
-    document.getElementById('until-input-utc').value = ''; // Reset until input
-  } else {
-    document.getElementById('cm-mode-until').style.display = 'none';
-    document.getElementById('cm-mode-timeout').style.display = 'none';
-    document.getElementById('timeout-input').required = false;
-    document.getElementById('until-input-local').required = false; 
-    document.getElementById('until-input-local').value = ''; // Reset until input
-    document.getElementById('until-input-utc').value = ''; // Reset until input
-    document.getElementById('timeout-input').value = ''; // Reset timeout input    
-  }
-
-}
 
 // selector for update-strategy
 function displayUpdateStrategy() {
@@ -57,9 +26,14 @@ document.getElementById('scenario').addEventListener('change', function(event) {
 
 // convert Local into UTC
 document.getElementById('until-input-local').addEventListener('change', function() {
+  console.log("pouet")
   var datetimeLocal = document.getElementById("until-input-local").value;  
-  var datetimeUTC =(new Date(datetimeLocal)).toISOString();
-  document.getElementById("until-input-utc").value = datetimeUTC;
+  if (datetimeLocal != "") {
+    var datetimeUTC =(new Date(datetimeLocal)).toISOString();
+    document.getElementById("until-input-utc").value = datetimeUTC;
+  } else {
+    document.getElementById("until-input-utc").value = ""
+  }
 });
 
 // display current scenario file
@@ -121,7 +95,6 @@ function displayCurrentUntil() {
   }
 }
 
-displayCurrentJanitorStrategy()
 displayCurrentUntil()
 displayCurrentScenario()
 
