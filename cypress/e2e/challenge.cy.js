@@ -6,13 +6,15 @@ describe('Dynamic IaC Challenge', () => {
 
   it('Create challenges before testing it in UserLand', () => {
     // create a timeout challenge
-    cy.create_challenge("cypress-timeout", "Disabled", "5","timeout", "6000", Cypress.env('SCENARIO_PATH'))
+    cy.create_challenge("cypress-timeout", "Disabled", "5","6000", "", Cypress.env('SCENARIO_PATH'), "Visible")
     // create a until challenge
-    cy.create_challenge("cypress-until", "Disabled", "5","until", "2222-01-20T11:00", Cypress.env('SCENARIO_PATH'))
+    cy.create_challenge("cypress-until", "Disabled", "5", "", "2222-01-20T11:00", Cypress.env('SCENARIO_PATH'), "Visible")
+    // create a timeout challenge
+    cy.create_challenge("cypress-combine", "Disabled", "5","6000", "2222-01-20T11:00", Cypress.env('SCENARIO_PATH'), "Visible")
     // create a none challenge
-    cy.create_challenge("cypress-none", "Disabled", "5","none", "", Cypress.env('SCENARIO_PATH'))
+    cy.create_challenge("cypress-none", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
     // create a global scope
-    cy.create_challenge("cypress-global-enable", "Enabled", "5","none", "", Cypress.env('SCENARIO_PATH'))
+    cy.create_challenge("cypress-global-enable", "Enabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
   })
 
   it('pre-provisionnning of 1 challenges for 6 peoples', () => {
