@@ -7,7 +7,7 @@ Cypress.Commands.add('login', (username, password) => {
 })
 
 
-Cypress.Commands.add('create_challenge', (label, scope, mana, mode, mode_value, scenario_path) => {
+Cypress.Commands.add('create_challenge', (label, scope, mana, timeout, until, scenario_path, state) => {
   cy.visit(`${Cypress.env("CTFD_URL")}/admin/challenges/new`) // go on challenge creation
   cy.wait(500) // wait ctfd
   cy.get(".form-check-label").contains("dynamic_iac").click() // select dynamic_iac
@@ -19,10 +19,15 @@ Cypress.Commands.add('create_challenge', (label, scope, mana, mode, mode_value, 
   // chall-manager plugins attributs
   cy.get('[data-test-id="scope-selector-id"]').select(scope) // Disabled or Enabled
   cy.get('[data-test-id="mana-create-id"]').type(mana) // set mana cost
-  cy.get('[data-test-id="mode-create-id"]').select(mode) // select timeout mode
-  if (mode != "none") {
-    cy.get('[data-test-id="'+mode+'-create-id"]').type(mode_value) // define timeout seconds
+
+  if (timeout != ""){
+    cy.get('[data-test-id="timeout-create-id"]').type(timeout) // define timeout seconds
   }
+
+  if (until != ""){
+    cy.get('[data-test-id="until-create-id"]').type(until) // define until in date
+  }
+    
   
   cy.get('[data-test-id="scenario-create-id"]').selectFile(scenario_path) //upload file
 
@@ -36,7 +41,7 @@ Cypress.Commands.add('create_challenge', (label, scope, mana, mode, mode_value, 
       
   // Final options
   cy.get("[name=\"flag\"]").type(label)
-  cy.get("select[name=\"state\"]").select('Visible')
+  cy.get("select[name=\"state\"]").select(state)
   
   // Finish creation
   cy.get(".create-challenge-submit").contains("Finish").click()
