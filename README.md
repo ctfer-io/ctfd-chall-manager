@@ -15,14 +15,14 @@ This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/cha
 - Restriction based on Mana
 - Use flag variation proposed by [chall-manager](https://github.com/ctfer-io/chall-manager)
 
-<img style="width: 90%; display: block; margin: auto; box-sizing: border-box;" src="./img/boot_instance.gif"/>
+<img style="width: 90%; display: block; margin: auto; box-sizing: border-box;" src="res/boot_instance.gif"/>
 
 ## Main features for Admins
 - Create challenges with Scenario
 - Preprovisionng Instances for Source
 - Monitor all mana used by Sources
 
-<img style="width: 90%; display: block; margin: auto; box-sizing: border-box;" src="./img/flags.png"/>
+<img style="width: 90%; display: block; margin: auto; box-sizing: border-box;" src="res/flags.png"/>
 
 # How install and use
 To install the plugin, you need to clone the repository in `CTFd/plugins` folders. <br>
