@@ -47,17 +47,21 @@ When you arrive on the modification page, the value displayed is the one configu
 By editing this value, you do not edit the existing coupons of this challenge. 
 Also, you can organize sales periods.
 
-## Change the janitoring strategy
+## Change Timeout 
 When you arrive on the modification page, the value displayed is the one configured at the challenge level.
 
-{{% imgproc challenge-janitoring Fit "800x800" %}}
+{{% imgproc challenge-timeout Fit "800x800" %}}
 {{% /imgproc %}}
 
-{{% alert title="Warning" color="warning" %}}
-You can edit this value, but you can't change into None value due to CM limitation at this moment.
-An issue is open and work in progress.
-{{% /alert %}}
+You can change or reset this value, Chall-Manager will update all the computed `until` for instances. 
 
+## Change Until 
+When you arrive on the modification page, the value displayed is the one configured at the challenge level.
+
+{{% imgproc challenge-until Fit "800x800" %}}
+{{% /imgproc %}}
+
+You can change or reset this value, Chall-Manager will update all the computed `until` for instances. 
 
 ## Change the scenario
 When you arrive on the modification page, you can download the current scenario archive.
@@ -71,5 +75,3 @@ By editing this value, you need to provide an update strategy.
 {{% /imgproc %}}
 
 The update can be long, depends on the update gap and the strategy.
-
-## FAQ
