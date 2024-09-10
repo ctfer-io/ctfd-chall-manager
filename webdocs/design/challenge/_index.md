@@ -39,11 +39,8 @@ In this scenario, player X (yellow) and player Y (blue) will each have their own
 
 The **mana cost** is an integer representing the price users must pay in mana to deploy their own instance. Mana is refunded when the instance is destroyed. This system helps control the impact users have on the platform. For more details, see [how mana works](/docs/ctfd-chall-manager/desing/mana).
 
-### Janitoring Strategy
 
-The **janitoring strategy** is a setting that determines how chall-manager will handle the destruction of challenge instances. By default, the strategy is set to **None**, meaning instances are never destroyed by the Janitor and must be manually terminated by users.
-
-#### Until
+### Until
 
 The **until** setting allows you to specify a date and time at which instances will be automatically destroyed by the Janitor.
 
@@ -52,7 +49,7 @@ As a CTF administrator running a week-long event, you want a challenge available
 
 As a player, you can start your instance anytime before this date and destroy it whenever you like before the deadline.
 
-#### Timeout
+### Timeout
 
 The **timeout** is an integer that specifies, in seconds, how long after starting an instance the Janitor will automatically destroy it.
 
@@ -60,6 +57,11 @@ The **timeout** is an integer that specifies, in seconds, how long after startin
 As a CTF administrator or challenge creator, you estimate that your challenge takes about 30 minutes to solve. Set the Janitoring Strategy to **Timeout** and set the value to 1800 seconds (30 minutes).
 
 As a player, once you start your instance, it will be destroyed after 30 minutes unless renewed. You can also manually destroy the instance at any time to reclaim your mana.
+
+{{% alert title="Tips & Tricks" color="primary" %}}
+You can either combine the *Until* and *Timeout* values or leave both undefined.
+Find more info [here](/docs/chall-manager/design/expiration).
+{{% /alert %}}
 
 ### Scenario Archive
 
