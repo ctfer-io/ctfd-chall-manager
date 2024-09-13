@@ -20,7 +20,7 @@ For details on the Infra-as-Code scenario, consult the appropriate [documentatio
 
 ## Create the Challenge
 
-For this example, we will create a challenge where each player gets their own instance. The instance will be destroyed after 10 minutes, using the scenario from the [no-sdk examples](https://github.com/ctfer-io/chall-manager/blob/main/examples/no-sdk).
+For this example, we will create a challenge where each player gets their own instance. The instance will cost user 2 mana units, must be destroyed after 10 minutes without maximum due date, and using the scenario from the [no-sdk examples](https://github.com/ctfer-io/chall-manager/blob/main/examples/no-sdk).
 
 Here are the basic CTFd settings:
 
@@ -44,9 +44,11 @@ Next, set the mana cost. Players will need to spend 2 mana to deploy their own i
 {{% imgproc create_challenge_mana_cost_2 Fit "800x800" %}}
 {{% /imgproc %}}
 
-Configure the janitoring strategy. As mentioned, we want instances to be destroyed after 10 minutes of usage (600 seconds), so set the Janitoring Strategy to *Timeout* with a value of *600*.
+As mentioned, we want instances to be destroyed after 10 minutes of usage (600 seconds), without any due date.
 
-{{% imgproc create_challenge_janitoring_timeout Fit "800x800" %}}
+Let the *Until* value empty, and configure de *Timeout* value at 600.
+
+{{% imgproc create_challenge_until_timeout Fit "800x800" %}}
 {{% /imgproc %}}
 
 Then, provide the scenario archive. For this example, we'll use `demo-deploy.zip` from the [no-sdk examples](https://github.com/ctfer-io/chall-manager/blob/main/examples/no-sdk).
@@ -60,17 +62,9 @@ When you click Create, the upload process to the chall-manager may take several 
 {{% imgproc create_challenge_create Fit "800x800" %}}
 {{% /imgproc %}}
 
-## See Also
-
-If you want the challenge to be destroyed at a specific date, set the Janitoring Strategy to *Until* and define the desired date.
-
-{{% imgproc create_challenge_janitoring_until Fit "800x800" %}}
-{{% /imgproc %}}
-
-
 ## What's Next?
 
-Congratulations! Your CTF installation is now configured to use the chall-manager.
+Congratulations! Your CTF installation is now configured to use the chall-manager for this challenge.
 
 * [Play the challenge](/docs/ctfd-chall-manager/get-started/user-challenge)
 * [Learn how it works](/docs/ctfd-chall-manager/design)
