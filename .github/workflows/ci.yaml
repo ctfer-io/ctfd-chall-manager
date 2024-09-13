@@ -3,8 +3,8 @@ name: CI
 on: 
   push:
     paths-ignore:
-      - webdocs
-      - res
+      - 'webdocs/**'
+      - 'res/**'
   pull_request:
 
 jobs:
