@@ -19,10 +19,16 @@ At this step, we assume that you are a CTF player, the infrastructure is already
 
 ## Differents challenges mode
 
-Players can control all 3 *Janitoring Strategies* but each has these specificities.
+You can combine the values *Until* and *Timeout* to have 4 modes according to your needs:
+* [None](#none)
+* [Until](#until)
+* [Timeout](#timeout)
+* [Both](#both)
+
+[Players](/docs/chall-manager/glossary/#player) can control all combinaisons, but each has these specificities.
 
 {{% alert title="Note" color="primary" %}}
-If global scope is enabled, only admins can launch the instance, see associated [guide](/docs/ctfd-chall-manager/guides/panel).
+If global scope is enabled, only admins can launch the instance, see associated [guide](/docs/ctfd-chall-manager/guides/panel/#deploy-a-global-scope-instance).
 {{% /alert %}}
 
 For all challenges, the default view (instance is not booted) will display a button to launch the instance, the mana cost and the remaining mana for current user.
@@ -45,7 +51,6 @@ If you want to reset your instance (either because it is soft-locked or you corr
 
 
 ### Until
-
 This mode allows you to use the same actions as *None* mode, but the instance will be destroyed by the Janitor at a due date.
 Don't worry, your mana will be automatically regained if the instance is janitored.
 
@@ -62,6 +67,9 @@ If you see that the Janitor will destroy you instance soon, you can *renew* the 
 
 {{% imgproc timeout_renew Fit "800x800" %}}
 {{% /imgproc %}}
+
+### Both 
+With *Timeout* and *Until*, the plugin will display the timeout mode buttons, but Chall-Manager will take care of restricting or not the possibility of renewing the challenge based on the [design](/docs/chall-manager/design/expiration/).
 
 
 ## What's next ?
