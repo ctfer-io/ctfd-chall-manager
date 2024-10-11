@@ -135,31 +135,17 @@ class DynamicIaCValueChallenge(BaseChallenge):
         :return: Challenge object, data dictionary to be returned to the user
         """
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge.id).first()
-        data = {
-            "id": challenge.id,
-            "name": challenge.name,
-            "value": challenge.value,
-            "initial": challenge.initial,
-            "decay": challenge.decay,
-            "minimum": challenge.minimum,
-            "function": challenge.function,
-            "description": challenge.description,
-            "connection_info": challenge.connection_info,
-            "next_id": challenge.next_id,
-            "category": challenge.category,
-            "state": challenge.state,
-            "max_attempts": challenge.max_attempts,
-            "type": challenge.type,
-            "mana_cost": challenge.mana_cost,  # plugins specific
-            "until": challenge.until,  # plugins specific
-            "timeout": challenge.timeout,  # plugins specific
-            "type_data": {
-                "id": cls.id,
-                "name": cls.name,
-                "templates": cls.templates,
-                "scripts": cls.scripts,
-            },
-        }
+        data = super().read(challenge)
+        data.update(
+            {
+                "mana_cost": challenge.mana_cost,
+                "until": challenge.until,
+                "timeout": challenge.timeout,
+                "scope_global": challenge.scope_global,
+                "scenario_id": challenge.scenario_id,
+            }
+        )
+
         return data
 
     @classmethod
