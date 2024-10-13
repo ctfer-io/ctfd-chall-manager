@@ -69,7 +69,7 @@ Cypress.Commands.add('boot_current_chall', () => {
   // Boot the instance
   cy.get('[data-test-id="cm-button-boot"]').should("be.visible").click()
   // Detect the pop-up, then click on OK
-  cy.popup('OK')
+  cy.popup('Got it!')
 })
 
 Cypress.Commands.add('destroy_current_chall', () => {
@@ -77,7 +77,7 @@ Cypress.Commands.add('destroy_current_chall', () => {
   ).should("be.visible"
   ).click()                
   // detect the pop-up, then click on OK
-  cy.popup('OK')
+  cy.popup('Got it!')
 })
 
 Cypress.Commands.add('renew_current_chall', () => {
@@ -86,7 +86,7 @@ Cypress.Commands.add('renew_current_chall', () => {
   ).should("be.visible"
   ).click()
   // detect the pop-up, then click OK
-  cy.popup('OK')
+  cy.popup('Got it!')
 
 })
 
