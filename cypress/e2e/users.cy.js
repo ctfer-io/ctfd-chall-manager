@@ -241,7 +241,7 @@ describe("Permform tests for CTFd in the User Land", () => {
         cy.wrap(flagUser3).should('not.be.undefined').then(flag => {
             cy.get('input[placeholder="Flag"]').type(flag, { parseSpecialCharSequences: false });
             cy.get('button').contains('Submit').click();
-            cy.get('#result-message').should('be.visible').contains("Incorrect");
+            cy.get('[x-text="response.data.message"]').should('be.visible').contains("Incorrect");
         });
         });
     
@@ -255,7 +255,7 @@ describe("Permform tests for CTFd in the User Land", () => {
         cy.wrap(flagUser3).should('not.be.undefined').then(flag => {
             cy.get('input[placeholder="Flag"]').type(flag, { parseSpecialCharSequences: false });
             cy.get('button').contains('Submit').click();
-            cy.get('#result-message').should('be.visible').contains("Correct");
+            cy.get('[x-text="response.data.message"]').should('be.visible').contains("Correct");
         });
         });
     });
@@ -269,7 +269,7 @@ describe("Permform tests for CTFd in the User Land", () => {
         // Type the fallback flag         
         cy.get('input[placeholder="Flag"]').type("cypress-until", { parseSpecialCharSequences: false });
         cy.get('button').contains('Submit').click();
-        cy.get('#result-message').should('be.visible').contains("Correct");
+        cy.get('[x-text="response.data.message"]').should('be.visible').contains("Correct");
 
     });
 
@@ -280,7 +280,7 @@ describe("Permform tests for CTFd in the User Land", () => {
         // Type the fallback flag         
         cy.get('input[placeholder="Flag"]').type("POUET", { parseSpecialCharSequences: false });
         cy.get('button').contains('Submit').click();
-        cy.get('#result-message').should('be.visible').contains("Expired");
+        cy.get('[x-text="response.data.message"]').should('be.visible').contains("Expired");
 
     });
 
