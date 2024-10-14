@@ -32,14 +32,14 @@ jobs:
       - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # v3.26.11
+        uses: github/codeql-action/init@f779452ac5af1c261dce0346a8f964149f49322b # v3.26.13
         with:
           languages: ${{ matrix.language }}
           
       - name: Autobuild
-        uses: github/codeql-action/autobuild@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # v3.26.11
+        uses: github/codeql-action/autobuild@f779452ac5af1c261dce0346a8f964149f49322b # v3.26.13
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # v3.26.11
+        uses: github/codeql-action/analyze@f779452ac5af1c261dce0346a8f964149f49322b # v3.26.13
         with:
           upload: failure-only
