@@ -3,3 +3,6 @@ node_modules/
 *.zip
 
 hack/config/Pulumi.*.yaml
+hack/.env
+
+test/test_bruteforce.py

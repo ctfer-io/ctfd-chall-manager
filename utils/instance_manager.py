@@ -1,7 +1,9 @@
 import requests
 import json
 from CTFd.utils import get_config  # type: ignore
+
 from .logger import configure_logger
+from .chall_manager_error import ChallManagerException
 
 logger = configure_logger(__name__)
 
@@ -33,12 +35,17 @@ def create_instance(challengeId: int, sourceId: int) -> requests.Response | Exce
         r = requests.post(url, data=json.dumps(payload), headers=headers)
         logger.debug(f"Received response: {r.status_code} {r.text}")
     except Exception as e:
+        print("standard exception")
         logger.error(f"Error creating instance: {e}")
         raise Exception(f"An exception occurred while communicating with CM: {e}")
     else:
         if r.status_code != 200:
-            logger.error(f"Error from chall-manager: {json.loads(r.text)}")
-            raise Exception(f"Chall-manager returned an error: {json.loads(r.text)}")
+            print(r.text) 
+            print("EROOOOOOOOOOOOOOOOOOOOR")
+            if r.json()["code"] == 2:
+                message = r.json()["message"]
+                logger.error(f"chall-manager return an error: {message}")
+                raise ChallManagerException(message=message)
  
     return r
 

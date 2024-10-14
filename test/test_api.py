@@ -2,6 +2,7 @@ import unittest
 import requests
 import json
 import os 
+import threading
 
 ctfd_url = os.getenv("CTFD_URL")
 base_url = f"{ctfd_url}/api/v1/plugins/ctfd-chall-manager"
@@ -38,6 +39,13 @@ def delete_instance(challengeId: int):
 def patch_instance(challengeId: int): 
     r = requests.patch(f"{base_url}/instance?challengeId={challengeId}",  headers=headers_user)
     return r
+
+
+def run_post_instance(challengeId: int, results: dict, lock: threading.Lock):
+    r = post_instance(challengeId)
+    with lock:
+        # Store the result in a shared dictionary with the challengeId as the key
+        results[challengeId] = json.loads(r.text)
 
 class Test_F_UserMana(unittest.TestCase):
     def test_valid_get(self):
@@ -104,6 +112,61 @@ class Test_F_UserInstance(unittest.TestCase):
     def test_delete_missing_arg(self):
         r = requests.delete(f"{base_url}/instance",  headers=headers_user)
         self.assertEqual(r.status_code, 400)
+
+    def test_cannot_create_same_chall_twice(self):
+        r = post_instance(1)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)        
+        self.assertEqual("connectionInfo" in a["data"]["message"].keys(), True)
+
+        r = post_instance(1)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], False)   
+
+        r = delete_instance(1)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+    def test_create_multi_instances(self):
+        """
+        This test perform 3 creation requests in parallel but only 2 must be approved.
+        """
+        results = {}
+        lock = threading.Lock()
+
+        # Create threads for each instance
+        thread1 = threading.Thread(target=run_post_instance, args=(1, results, lock))
+        thread2 = threading.Thread(target=run_post_instance, args=(2, results, lock))
+        thread3 = threading.Thread(target=run_post_instance, args=(3, results, lock))
+
+        # Start all threads
+        thread1.start()
+        thread2.start()
+        thread3.start()
+
+        # Wait for all threads to complete
+        thread1.join()
+        thread2.join()
+        thread3.join()
+
+        # Initialize the result dictionary
+        formatted_result = {'success': [], 'failure': []}
+
+        # Iterate through the results and categorize the IDs based on success
+        for instance_id, result in results.items():
+            if result['success']:
+                formatted_result['success'].append(instance_id)
+            else:
+                formatted_result['failure'].append(instance_id)
+
+
+        # Clean test environment
+        for i in formatted_result['success']:
+            delete_instance(i)
+
+        self.assertEqual(len(formatted_result['success']), 2)
+        self.assertEqual(len(formatted_result['failure']), 1)
+
 
 class Test_F_AdminInstance(unittest.TestCase):
     def test_user_connection_is_denied(self):
