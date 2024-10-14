@@ -64,6 +64,7 @@ def get_source_mana(sourceId: int) -> int:
 
     # get all instances that exist on CM
     instances = query_instance(sourceId)
+    logger.info(f"Instances {instances}")
 
     for c in coupons:
         exists = False

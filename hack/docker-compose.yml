@@ -11,6 +11,10 @@ services:
       LOG_LEVEL: DEBUG
       PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:9090/api/v1
       PLUGIN_SETTINGS_CM_MANA_TOTAL: 15
+      REDIS_URL: redis://redis-svc:6379
+    depends_on:
+      - chall-manager
+      - redis-svc
 
   chall-manager:
     image: ctferio/chall-manager:dev
@@ -18,8 +22,19 @@ services:
       - 9090:9090
     environment:
       GATEWAY: true
+      GATEWAY_SWAGGER: true
+      PROXMOX_VE_API_TOKEN: ${PROXMOX_VE_API_TOKEN}
+      PROXMOX_VE_ENDPOINT: ${PROXMOX_VE_ENDPOINT}
     networks:
       - testing
+
+  redis-svc:
+    image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
+    ports:
+      - 6379:6379
+    networks:
+      - testing
+
 
 networks:
   testing:
