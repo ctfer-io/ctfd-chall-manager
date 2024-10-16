@@ -27,8 +27,11 @@ Last version tested on: [3.7.4](https://github.com/CTFd/CTFd/releases/tag/3.7.4)
 <img style="width: 90%; display: block; margin: auto; box-sizing: border-box;" src="res/flags.png"/>
 
 # How install and use
-To install the plugin, you need to clone the repository in `CTFd/plugins` folders. <br>
-To use the plugin, refer to the documentation at https://ctfer.io/docs/ctfd-chall-manager.
+To install and use the plugin, refer to the documentation at https://alpha.ctfer.io/docs/ctfd-chall-manager.
+
+# Limitations
+- Need to use the `core-beta` theme (cf https://github.com/CTFd/CTFd/pull/2630)
+- Need redis server with `REDIS_URL` in environment variable at CTFd startup
 
 # Glossaries
 

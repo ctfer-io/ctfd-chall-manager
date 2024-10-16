@@ -84,6 +84,12 @@ Detailed process:
 7. If it's running correctly, we end the process.
 8. If not, we destroy the coupon if exists, then end process with an error.
 
+## Synchronicity
+
+Due to the vital role of mana, we have to ensure its consistency: elseway it could be possible to brute-force the use of Chall-Manager to either run all possible challenges thus bypassing restrictions.
+
+To provide this strict consistency, we implemented a Writer-preference Reader-Writer problem based upon Courtois _et al._ (1971) work. We model the problem such as administration tasks are Writers and players Readers, hence administration has priority over players.
+For scalability, we needed a distributed lock system, and due to CTFd's use of Redis, we choosed to reuse it.
 
 ## FAQ
 
