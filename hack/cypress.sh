@@ -5,6 +5,4 @@ export CYPRESS_SCENARIO_PATH="/home/nicolas/5AS10/CTFd/CTFd/plugins/ctfd-chall-m
 export CYPRESS_PLUGIN_SETTINGS_CM_API_URL="http://chall-manager:9090/api/v1"
 export CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL="10"
 
-#export CYPRESS_CTFD_URL="https://ctfd.dev1.ctfer-io.lab"
-#export CYPRESS_PLUGIN_SETTINGS_CM_API_URL="http://chall-manager-service-dd1b8fa3.deploy-namespace-a66e8013:9090/api/v1"
 npx cypress open
