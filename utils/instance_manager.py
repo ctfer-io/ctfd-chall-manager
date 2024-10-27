@@ -35,13 +35,10 @@ def create_instance(challengeId: int, sourceId: int) -> requests.Response | Exce
         r = requests.post(url, data=json.dumps(payload), headers=headers)
         logger.debug(f"Received response: {r.status_code} {r.text}")
     except Exception as e:
-        print("standard exception")
         logger.error(f"Error creating instance: {e}")
         raise Exception(f"An exception occurred while communicating with CM: {e}")
     else:
         if r.status_code != 200:
-            print(r.text) 
-            print("EROOOOOOOOOOOOOOOOOOOOR")
             if r.json()["code"] == 2:
                 message = r.json()["message"]
                 logger.error(f"chall-manager return an error: {message}")
