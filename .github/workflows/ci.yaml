@@ -165,7 +165,7 @@ jobs:
           CTFD_OUTPUT_KEY: CTFD_API_TOKEN_ADMIN
  
       - name: Setup Python
-        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
 
       - name: Run Fonctional Tests in mode Teams
         run: |- 
