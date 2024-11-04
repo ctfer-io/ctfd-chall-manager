@@ -82,7 +82,7 @@ jobs:
           fi
 
       - name: Setup CTFd
-        uses: ctfer-io/ctfd-setup@dcb1ba348a3d46c23b00f26640879735dc902acb # v1.3.0
+        uses: ctfer-io/ctfd-setup@b3930c4639c6d49b59df251466e5fe6d6a7d75d5 # v1.4.4
         with:
           url: 'http://ctfd:8000'
           appearance_name: CTFer.io
@@ -175,7 +175,7 @@ jobs:
           CTFD_URL: http://localhost:8000
         
       - name: Update CTFd into mode users
-        uses: ctfer-io/ctfd-setup@dcb1ba348a3d46c23b00f26640879735dc902acb # v1.3.0
+        uses: ctfer-io/ctfd-setup@b3930c4639c6d49b59df251466e5fe6d6a7d75d5 # v1.4.4
         with:
           url: 'http://ctfd:8000'
           appearance_name: CTFer.io
