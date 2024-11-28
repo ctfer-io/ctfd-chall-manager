@@ -34,6 +34,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     until = db.Column(db.Text)  # date
     timeout = db.Column(db.Text)  # duration
     scope_global = db.Column(db.Boolean, default=False)
+    destroy_on_flag = db.Column(db.Boolean, default=False)
 
     scenario_id = db.Column(
         db.Integer, db.ForeignKey("files.id")
@@ -81,6 +82,10 @@ class DynamicIaCValueChallenge(BaseChallenge):
         data = request.form or request.get_json()
         if "scope_global" in data.keys():
             data["scope_global"] = data["scope_global"] == "true"  # convert string to boolean
+
+        # Update the destroyon flag boolean
+        if "destroy_on_flag" in data.keys():
+            data["destroy_on_flag"] = data["destroy_on_flag"] == "true" # convert string into boolean
 
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
@@ -142,6 +147,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
                 "until": challenge.until,
                 "timeout": challenge.timeout,
                 "scope_global": challenge.scope_global,
+                "destroy_on_flag": challenge.destroy_on_flag,
                 "scenario_id": challenge.scenario_id,
             }
         )
@@ -186,6 +192,11 @@ class DynamicIaCValueChallenge(BaseChallenge):
                     delete_instance(challenge.id, 0)
                 except Exception as e:
                     logger.warning(f"Failed to delete challenge {challenge.id} for source 0, instance may not exist")
+
+
+        # Update the destroy on flag boolean
+        if "destroy_on_flag" in data.keys():
+            data["destroy_on_flag"] = data["destroy_on_flag"] == "true" # convert string into boolean
 
         # Workaround
         if "state" in data.keys() and len(data.keys()) == 1:
@@ -326,7 +337,20 @@ class DynamicIaCValueChallenge(BaseChallenge):
                     result |= ord(x) ^ ord(y)
                 if result == 0:
                     logger.info(f"valid submission for CM flag: challenge {challenge.id} source {sourceId}")
-                    return True, "Correct"
+
+                    msg = "Correct"
+
+                    if challenge.destroy_on_flag and sourceId != 0: # do not destroy a global instance
+                        logger.info("destroy the instance")
+                        try:
+                            delete_instance(challenge.id, sourceId)
+                            msg = "Correct, your instance has been destroyed"
+                        except Exception as e:
+                            logger.warning(f"Failed to delete challenge {challenge.id} for source {sourceId}, instance may not exist")
+                            
+
+
+                    return True, msg
                 
             logger.info(f"invalid submission for CM flag: challenge {challenge.id} source {sourceId}")
 
@@ -337,7 +361,18 @@ class DynamicIaCValueChallenge(BaseChallenge):
             try:
                 if get_flag_class(flag.type).compare(flag, submission):
                     logger.info(f"valid submission for CTFd flag: challenge {challenge.id} source {sourceId}")
-                    return True, "Correct"
+
+                    msg = "Correct"
+
+                    if challenge.destroy_on_flag and sourceId != 0:
+                        logger.info("destroy the instance")
+                        try:
+                            delete_instance(challenge.id, sourceId)
+                            msg = "Correct, your instance has been destroyed"
+                        except Exception as e:
+                            logger.warning(f"Failed to delete challenge {challenge.id} for source {sourceId}, instance may not exist")
+
+                    return True, msg 
             except FlagException as e:
                 logger.error(f"FlagException: {e}")
                 return False, str(e)
