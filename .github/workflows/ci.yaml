@@ -16,11 +16,9 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:dev
+        image: ctferio/chall-manager:v0.1.0-rc2
         ports:
-          - 9090:9090
-        env:
-          GATEWAY: true
+          - 8080:8080
         credentials:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_password }}
@@ -37,7 +35,7 @@ jobs:
         options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
         env:
           LOG_LEVEL: DEBUG
-          PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:9090/api/v1
+          PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
           PLUGIN_SETTINGS_CM_MANA_TOTAL: 15
           REDIS_URL: redis://redis-svc:6379
 
@@ -66,7 +64,7 @@ jobs:
       - name: Wait for Chall-Manager server
         run: |
           max_attempts=60
-          base_url="http://localhost:9090/api/v1/challenge"
+          base_url="http://localhost:8080/api/v1/challenge"
           for ((i=0; i<$max_attempts; i++)); do
             if curl --fail --silent --show-error "$base_url" >/dev/null; then
               echo "Server is up and running!"
@@ -134,7 +132,7 @@ jobs:
           CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
           CYPRESS_CTFD_URL: "http://localhost:8000" 
           CYPRESS_SCENARIO_PATH: "${{ github.workspace }}/demo-deploy.zip"
-          CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:9090/api/v1"
+          CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:8080/api/v1"
           CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "10"
       
       - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # 4.4.3
