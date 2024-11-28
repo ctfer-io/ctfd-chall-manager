@@ -24,6 +24,20 @@
 </div>
 
 <div class="form-group">
+	<label for="value">Destroy on flag<br>
+		<small class="form-text text-muted">
+			<span>If this is enabled, the instance will be destroy if the Player flag the challenge.
+				By default, this is disabled</span>
+		</small>
+	</label>
+	<select id="select-dof" data-test-id="destroy-on-flag-selector-id" class="custom-select" name="destroy_on_flag">
+		<option value=true>Enabled</option>
+		<option value=false selected>Disabled</option>
+	</select>
+</div>
+
+
+<div class="form-group">
 	<label for="value">Mana Cost<br>
 		<small class="form-text text-muted">
 			This is how many points the challenge will cost to User to start it.
