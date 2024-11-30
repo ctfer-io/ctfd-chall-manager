@@ -273,6 +273,21 @@ describe("Permform tests for CTFd in the User Land", () => {
 
     });
 
+    it("The instance of a challenge is destroyed atfer submit", () => {
+        cy.log_and_go_to_chall("user3", "user3", "cypress-destroy-on-flag");
+        cy.boot_current_chall();
+        cy.get('[data-test-id="cm-connectionInfo-id"]').should("be.visible");
+
+        
+        cy.get('input[placeholder="Flag"]').type("cypress-destroy-on-flag", { parseSpecialCharSequences: false });
+        cy.get('button').contains('Submit').click();
+
+        cy.get('[x-text="response.data.message"]').should('be.visible').contains("Correct, your instance has been destroyed");
+
+        cy.log_and_go_to_chall("user3", "user3", "cypress-destroy-on-flag");
+        cy.get('[data-test-id="cm-connectionInfo-id"]').should("not.be.visible");
+    });
+
     it("I cant provide a flag if instance is not booted", () => {
         // With the first user, deploy one instance
         cy.log_and_go_to_chall("user3", "user3", "cypress-global-enable")
@@ -283,7 +298,5 @@ describe("Permform tests for CTFd in the User Land", () => {
         cy.get('[x-text="response.data.message"]').should('be.visible').contains("Expired");
 
     });
-
-    
 
 })
