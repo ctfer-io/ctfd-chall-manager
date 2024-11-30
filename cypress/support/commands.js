@@ -7,7 +7,7 @@ Cypress.Commands.add('login', (username, password) => {
 })
 
 
-Cypress.Commands.add('create_challenge', (label, scope, mana, timeout, until, scenario_path, state) => {
+Cypress.Commands.add('create_challenge', (label, scope, destroy_on_flag, mana, timeout, until, scenario_path, state) => {
   cy.visit(`${Cypress.env("CTFD_URL")}/admin/challenges/new`) // go on challenge creation
   cy.wait(500) // wait ctfd
   cy.get(".form-check-label").contains("dynamic_iac").click() // select dynamic_iac
@@ -18,6 +18,7 @@ Cypress.Commands.add('create_challenge', (label, scope, mana, timeout, until, sc
 
   // chall-manager plugins attributs
   cy.get('[data-test-id="scope-selector-id"]').select(scope) // Disabled or Enabled
+  cy.get('[data-test-id="destroy-on-flag-selector-id"]').select(destroy_on_flag) // Disabled or Enabled
   cy.get('[data-test-id="mana-create-id"]').type(mana) // set mana cost
 
   if (timeout != ""){
