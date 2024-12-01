@@ -169,6 +169,7 @@ jobs:
         run: |- 
           cd test
           python -m unittest test_api.py
+          python -m unittest test_api_challenges.py
         env:
           CTFD_URL: http://localhost:8000
         
@@ -187,5 +188,6 @@ jobs:
         run: |- 
           cd test
           python -m unittest test_api.py
+          python -m unittest test_api_challenges.py
         env:
           CTFD_URL: http://localhost:8000
