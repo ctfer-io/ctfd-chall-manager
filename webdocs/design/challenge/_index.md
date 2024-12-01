@@ -39,7 +39,7 @@ In this scenario, player X (yellow) and player Y (blue) will each have their own
 
 Challenges with the **destroy-on-flag** option will automatically destroy the instance when the player submits the correct flag. 
 
-Please note: enabling this option will slow down CTFd's response time when the correct flag is submitted.
+Please note: enabling this option will slow down CTFd's response time when the correct flag is submitted due to instance destruction.
 
 ### Mana Cost
 
