@@ -15,6 +15,11 @@ services:
     depends_on:
       - chall-manager
       - redis-svc
+    healthcheck:
+      test: python3 -c 'import requests; requests.get("http://localhost:8000")'
+      interval: 10s
+      retries: 3
+      timeout: 10s
 
   chall-manager:
     image: ctferio/chall-manager:v0.1.0-rc2
@@ -32,6 +37,18 @@ services:
     networks:
       - testing
 
+  ctfd-setup:
+    image: ctferio/ctfd-setup:v1.4.4
+    environment:
+      URL: http://ctfd:8000
+      FILE: /.ctfd.yaml
+    volumes:
+      - .ctfd.yaml:/.ctfd.yaml
+    networks:
+      - testing
+    depends_on:
+      ctfd:
+        condition: service_healthy
 
 networks:
   testing:
