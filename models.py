@@ -80,12 +80,22 @@ class DynamicIaCValueChallenge(BaseChallenge):
         """
         logger.debug("creating challenge on CTFd")
         data = request.form or request.get_json()
-        if "scope_global" in data.keys():
-            data["scope_global"] = data["scope_global"] == "true"  # convert string to boolean
 
-        # Update the destroyon flag boolean
+        # lint the plugin attributes by removing empty values
+        for key in list(data.keys()): # use list(data.keys()) to prevent RuntimeError
+            if key in ["mana_cost", "until", "timeout", "scope_global", "destroy_on_flag", "scenario_id"] and data[key] == "":
+                data.pop(key)
+
+        # convert string value to boolean
+        if "scope_global" in data.keys():
+            data["scope_global"] = data["scope_global"] == "true"
+
         if "destroy_on_flag" in data.keys():
-            data["destroy_on_flag"] = data["destroy_on_flag"] == "true" # convert string into boolean
+            data["destroy_on_flag"] = data["destroy_on_flag"] == "true"
+
+        if "scenario_id" not in data.keys():
+            logger.error("missing mandatory value in challenge creation")
+            raise Exception('missing mandatory value in challenge creation')
 
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
@@ -110,10 +120,10 @@ class DynamicIaCValueChallenge(BaseChallenge):
         # check optional configuration for dynamic_iac
         # init optional configuration
         optional = {}
-        if data["timeout"] != "":
+        if "timeout" in data.keys():
             optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
-        if data["until"] != "":
+        if "until" in data.keys():
             optional["until"] = f"{data['until']}"
 
         # handle challenge creation on chall-manager
