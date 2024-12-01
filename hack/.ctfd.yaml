@@ -1,0 +1,13 @@
+appearance:
+  name: 'Demo CTFer.io'
+  description: 'Demo: CTFer.io'
+
+admin:
+  name: ctfer
+  email: ctfer@ctfer.io
+  password: ctfer
+
+mode: 'teams'
+
+accounts:
+  team_creation: true
