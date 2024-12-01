@@ -35,6 +35,12 @@ For instance, in the following setup, challenges 1, 2, and 3 have the global sco
 
 In this scenario, player X (yellow) and player Y (blue) will each have their own instances for challenge 4, but will share the same instance for challenges 1, 2, and 3. We recommend enabling this feature for static, stateless applications (e.g., websites).
 
+### Destroy on flag
+
+Challenges with the **destroy-on-flag** option will automatically destroy the instance when the player submits the correct flag. 
+
+Please note: enabling this option will slow down CTFd's response time when the correct flag is submitted.
+
 ### Mana Cost
 
 The **mana cost** is an integer representing the price users must pay in mana to deploy their own instance. Mana is refunded when the instance is destroyed. This system helps control the impact users have on the platform. For more details, see [how mana works](/docs/ctfd-chall-manager/desing/mana).
