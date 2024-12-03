@@ -167,6 +167,45 @@ class Test_F_UserInstance(unittest.TestCase):
         self.assertEqual(len(formatted_result['success']), 2)
         self.assertEqual(len(formatted_result['failure']), 1)
 
+    def test_hidden_challenge(self):
+        '''
+        This test try to deploy an instance on hidden challenge. 
+        User cannot deploy an instance if the challenge is hidden.
+        '''
+        # create a hidden challenge
+        payload = {
+            "name":"test",
+            "category":"test",
+            "description":"test",
+            "initial":"500",
+            "function":"linear",
+            "decay":"10",
+            "minimum":"10",
+            "state":"hidden",
+            "type":"dynamic_iac",
+            "scenario_id": "1" # already push files
+        }
+        r = requests.post(f"{ctfd_url}/api/v1/challenges",  headers=headers_admin, data=json.dumps(payload))
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True) 
+
+        chall_id = a["data"]["id"]
+
+        payload = {
+            "challengeId": f"{chall_id}",
+        }
+        r = post_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], False) # user cannot deploy instance 
+
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], False) # user cannot deploy instance 
+
+        # remove 
+        r = requests.delete(f"{ctfd_url}/api/v1/challenges/{chall_id}",  headers=headers_admin)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True) 
 
 class Test_F_AdminInstance(unittest.TestCase):
     def test_user_connection_is_denied(self):
@@ -269,5 +308,44 @@ class Test_F_AdminInstance(unittest.TestCase):
         r = requests.patch(f"{base_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=headers_admin)
         a = json.loads(r.text)
         self.assertEqual(a["success"], False)
+  
+    def test_hidden_challenge(self):
+        '''
+        This test try to deploy an instance on hidden challenge. 
+        Admin can deploy an instance event if the challenge is hidden.
+        '''                
+        # create a hidden challenge
+        payload = {
+            "name":"test",
+            "category":"test",
+            "description":"test",
+            "initial":"500",
+            "function":"linear",
+            "decay":"10",
+            "minimum":"10",
+            "state":"hidden",
+            "type":"dynamic_iac",
+            "scenario_id": "1"
+        }
+        r = requests.post(f"{ctfd_url}/api/v1/challenges",  headers=headers_admin, data=json.dumps(payload))
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True) 
 
-# TODO add test_hidden_challenge()
+        chall_id = a["data"]["id"]
+        sourceId = 1
+
+        payload = {
+            "challengeId": f"{chall_id}",
+            "sourceId": f"{sourceId}"
+        }
+        r = requests.post(f"{base_url}/admin/instance",  headers=headers_admin, data=json.dumps(payload))
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True) # admin can deploy instance 
+
+        r = requests.get(f"{base_url}/admin/instance?challengeId={chall_id}&sourceId={sourceId}",  headers=headers_admin)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True) # admin can deploy instance 
+
+        r = requests.delete(f"{ctfd_url}/api/v1/challenges/{chall_id}",  headers=headers_admin)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True) 
