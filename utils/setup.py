@@ -10,7 +10,7 @@ logger = configure_logger(__name__)
 def setup_default_configs():
     logger.debug("configure plugin")
 
-    default_cm_api_url = "http://localhost:9090/api/v1"
+    default_cm_api_url = "http://localhost:8080/api/v1"
     default_cm_mana_total = 0
 
     # Load varenv
