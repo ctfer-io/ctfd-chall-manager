@@ -1,0 +1,130 @@
+name: Setup Testing Environment
+description: Sets up a testing environment for CTFd and its related components.
+
+inputs:
+  ctfd_user:
+    description: "Username for the CTFd admin."
+    default: "ctfer"
+    required: false
+  ctfd_pass:
+    description: "Password for the CTFd admin."
+    default: "ctfer"
+    required: false
+  ctfd_mode:
+    description: "Mode for CTFd (teams or users)."
+    default: "teams"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.2
+
+    - name: Wait for CTFd server
+      shell: bash
+      run: |
+        max_attempts=10
+        base_url="http://localhost:8000"
+        for ((i=0; i<$max_attempts; i++)); do
+          if curl --head --fail --silent --show-error "$base_url" >/dev/null; then
+            echo "CTFd server is up and running!"
+            break
+          else
+            echo "Waiting for the server to respond... (attempt $((i+1)))"
+            sleep 5
+          fi
+        done
+        if [ $i -eq $max_attempts ]; then
+          echo "Server did not respond within the allotted time. Exiting..."
+          exit 1
+        fi
+
+    - name: Wait for Chall-Manager server
+      shell: bash
+      run: |
+        max_attempts=10
+        base_url="http://localhost:8080/api/v1/challenge"
+        for ((i=0; i<$max_attempts; i++)); do
+          if curl --fail --silent --show-error "$base_url" >/dev/null; then
+            echo "Chall-Manager server is up and running!"
+            break
+          else
+            echo "Waiting for the server to respond... (attempt $((i+1)))"
+            sleep 5
+          fi
+        done
+        if [ $i -eq $max_attempts ]; then
+          echo "Server did not respond within the allotted time. Exiting..."
+          exit 1
+        fi
+
+    - name: Setup CTFd
+      uses: ctfer-io/ctfd-setup@v1.4.4
+      with:
+        url: 'http://ctfd:8000'
+        appearance_name: CTFer.io
+        appearance_description: CTFer.io plugin tests
+        mode: ${{ inputs.ctfd_mode }}
+        admin_name: ${{ inputs.ctfd_user }}
+        admin_email: ctfer-io@protonmail.com
+        admin_password: ${{ inputs.ctfd_pass }}
+
+    - name: Setup Go
+      uses: actions/setup-go@v5.1.0
+
+    - name: Generate token and store it for GH Actions
+      shell: bash
+      run: |
+        cd hack/token  
+        go run main.go
+      env:
+        CTFD_URL: http://localhost:8000
+        CTFD_NAME: ${{ inputs.ctfd_user }}
+        CTFD_PASSWORD: ${{ inputs.ctfd_pass }}
+
+    - name: Install Pulumi
+      uses: pulumi/actions@v6.0.0
+
+    - name: Additional configuration for CTFd (users and teams)
+      shell: bash
+      run: |
+        cd hack/config
+        pulumi login --local 
+        pulumi stack init tmp
+        pulumi up --yes --stack tmp
+      env:
+        PULUMI_CONFIG_PASSPHRASE: ""
+        CTFD_URL: http://localhost:8000
+
+    - name: Generate demo-deploy.zip for tests
+      shell: bash
+      run: |
+        cd hack/deploy          
+        zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip main
+        zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip Pulumi.yaml
+      env:
+        CGO_ENABLED: 0
+        GOPRIVATE: github.com/ctfer-io/chall-manager
+
+    - name: Generate token and store it for GH Actions
+      shell: bash
+      run: |-
+        cd hack/token  
+        go run main.go
+      env:
+        CTFD_URL: http://localhost:8000
+        CTFD_NAME: "user1"
+        CTFD_PASSWORD: "user1"
+        CTFD_OUTPUT_KEY: CTFD_API_TOKEN_USER
+
+    - name: Generate token and store it for GH Actions
+      shell: bash
+      run: |-
+        cd hack/token  
+        go run main.go
+      env:
+        CTFD_URL: http://localhost:8000
+        CTFD_NAME: ${{ inputs.ctfd_user }}
+        CTFD_PASSWORD: ${{ inputs.ctfd_pass }}
+        CTFD_OUTPUT_KEY: CTFD_API_TOKEN_ADMIN
