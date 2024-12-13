@@ -60,7 +60,7 @@ runs:
         fi
 
     - name: Setup CTFd
-      uses: ctfer-io/ctfd-setup@v1.4.4
+      uses: ctfer-io/ctfd-setup@4f039f18e2e78cb4eeb7a2c89e0c38a5a6afa392 # v1.5.2
       with:
         url: 'http://ctfd:8000'
         appearance_name: CTFer.io
