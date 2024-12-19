@@ -35,3 +35,12 @@ To configure or perform an update, Go to `CTFd Admin Panel` > `Plugins` > `chall
 {{% alert title="Warning" color="warning" %}}
 We strongly recommends you to NOT edit the chall-manager API URL during your event.
 {{% /alert %}}
+
+## Additional environment variables
+
+The plugin can optionally use 2 commons variables to configure cache or the logging level.
+
+| Variable  	| Default 	| Description                                                                       	|
+|-----------	|---------	|-----------------------------------------------------------------------------------	|
+| REDIS_URL 	| ""      	| The URI to connect to a Redis server. (e.g. redis://user:password@localhost:6379) 	|
+| LOG_INFO  	| "INFO"  	| Enumeration in INFO, DEBUG, ERROR, WARNING                                        	|
