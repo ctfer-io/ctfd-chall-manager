@@ -11,10 +11,10 @@ services:
       LOG_LEVEL: DEBUG
       PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
       PLUGIN_SETTINGS_CM_MANA_TOTAL: 15
-      REDIS_URL: redis://redis-svc:6379
+      # REDIS_URL: redis://redis-svc:6379
     depends_on:
       - chall-manager
-      - redis-svc
+      # - redis-svc
     healthcheck:
       test: python3 -c 'import requests; requests.get("http://localhost:8000")'
       interval: 10s
@@ -30,12 +30,12 @@ services:
     networks:
       - testing
 
-  redis-svc:
-    image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
-    ports:
-      - 6379:6379
-    networks:
-      - testing
+  # redis-svc:
+  #   image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
+  #   ports:
+  #     - 6379:6379
+  #   networks:
+  #     - testing
 
   ctfd-setup:
     image: ctferio/ctfd-setup:v1.5.2@sha256:4308e91578532869eee94d68488ea51f222ca5e5944d05529eb59c2f2cc3404a

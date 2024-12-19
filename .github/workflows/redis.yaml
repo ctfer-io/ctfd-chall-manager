@@ -1,4 +1,4 @@
-name: CI - Local lock
+name: CI - Redis lock
 
 on: 
   push:
@@ -23,6 +23,11 @@ jobs:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_password }}
 
+      redis-svc:
+        image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
+        ports: 
+          - 6379:6379
+
       ctfd:
         image: ctfd/ctfd:3.7.4@sha256:b2cc1ff1767d919282cf9811ec41a9a4f994d502f502b4a8852999ffb1b7e81a
         ports:
@@ -32,6 +37,7 @@ jobs:
           LOG_LEVEL: DEBUG
           PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
           PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
+          REDIS_URL: redis://redis-svc:6379
 
     steps:
       - name: Checkout repository
