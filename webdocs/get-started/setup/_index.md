@@ -28,10 +28,10 @@ git clone https://github.com/CTFd/CTFd
 # Clone the plugin repository
 git clone https://github.com/ctfer-io/ctfd-chall-manager CTFd/CTFd/plugins/ctfd-chall-manager
 
-# Start Redis with Docker
+# (optional) Start Redis with Docker
 docker run -d -p 6379:6379 redis:<version>
 
-## Configure plugin to use redis serveur
+## (optional) Configure plugin to use redis serveur
 export REDIS_URL=redis://localhost:6379
 
 # Start CTFd
@@ -48,11 +48,11 @@ git clone https://github.com/ctfer-io/ctfd-chall-manager
 # Create Docker network
 docker network create testing
 
-# Start Redis with Docker
+# (optional) Start Redis with Docker
 docker run -d --name redis-svc --network testing redis:<version>
 
 # Start CTFd with Docker
-docker run -d -p 8000:8000 -e REDIS_URL=redis://redis-svc:6379 -v ./ctfd-chall-manager:/opt/CTFd/CTFd/plugins/ctfd-chall-manager --network testing ctfd/ctfd:<version>
+docker run -d -p 8000:8000 [-e REDIS_URL=redis://redis-svc:6379] -v ./ctfd-chall-manager:/opt/CTFd/CTFd/plugins/ctfd-chall-manager --network testing ctfd/ctfd:<version>
   {{< /tab >}}
 {{< /tabpane >}}
 

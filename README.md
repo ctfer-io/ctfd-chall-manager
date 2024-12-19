@@ -31,7 +31,6 @@ To install and use the plugin, refer to the documentation at https://alpha.ctfer
 
 # Limitations
 - Need to use the `core-beta` theme (cf https://github.com/CTFd/CTFd/pull/2630)
-- Need redis server with `REDIS_URL` in environment variable at CTFd startup
 
 # Glossaries
 
