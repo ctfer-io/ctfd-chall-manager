@@ -1,5 +1,4 @@
 import json
-import datetime
 
 from flask import request
 from flask_restx import Namespace, Resource, abort
@@ -13,12 +12,13 @@ from .models import DynamicIaCChallenge
 from .utils.instance_manager import create_instance, delete_instance, get_instance, update_instance
 from .utils.mana_coupon import create_coupon, delete_coupon, get_source_mana
 from .utils.logger import configure_logger
-from .utils.locker import RWLock
+from .utils.mana_lock import ManaLock
 from .utils.chall_manager_error import ChallManagerException
 from .decorators import challenge_visible
 
 # Configure logger for this module
 logger = configure_logger(__name__)
+lockers = {}
 
 admin_namespace = Namespace("ctfd-chall-manager-admin")
 user_namespace = Namespace("ctfd-chall-manager-user")
@@ -76,37 +76,41 @@ class AdminInstance(Resource):
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
 
         try:
-            lock = RWLock(f"{sourceId}")
-            lock.rw_lock()
+            if sourceId not in lockers.keys():
+                lock = ManaLock(f"{sourceId}")
+                lockers[sourceId] = lock
+            else:
+                lock = lockers[sourceId]
+            lock.admin_lock()
 
             if cm_mana_total > 0:
                 create_coupon(challengeId, sourceId)
                 logger.info(f"Coupon created for challengeId: {challengeId}, sourceId: {sourceId}")
 
-            try:
-                logger.debug(f"Creating instance for challengeId: {challengeId}, sourceId: {sourceId}")
-                r = create_instance(challengeId, sourceId)
-                logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} created successfully.")
+            logger.debug(f"Creating instance for challengeId: {challengeId}, sourceId: {sourceId}")
+            r = create_instance(challengeId, sourceId)
+            logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} created successfully.")
 
-            except ChallManagerException as e:
-                if "already exist" in e.message:
-                    return {'success': False, 'data': {
-                        'message': f"instance already exist",
-                    }}
+        except ChallManagerException as e:
+            if "already exist" in e.message:
                 return {'success': False, 'data': {
-                        'message': f"{e.message}",
-                    }}
-
-            except Exception as e:
-                logger.error(f"Error while creating instance: {e}")
-                if cm_mana_total > 0:
-                    delete_coupon(challengeId, sourceId)
-                    logger.info(f"Coupon deleted for challengeId: {challengeId}, sourceId: {sourceId}")
-                return {'success': False, 'data': {
-                    'message': f"Error while communicating with CM : {e}",
+                    'message': f"instance already exist",
                 }}
+            return {'success': False, 'data': {
+                    'message': f"{e.message}",
+                }}
+
+        except Exception as e:
+            logger.error(f"Error while creating instance: {e}")
+            if cm_mana_total > 0:
+                delete_coupon(challengeId, sourceId)
+                logger.info(f"Coupon deleted for challengeId: {challengeId}, sourceId: {sourceId}")
+            return {'success': False, 'data': {
+                'message': f"Error while communicating with CM : {e}",
+            }}
+
         finally:
-            lock.rw_unlock()
+            lock.admin_unlock()
 
         return {'success': True, 'data': {
             'message': json.loads(r.text),
@@ -149,24 +153,30 @@ class AdminInstance(Resource):
         logger.info(f"Admin {adminId} request instance delete for challengeId: {challengeId}, sourceId: {sourceId}")
 
         try:
-            lock = RWLock(f"{sourceId}")
-            lock.rw_lock()
+            if sourceId not in lockers.keys():
+                lock = ManaLock(f"{sourceId}")
+                lockers[sourceId] = lock
+            else:
+                lock = lockers[sourceId]
 
-            try:
-                logger.debug(f"Deleting instance for challengeId: {challengeId}, sourceId: {sourceId}")
-                r = delete_instance(challengeId, sourceId)
-                logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} delete successfully.")
-            except Exception as e:
-                logger.error(f"Error while deleting instance: {e}")
-                return {'success': False, 'data': {
-                    'message': f"Error while communicating with CM : {e}",
-                }}
+            lock.admin_lock()
+
+            logger.debug(f"Deleting instance for challengeId: {challengeId}, sourceId: {sourceId}")
+            r = delete_instance(challengeId, sourceId)
+            logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} delete successfully.")
 
             if cm_mana_total > 0:
                 delete_coupon(challengeId, sourceId)
                 logger.info(f"Coupon deleted for challengeId: {challengeId}, sourceId: {sourceId}")
+
+        except Exception as e:
+            logger.error(f"Error while deleting instance: {e}")
+            return {'success': False, 'data': {
+                'message': f"Error while communicating with CM : {e}",
+            }}
+
         finally:
-            lock.rw_unlock()
+            lock.admin_unlock()
 
         return {'success': True, 'data': {
             'message': json.loads(r.text),
@@ -252,8 +262,13 @@ class UserInstance(Resource):
         # check if sourceId can launch the instance
 
         try:
-            lock = RWLock(f"{sourceId}")
-            lock.r_lock()
+            if sourceId not in lockers.keys():
+                lock = ManaLock(f"{sourceId}")
+                lockers[sourceId] = lock
+            else:
+                lock = lockers[sourceId]
+
+            lock.player_lock()
 
             if cm_mana_total > 0:
                 challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
@@ -267,34 +282,33 @@ class UserInstance(Resource):
                         'message': "You or your team used up all your mana. You must recover mana by destroying instances of other challenges to continue.",
                     }}
 
-            try:
-                logger.debug(f"Creating instance for challengeId: {challengeId}, sourceId: {sourceId}")
-                r = create_instance(challengeId, sourceId)
-                logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} created successfully")
+            logger.debug(f"Creating instance for challengeId: {challengeId}, sourceId: {sourceId}")
+            r = create_instance(challengeId, sourceId)
+            logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} created successfully")
 
-                # create a new coupon
-                if cm_mana_total > 0:
-                    logger.debug(f"Creating coupon for challengeId: {challengeId}, sourceId: {sourceId}")
-                    create_coupon(challengeId, sourceId)
-                    logger.info(f"Coupon for challengeId: {challengeId}, sourceId: {sourceId} created successfully")
+            # create a new coupon
+            if cm_mana_total > 0:
+                logger.debug(f"Creating coupon for challengeId: {challengeId}, sourceId: {sourceId}")
+                create_coupon(challengeId, sourceId)
+                logger.info(f"Coupon for challengeId: {challengeId}, sourceId: {sourceId} created successfully")
 
-            except ChallManagerException as e:
-                if "already exist" in e.message:
-                    return {'success': False, 'data': {
-                        'message': f"instance already exist",
-                    }}
+        except ChallManagerException as e:
+            if "already exist" in e.message:
                 return {'success': False, 'data': {
-                    'message': f"{e.message}",
+                    'message': f"instance already exist",
                 }}
+            return {'success': False, 'data': {
+                'message': f"{e.message}",
+            }}
 
-            except Exception as e:
-                logger.error(f"Error while creating instance: {e}")
-                return {'success': False, 'data': {
-                    'message': f"Error while communicating with CM : {e}",
-                }}
+        except Exception as e:
+            logger.error(f"Error while creating instance: {e}")
+            return {'success': False, 'data': {
+                'message': f"Error while communicating with CM : {e}",
+            }}
 
         finally:
-            lock.r_unlock()
+            lock.player_unlock()
 
         # return only necessary values
         data = {}
@@ -372,20 +386,26 @@ class UserInstance(Resource):
             }}
 
         try:
-            lock = RWLock(f"{sourceId}")
-            lock.r_lock()
+            if sourceId not in lockers.keys():
+                lock = ManaLock(f"{sourceId}")
+                lockers[sourceId] = lock
+            else:
+                lock = lockers[sourceId]
 
-            try:
-                logger.debug(f"Deleting instance for challengeId: {challengeId}, sourceId: {sourceId}")
-                r = delete_instance(challengeId, sourceId)
-                logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} deleted successfully.")
-            except Exception as e:
-                logger.error(f"Error while deleting instance: {e}")
-                return {'success': False, 'data': {
-                    'message': f"Error while communicating with CM : {e}",
-                }}
+            lock.player_lock()
+
+            logger.debug(f"Deleting instance for challengeId: {challengeId}, sourceId: {sourceId}")
+            r = delete_instance(challengeId, sourceId)
+            logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} deleted successfully.")
+        except Exception as e:
+            logger.error(f"Error while deleting instance: {e}")
+            return {'success': False, 'data': {
+                'message': f"Error while communicating with CM : {e}",
+            }}
+
         finally:
-            lock.r_unlock()
+            logger.debug(f"/mana release the {sourceId}_r lock")
+            lock.player_unlock()
 
         if cm_mana_total > 0:
             logger.debug(f"Deleting coupon for challengeId: {challengeId}, sourceId: {sourceId}")
@@ -408,12 +428,18 @@ class UserMana(Resource):
             sourceId = str(current_user.get_current_user().team_id)
 
         try:
-            lock = RWLock(f"{sourceId}")
-            lock.r_lock()
+            if sourceId not in lockers.keys():
+                lock = ManaLock(f"{sourceId}")
+                lockers[sourceId] = lock
+            else:
+                lock = lockers[sourceId]
+
+            lock.player_lock()
+
             mana = get_source_mana(sourceId)
             logger.debug(f"Retrieved mana for sourceId: {sourceId}, mana: {mana}")
         finally:
-            lock.r_unlock()
+            lock.player_unlock()
 
         return {'success': True, 'data': {
             'mana_used': f"{mana}",
