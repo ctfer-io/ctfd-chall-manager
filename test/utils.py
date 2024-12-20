@@ -103,6 +103,10 @@ def get_instance(challengeId: int):
     r = requests.get(f"{config.plugin_url}/instance?challengeId={challengeId}",  headers=config.headers_user)
     return r
 
+def get_admin_instance(challengeId: int, sourceId: int):
+    r = requests.get(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+    return r
+
 def delete_instance(challengeId: int):
     r = requests.delete(f"{config.plugin_url}/instance?challengeId={challengeId}",  headers=config.headers_user)
     return r
@@ -117,6 +121,41 @@ def run_post_instance(challengeId: int, results: dict, lock: threading.Lock):
     with lock:
         # Store the result in a shared dictionary with the challengeId as the key
         results[challengeId] = json.loads(r.text)
+
+def get_source_id():
+    r = requests.get(f"{config.ctfd_url}/api/v1/configs/user_mode", headers=config.headers_admin)
+    a = json.loads(r.text)
+
+    user_mode = a["data"]["value"]
+
+    r = requests.get(f"{config.ctfd_url}/api/v1/users/me", headers=config.headers_user)
+    a = json.loads(r.text)
+
+    sourceId = a["data"]["id"]
+    if user_mode == "teams":
+        sourceId = a["data"]["team_id"]
+
+    return sourceId
+
+def bypass_ratelimit():
+    payload = {
+        "key": "incorrect_submissions_per_min",
+        "value": "99999999999"
+    }
+
+    r = requests.patch(f"{config.ctfd_url}/api/v1/configs", headers=config.headers_admin, data=json.dumps(payload))
+    return r
+
+def reset_all_submissions():
+    r = requests.get(f"{config.ctfd_url}/api/v1/submissions", headers=config.headers_admin)
+    a = json.loads(r.text)
+
+    submissions = []
+    for i in a["data"]:
+        submissions.append(i["id"])
+
+    for id in submissions:
+        r = requests.delete(f"{config.ctfd_url}/api/v1/submissions/{id}", headers=config.headers_admin)
 
 config.scenario_id = push_scenario_as_file(config.scenario_path)
 
