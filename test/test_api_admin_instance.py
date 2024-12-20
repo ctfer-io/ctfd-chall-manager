@@ -54,7 +54,7 @@ class Test_F_AdminInstance(unittest.TestCase):
 
         r = requests.get(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
         a = json.loads(r.text)
-        self.assertEqual(a["success"], True) 
+        self.assertEqual(a["success"], False) 
 
         payload = {
             "challengeId": f"{challengeId}",
