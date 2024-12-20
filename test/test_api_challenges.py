@@ -5,7 +5,17 @@ import unittest
 import requests
 import json
 
-from .utils import config, create_challenge, delete_challenge
+from .utils import (
+    config,
+    create_challenge,
+    delete_challenge,
+    post_instance,
+    delete_instance,
+    get_admin_instance,
+    get_source_id,
+    reset_all_submissions,
+    bypass_ratelimit
+    )
 
 base_challenge = {
     "name":"test",
@@ -77,3 +87,81 @@ class Test_F_Challenges(unittest.TestCase):
         r = requests.post(f"{config.ctfd_url}/api/v1/challenges",  headers=config.headers_admin, data=json.dumps(base_challenge))
         self.assertEqual(r.status_code, 500) # CTFd return internal server error
         # https://github.com/CTFd/CTFd/issues/2674
+
+    def test_attempt_ctfd_flag(self):
+        bypass_ratelimit()
+
+        chall_id = create_challenge()
+
+        ctfd_flag = "fallback"
+        payload = {
+            "challenge": chall_id,
+            "content": ctfd_flag,
+            "data": "",
+            "type": "static"
+
+        }
+        r = requests.post(f"{config.ctfd_url}/api/v1/flags", headers=config.headers_admin, data=json.dumps(payload))
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        post_instance(chall_id)
+
+        payload = {
+            "challenge_id": chall_id,
+            "submission": ctfd_flag
+        }
+
+        r = requests.post(f"{config.ctfd_url}/api/v1/challenges/attempt", headers=config.headers_user,  data=json.dumps(payload))
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["status"], "correct")
+
+        reset_all_submissions()
+        delete_instance(chall_id)
+        delete_challenge(chall_id)
+
+
+    def test_attempt_variate_flag(self):
+        bypass_ratelimit()
+
+        chall_id = create_challenge()
+        post_instance(chall_id)
+
+        # i can flag with variate flag
+        r = get_admin_instance(chall_id, get_source_id())
+        a = json.loads(r.text)
+
+        payload = {
+            "challenge_id": chall_id,
+            "submission": a["data"]["message"]["flag"]
+        }
+
+        r = requests.post(f"{config.ctfd_url}/api/v1/challenges/attempt", headers=config.headers_user,  data=json.dumps(payload))
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["status"], "correct")
+
+        # clear
+        reset_all_submissions()
+        delete_instance(chall_id)
+        delete_challenge(chall_id)
+
+
+    def test_attempt_expired(self):
+        bypass_ratelimit()
+        chall_id = create_challenge()
+
+        payload = {
+            "challenge_id": chall_id,
+            "submission": "xx"
+        }
+
+        r = requests.post(f"{config.ctfd_url}/api/v1/challenges/attempt", headers=config.headers_user,  data=json.dumps(payload))
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["status"], "incorrect")
+        self.assertIn("Expired", a["data"]["message"])
+
+        reset_all_submissions()
+        delete_challenge(chall_id)
