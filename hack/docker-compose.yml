@@ -22,7 +22,7 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:v0.1.0-rc2
+    image: ctferio/chall-manager:v0.1.0-rc3@sha256:bc7b15549ec3606fe20ea68f50bc51e2d53178b1201c443be6b87fec24f9b762
     ports:
       - 8080:8080
     environment:

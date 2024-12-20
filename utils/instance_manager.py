@@ -98,7 +98,7 @@ def get_instance(challengeId: int, sourceId: int) -> requests.Response | Excepti
     else:
         if r.status_code != 200:
             logger.info(f"No instance on chall-manager: {json.loads(r.text)}")
-    #         raise Exception(f"Chall-manager returned an error: {json.loads(r.text)}") 
+            raise Exception(f"Chall-manager returned an error: {json.loads(r.text)}")
  
     return r
 

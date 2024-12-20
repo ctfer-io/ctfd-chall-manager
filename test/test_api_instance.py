@@ -9,11 +9,11 @@ class Test_F_UserInstance(unittest.TestCase):
     def test_create_patch_delete_visible_challenge(self):
         chall_id = create_challenge(timeout=99)
 
-        r = get_instance(chall_id) # TODO config
+        r = get_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
-        r = post_instance(chall_id)  # TODO config
+        r = post_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)        
         self.assertEqual("connectionInfo" in a["data"]["message"].keys(), True)
