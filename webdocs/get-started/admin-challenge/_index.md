@@ -34,9 +34,14 @@ Here are the basic CTFd settings:
 | Decay               	| 10                        	|
 | Minimum Value         | 10                        	|
 
-First, configure the scope. Since we want each player to have their own instance, disable the global scope.
+First, configure the scope. Since we want each player to have their own instance, disable the sharing option.
 
-{{% imgproc create_challenge_global_scope_disable Fit "800x800" %}}
+{{% imgproc create_challenge_sharing Fit "800x800" %}}
+{{% /imgproc %}}
+
+Next, let the *Destroy on Flag* disable
+
+{{% imgproc create_challenge_destroy-on-flag Fit "800x800" %}}
 {{% /imgproc %}}
 
 Next, set the mana cost. Players will need to spend 2 mana to deploy their own instance of the challenge.

@@ -28,7 +28,7 @@ You can combine the values *Until* and *Timeout* to have 4 modes according to yo
 [Players](/docs/chall-manager/glossary/#player) can control all combinaisons, but each has these specificities.
 
 {{% alert title="Note" color="primary" %}}
-If global scope is enabled, only admins can launch the instance, see associated [guide](/docs/ctfd-chall-manager/guides/panel/#deploy-a-global-scope-instance).
+If the sharing option is enabled, only admins can launch the instance, see associated [guide](/docs/ctfd-chall-manager/guides/panel).
 {{% /alert %}}
 
 For all challenges, the default view (instance is not booted) will display a button to launch the instance, the mana cost and the remaining mana for current user.
