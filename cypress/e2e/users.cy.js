@@ -139,10 +139,10 @@ describe("Permform tests for CTFd in the User Land", () => {
         cy.wait(500)
 
         cy.get('[data-test-id="panel-source-pattern"]')
-        .clear().type("0") // source=0 for global
+        .clear().type("0") // source=0 for shared
   
         // select the last challenges 
-        cy.get('[type="checkbox"]').last().check() // FIXME this is a workaround to get the last (cypress-global-enable in challenge.cy.js)
+        cy.get('[type="checkbox"]').last().check() // FIXME this is a workaround to get the last (cypress-shared-enable in challenge.cy.js)
         cy.get('[data-test-id="panel-preprovisioning-button"]').click()
         cy.popup('Yes')
         cy.wait(2500)
@@ -152,14 +152,14 @@ describe("Permform tests for CTFd in the User Land", () => {
         let connectionInfoUser3
 
         // With the first user, check that I can't use my buttons (wallah tqt c'est aussi bloqué en API :pouet: )
-        cy.log_and_go_to_chall("user1", "user1", "cypress-global-enable") 
+        cy.log_and_go_to_chall("user1", "user1", "cypress-shared-enable")
         cy.get('[data-test-id="cm-button-boot"]').should("not.exist")
         cy.get('[data-test-id="cm-button-renew"]').should("not.exist")
         cy.get('[data-test-id="cm-button-restart"]').should("not.exist")
         cy.get('[data-test-id="cm-button-destroy"]').should("not.exist")
 
 
-        cy.log_and_go_to_chall("user1", "user1", "cypress-global-enable") 
+        cy.log_and_go_to_chall("user1", "user1", "cypress-shared-enable")
         cy.get('[data-test-id="cm-connectionInfo-id"]', { timeout: 20000 }
         ).should("be.visible"
         ).then($user1 => {
@@ -167,7 +167,7 @@ describe("Permform tests for CTFd in the User Land", () => {
         })
 
         // With the second user, detect the connectionInfo, check that I have the same
-        cy.log_and_go_to_chall("user2", "user2", "cypress-global-enable") 
+        cy.log_and_go_to_chall("user2", "user2", "cypress-shared-enable")
         cy.get('[data-test-id="cm-connectionInfo-id"]', { timeout: 20000 }
         ).should("be.visible"
         ).then($user2 => {
@@ -176,7 +176,7 @@ describe("Permform tests for CTFd in the User Land", () => {
         })
 
         // With the third user, detect the connectionInfo, check that I have the same
-        cy.log_and_go_to_chall("user3", "user3", "cypress-global-enable") 
+        cy.log_and_go_to_chall("user3", "user3", "cypress-shared-enable")
         cy.get('[data-test-id="cm-connectionInfo-id"]', { timeout: 20000 }
         ).should("be.visible"
         ).then($user3 => {
@@ -277,7 +277,7 @@ describe("Permform tests for CTFd in the User Land", () => {
 
     it("I cant provide a flag if instance is not booted", () => {
         // With the first user, deploy one instance
-        cy.log_and_go_to_chall("user3", "user3", "cypress-global-enable")
+        cy.log_and_go_to_chall("user3", "user3", "cypress-shared-enable")
                     
         // Type the fallback flag         
         cy.get('input[placeholder="Flag"]').type("POUET", { parseSpecialCharSequences: false });
