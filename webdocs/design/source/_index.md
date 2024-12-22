@@ -13,7 +13,7 @@ As explained [here](/docs/chall-manager/glossary/#source), the *Source* refers t
 
 To enable sharing across all users, the `sourceId` is set to `0`. The table below summarizes the different scenarios:
 
-| user_mode | global scope | sourceId             |
+| user_mode | shared       | sourceId             |
 |-----------|--------------|----------------------|
 | users     | FALSE        | current_user.id      |
 | teams     | FALSE        | current_user.team_id |
@@ -31,7 +31,7 @@ flowchart LR
     A[Launch] --> B{CTFd mode}
     B -->|users| C[sourceId = user.id]
     B -->|teams| D[sourceId = user.team_id]
-    D --> E{challenge.global_scope}
+    D --> E{challenge.shared ?}
     C --> E
     E -->|True| F[sourceId = 0]
     E -->|False| End1

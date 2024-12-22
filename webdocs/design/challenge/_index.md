@@ -24,11 +24,11 @@ Here’s what the plugin adds:
 {{% imgproc create_challenge_attributes Fit "800x800" %}}
 {{% /imgproc %}}
 
-### Global Scope
+### Sharing
 
-The **global scope** is a boolean setting that allows a single instance to be shared among all players. 
+The **sharing** or **shared** is a boolean setting that allows a single instance to be shared among all players. 
 
-For instance, in the following setup, challenges 1, 2, and 3 have the global scope enabled, while challenge 4 does not:
+For instance, in the following setup, challenges 1, 2, and 3 have the sharing enabled, while challenge 4 does not:
 
 {{% imgproc pool_concept.excalidraw Fit "800x800" %}}
 {{% /imgproc %}}
@@ -39,7 +39,7 @@ In this scenario, player X (yellow) and player Y (blue) will each have their own
 
 Challenges with the **destroy-on-flag** option will automatically destroy the instance when the player submits the correct flag. 
 
-Please note: enabling this option will slow down CTFd's response time when the correct flag is submitted due to instance destruction.
+Please note: enabling this option will slow down CTFd's response time when the correct flag is submitted due to instance destruction. We recommend that you only activate this option if you don't want to use mana.
 
 ### Mana Cost
 

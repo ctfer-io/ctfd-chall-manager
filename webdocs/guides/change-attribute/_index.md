@@ -19,10 +19,10 @@ For all updates, go to the CTFd Admin Panel and edit the challenge (https://CTFD
 {{% /imgproc %}}
 
 
-## Change the global scope
+## Change the scope
 When you arrive on the modification page, the value displayed is the one configured at the challenge level.
 
-{{% imgproc challenge-scope Fit "800x800" %}}
+{{% imgproc challenge-sharing Fit "800x800" %}}
 {{% /imgproc %}}
 
 By editing this value, you trigger instances destruction, see workflow belows:
@@ -31,12 +31,20 @@ By editing this value, you trigger instances destruction, see workflow belows:
 flowchart LR
     A[Update] --> B
     B[Update on CTFd backend] --> C 
-    C{challenge global ?} 
+    C{challenge is shared ?} 
     C -->|True|F[Destroy all instances]
-    C -->|False| E[Destroy global instance] 
+    C -->|False| E[Destroy the shared instance] 
     E --> H[Send update payload to CM]
     F --> H
 ```
+
+## Change the destroy on flag 
+When you arrive on the modification page, the value displayed is the one configured at the challenge level.
+
+{{% imgproc challenge-destroy-on-flag Fit "800x800" %}}
+{{% /imgproc %}}
+
+You can edit this value at any time without any impact on Chall-Manager API.
 
 ## Change the mana cost
 When you arrive on the modification page, the value displayed is the one configured at the challenge level.
