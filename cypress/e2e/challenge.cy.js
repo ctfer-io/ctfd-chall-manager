@@ -17,7 +17,7 @@ describe('Dynamic IaC Challenge', () => {
     cy.create_challenge("cypress-destroy-on-flag", "Disabled", "Enabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
 
     // create a shared instance (this one must be the last)
-    cy.create_challenge("cypress-global-enable", "Enabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
+    cy.create_challenge("cypress-shared-enable", "Enabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
 
   })
 

@@ -254,7 +254,7 @@ class UserInstance(Resource):
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
         if challenge.shared:
-            logger.warning(f"Unauthorized attempt to create instance for global challengeId: {challengeId}, sourceId: {sourceId}")
+            logger.warning(f"Unauthorized attempt to create sharing instance challengeId: {challengeId}, sourceId: {sourceId}")
             return {'success': False, 'data': {
                 'message': "Unauthorized"
             }} 
@@ -338,7 +338,7 @@ class UserInstance(Resource):
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
         if challenge.shared:
-            logger.warning(f"Unauthorized attempt to patch instance for global challengeId: {challengeId}, sourceId: {sourceId}")
+            logger.warning(f"Unauthorized attempt to patch sharing instance challengeId: {challengeId}, sourceId: {sourceId}")
             return {'success': False, 'data': {
                 'message': "Unauthorized"
             }} 
@@ -380,7 +380,7 @@ class UserInstance(Resource):
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
         if challenge.shared:
-            logger.warning(f"Unauthorized attempt to delete instance for global challengeId: {challengeId}, sourceId: {sourceId}")
+            logger.warning(f"Unauthorized attempt to delete shared instance, challengeId: {challengeId}, sourceId: {sourceId}")
             return {'success': False, 'data': {
                 'message': "Unauthorized"
             }}
