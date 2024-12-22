@@ -16,7 +16,7 @@ describe('Dynamic IaC Challenge', () => {
     // create a destroy on flag challenge
     cy.create_challenge("cypress-destroy-on-flag", "Disabled", "Enabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
 
-    // create a global scope (this one must be the last)
+    // create a shared instance (this one must be the last)
     cy.create_challenge("cypress-global-enable", "Enabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
 
   })

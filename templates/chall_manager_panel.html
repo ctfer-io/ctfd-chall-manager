@@ -18,63 +18,119 @@
 {% block panel %}
 
 
-<a class="row">    
-  
-  <div class="col-md-6">
-    Source Id pattern : 
-    <input type="text" class="form-control"
-                   id="panel-source-pattern"
-                   data-test-id="panel-source-pattern" 
-                   placeholder="1,3-5,10">
 
-    Available IaC Challenges
-  <div class="col-md-12">
-      <table class="table table-striped border">
-          <thead>
-          <tr>
-              <th class="border-right" data-checkbox>
-                  <div class="form-check text-center">&nbsp;
-                      <input type="checkbox" class="form-check-input" 
-                      data-test-id="panel-challenge-checkbox" 
-                      data-checkbox-all>
-                  </div>
-              </th>
-              <th class="sort-col text-center"><b>ID</b></td>
-          </tr>
-          </thead>
+<div class="container">
 
-          <tbody>
-              {% for challenge in challenges %}
-              <tr>
-                  <td class="border-right" data-checkbox>
-                      <div class="form-check text-center">&nbsp;
-                          <input type="checkbox" class="form-check-input" 
-                          data-challenge-id="{{ challenge.id }}">
-                      </div>
-                  </td>
-              
-                  <td class="text-center">
-                    <div class="form-check" id="challenge-id-div">
-                        <a href="{{ url_for('admin.challenges_detail', challenge_id=challenge.id) }}">
-                            {{ challenge.name }}
-                        </a>
-                    </div>
-                  </td>
-              {% endfor %}
-          
-          </tbody>
-      </table>
-  </div>
+	<div class="row">
+		<div class="col-md-12">
+			{% if q and field %}
+			<h5 class="text-muted text-center">
+				Searching for challenges with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>
+			</h5>
+			<h6 class="text-muted text-center pb-3">
+				{{ total }} results
+			</h6>
+			{% endif %}
+
+			{% with form = Forms.challenges.ChallengeSearchForm(field=field, q=q) %}
+			<form method="GET" class="form-inline">
+				<div class="form-group col-md-2">
+					{{ form.field(class="form-control custom-select w-100") }}
+				</div>
+				<div class="form-group col-md-8">
+					{{ form.q(class="form-control w-100", placeholder="Search for matching challenge") }}
+				</div>
+				<div class="form-group col-md-2">
+					<button type="submit" class="btn btn-primary w-100">
+						<i class="fas fa-search" aria-hidden="true"></i>
+					</button>
+				</div>
+			</form>
+			{% endwith %}
+		</div>
+	</div>
+
+	<hr>
+
+	<div class="row">
+		<div class="col-md-2">
+			SourceId Pattern:
+		</div>
+		<div class="col-md-6">
+			<input type="text" class="form-control"
+			id="panel-source-pattern"
+			data-test-id="panel-source-pattern"
+			placeholder="1,3-5,10">
+		</div>
+		<div class="col-md-4">
+			<div class="float-right pb-3">
+				<div class="btn-group" role="group">
+					<button type="button" class="btn btn-outline-primary" data-toggle="tooltip" title="" id="instances-create-button"
+							data-original-title="Provisioner"
+							data-test-id="panel-preprovisioning-button">
+						Pre Provisionning
+                        <i class="fa-solid fa-wand-magic"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12 table-responsive">
+			<div>
+				<table id="challenges" class="table table-striped border">
+					<thead>
+					<tr>
+						<td class="d-block border-right border-bottom text-center" data-checkbox>
+							<div class="form-check">
+								<input type="checkbox" class="form-check-input" autocomplete="off" data-checkbox-all>&nbsp;
+							</div>
+						</td>
+						<th class="sort-col text-center"><b>ID</b></th>
+						<th class="sort-col"><b>Name</b></th>
+						<th class="sort-col"><b>Category</b></th>
+						<th class="sort-col text-center"><b>Value</b></th>
+						<th class="sort-col text-center"><b>Shared</b></th>
+						<th class="sort-col text-center"><b>Destroy on Flag</b></th>
+					</tr>
+					</thead>
+					<tbody>
+					{% for challenge in challenges %}
+						<tr data-href="{{ url_for('admin.challenges_detail', challenge_id=challenge.id) }}">
+							<td class="d-block border-right text-center" data-checkbox>
+								<div class="form-check">
+									<input type="checkbox" class="form-check-input" value="{{ challenge.id }}" autocomplete="off" data-challenge-id="{{ challenge.id }}">&nbsp;
+								</div>
+							</td>
+							<td class="text-center">{{ challenge.id }}</td>
+							<td><a href="{{ url_for('admin.challenges_detail', challenge_id=challenge.id) }}">{{ challenge.name }}</a></td>
+							<td>{{ challenge.category }}</td>
+							<td class="text-center">{{ challenge.value }}</td>
+
+							<td class="text-center">
+								{% if challenge.shared %}
+								<i class="fa-solid fa-users"></i>
+								{% else %}
+								-
+								{% endif %}
+							</td>
+
+							<td class="text-center">
+								{% if challenge.destroy_on_flag %}
+								<i class="fa-solid fa-bomb"></i>
+								{% else %}
+								-
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 </div>
-
-<button type="button" class="btn btn-outline-secondary" data-toggle="tooltip" title="" id="instances-create-button" 
-    data-original-title="Provisioner"
-    data-test-id="panel-preprovisioning-button">
-  <i class="fa-solid fa-octagon-plus"></i> 
-  Pre-provisioning
-  <!-- FIXME the button increase with the table rows  -->
-</button>
-
 
 {% endblock %}
 

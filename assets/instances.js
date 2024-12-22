@@ -69,9 +69,6 @@ $(".delete-instance").click(function (e) {
     let challengeId = $(this).attr("challenge-id");
     let sourceId = $(this).attr("source-id");
 
-    console.log(sourceId)
-    console.log(challengeId)
-
     CTFd.ui.ezq.ezQuery({
         title: "Destroy",
         body: "<span>Are you sure you want to delete this instance?</span>",
@@ -82,14 +79,26 @@ $(".delete-instance").click(function (e) {
     });
 });
 
+$(".restart-instance").click(function (e) {
+    e.preventDefault();
+    let challengeId = $(this).attr("challenge-id");
+    let sourceId = $(this).attr("source-id");
+
+    CTFd.ui.ezq.ezQuery({
+        title: "Restart",
+        body: "<span>Are you sure you want to restart this instance?</span>",
+        success: async function () {
+            await delete_instance(challengeId, sourceId);
+            await create_instance(challengeId, sourceId);
+            location.reload();
+        }
+    });
+});
 
 $(".renew-instance").click(function (e) {
     e.preventDefault();
     let challengeId = $(this).attr("challenge-id");
     let sourceId = $(this).attr("source-id");
-
-    console.log(sourceId)
-    console.log(challengeId)
 
     CTFd.ui.ezq.ezQuery({
         title: "Renew",
@@ -102,7 +111,81 @@ $(".renew-instance").click(function (e) {
 });
 
 
+$('#instances-restart-button').click(function (e) {
+    // This is bulk function
+
+    let sourceId = $("input[data-source-id]:checked").map(function () {
+        return $(this).data("source-id");
+    });
+
+    let challengeId = $("input[data-challenge-id]:checked").map(function () {
+        return $(this).data("challenge-id");
+    });
+
+    let challengeIds = challengeId.toArray();
+    let sourceIds = sourceId.toArray();
+
+    CTFd.ui.ezq.ezQuery({
+        title: "Restart Instances",
+        body: `Are you sure you want to delete and create the selected ${sourceIds.length} instance(s)?`,
+        success: async function () {
+            var pg = CTFd.ui.ezq.ezProgressBar({
+                width: 0,
+                title: "Restart in progress",
+            });
+
+            let totalInstances = sourceIds.length * 2;
+            let deletedInstances = 0;
+            let createdInstances = 0;
+
+            let instancePromises = [];
+
+            for (let i = 0; i < sourceIds.length; i++) {
+                instancePromises.push(
+                    delete_instance(challengeIds[i], sourceIds[i])
+                        .then(() => {
+                            deletedInstances++;
+                            var width = ((deletedInstances + createdInstances)/ totalInstances) * 100;
+                            pg = CTFd.ui.ezq.ezProgressBar({
+                                target: pg,
+                                width: width,
+                            });
+                        })
+                );
+            }
+            // trigger all delete
+            await Promise.all(instancePromises)
+
+            // reset Promises for POST
+            instancePromises = []
+
+            for (let i = 0; i < sourceIds.length; i++) {
+                instancePromises.push(
+                    create_instance(challengeIds[i], sourceIds[i])
+                        .then(() => {
+                            createdInstances++;
+                            var width = ((deletedInstances + createdInstances)/ totalInstances) * 100;
+                            pg = CTFd.ui.ezq.ezProgressBar({
+                                target: pg,
+                                width: width,
+                            });
+                    })
+                );
+            }
+
+            await Promise.all(instancePromises)
+
+            setTimeout(function () {
+                pg.modal("hide");
+            }, 500);
+            location.reload();
+        }
+    });
+});
+
 $('#instances-delete-button').click(function (e) {
+    // This is bulk function
+
     let sourceId = $("input[data-source-id]:checked").map(function () {
         return $(this).data("source-id");
     });
@@ -248,5 +331,32 @@ $('#instances-create-button').click(function (e) {
         }
     });
 });
+
+function copyToClipboard(event, str) {
+    // Select element
+    const el = document.createElement('textarea');
+    el.value = str;
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+
+    $(event.target).tooltip({
+        title: "Copied!",
+        trigger: "manual"
+    });
+    $(event.target).tooltip("show");
+
+    setTimeout(function () {
+        $(event.target).tooltip("hide");
+    }, 1500);
+}
+
+$(".click-copy").click(function (e) {
+    copyToClipboard(e, $(this).data("copy"));
+})
 
 

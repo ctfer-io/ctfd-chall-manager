@@ -9,15 +9,15 @@
 <!-- CM Plugins -->
 
 <div class="form-group">
-	<label for="value">Global Scope<br>
+	<label for="value">Sharing<br>
 		<small class="form-text text-muted">
 			<span>If enabled, the instance will be shared for all Users/Teams.
 				It is disabled by default.</span>
 		</small>
 	</label>
-	<select id="select-scope" data-test-id="scope-selector-id" class="custom-select" name="scope_global">
-		<option value="true" {% if challenge.scope_global %}selected{% endif %} >Enabled</option>
-		<option value="false" {% if not challenge.scope_global %}selected{% endif %}>Disabled</option>
+	<select id="select-shared" data-test-id="shared-selector-id" class="custom-select" name="shared">
+		<option value="true" {% if challenge.shared %}selected{% endif %} >Enabled</option>
+		<option value="false" {% if not challenge.shared %}selected{% endif %}>Disabled</option>
 	</select>
 </div>
 

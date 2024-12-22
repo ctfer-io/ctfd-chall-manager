@@ -207,9 +207,9 @@ class UserInstance(Resource):
                 'message': "Missing argument : challengeId or sourceId",
             }}
 
-        # if challenge is global scope
+        # if challenge is shared
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
-        if challenge.scope_global:
+        if challenge.shared:
             sourceId = 0
 
         try:
@@ -253,7 +253,7 @@ class UserInstance(Resource):
             sourceId = str(current_user.get_current_user().team_id)
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
-        if challenge.scope_global:
+        if challenge.shared:
             logger.warning(f"Unauthorized attempt to create instance for global challengeId: {challengeId}, sourceId: {sourceId}")
             return {'success': False, 'data': {
                 'message': "Unauthorized"
@@ -337,7 +337,7 @@ class UserInstance(Resource):
             sourceId = str(current_user.get_current_user().team_id)
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
-        if challenge.scope_global:
+        if challenge.shared:
             logger.warning(f"Unauthorized attempt to patch instance for global challengeId: {challengeId}, sourceId: {sourceId}")
             return {'success': False, 'data': {
                 'message': "Unauthorized"
@@ -379,7 +379,7 @@ class UserInstance(Resource):
             sourceId = str(current_user.get_current_user().team_id)
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
-        if challenge.scope_global:
+        if challenge.shared:
             logger.warning(f"Unauthorized attempt to delete instance for global challengeId: {challengeId}, sourceId: {sourceId}")
             return {'success': False, 'data': {
                 'message': "Unauthorized"

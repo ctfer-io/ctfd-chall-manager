@@ -11,7 +11,7 @@
                     </h6>
             </div>
 
-            {% if not challenge.scope_global %}
+            {% if not challenge.shared %}
             <div id="whale-panel-stopped" class="card" style="width: 100%; display: none;">
                 <div class="card-body">
                     <h5 class="card-title">Instance Info</h5>
@@ -31,7 +31,7 @@
             <div id="whale-panel-started" type="hidden" class="card" style="width: 100%;display: none;">
                 <div class="card-body">
                     <h5 class="card-title">Instance Info</h5>
-                    {% if challenge.mana_cost > 0 and not challenge.scope_global %}
+                    {% if challenge.mana_cost > 0 and not challenge.shared %}
                     <div class="cm-panel-mana-cost-div">
                         <h6 id="cm-panel-mana-cost" class="card-subtitle mb-2 text-muted">
                             Mana Cost :  <span id="cm-challenge-mana-cost">{{ challenge.mana_cost }}</span>
@@ -42,7 +42,7 @@
                         Remaining Time: <span id="whale-challenge-count-down" data-test-id="cm-challenge-count-down"></span>s
                     </h6>
                     <p id="whale-challenge-user-access" class="card-text"></p>
-                    {% if not challenge.scope_global %}
+                    {% if not challenge.shared %}
                     {% if challenge.timeout != "" %}
                     <button type="button" class="btn btn-success card-link" style="background-color:#ebb850; border-color:#000000" id="whale-button-renew" data-test-id="cm-button-renew"
                             onclick="CTFd._internal.challenge.renew()">
