@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 import requests
 
 from CTFd.api import CTFd_API_v1  # type: ignore
@@ -13,7 +13,7 @@ from CTFd.plugins.challenges import CHALLENGE_CLASSES  # type: ignore
 from .api import user_namespace, admin_namespace
 from .utils.setup import setup_default_configs
 from .utils.challenge_store import query_challenges
-from .models import DynamicIaCValueChallenge
+from .models import DynamicIaCValueChallenge, DynamicIaCChallenge
 
 from .utils.mana_coupon import get_all_mana
 from .utils.logger import configure_logger
@@ -127,13 +127,26 @@ def load(app):
     @page_blueprint.route('/admin/panel')
     @admins_only
     def admin_panel():
-        logger.debug("Accessing admin panel page.")
-        # retrieve custom challenges
-        challenges = get_all_challenges(admin=True, type="dynamic_iac")
-        logger.info(f"Retrieved {len(challenges)} dynamic IAC challenges.")
+        q = request.args.get("q")
+        field = request.args.get("field")
+        filters = []
 
-        return render_template("chall_manager_panel.html",
-                               challenges=challenges)
+        if q:
+            # The field exists as an exposed column
+            if DynamicIaCChallenge.__mapper__.has_property(field):
+                filters.append(getattr(DynamicIaCChallenge, field).like("%{}%".format(q)))
+
+        query = DynamicIaCChallenge.query.filter(*filters).order_by(DynamicIaCChallenge.id.asc())
+        challenges = query.all()
+        total = query.count()
+
+        return render_template(
+            "chall_manager_panel.html",
+            challenges=challenges,
+            total=total,
+            q=q,
+            field=field,
+        )
 
     app.register_blueprint(page_blueprint)
     logger.info("Blueprint registered.")

@@ -20,7 +20,10 @@
     <div class="col-md-12">
         <div class="col-md-12">
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-secondary" data-toggle="tooltip" title="" id="instances-renew-button" data-test-id="cm-button-renew" data-original-title="Renew Instances">
+                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" title="" id="instances-renew-button" data-test-id="cm-button-renew" data-original-title="Renew Instances">
+                    <i class="btn-fa fa-regular fa-clock"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-toggle="tooltip" title="" id="instances-restart-button" data-test-id="cm-button-restart" data-original-title="Restart Instances">
                     <i class="btn-fa fas fa-sync"></i>
                 </button>
                 <button type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="" id="instances-delete-button" data-test-id="cm-button-destroy" data-original-title="Delete Instances">
@@ -39,10 +42,11 @@
                 <th class="sort-col text-center"><b>Source</b></td>
                 <th class="text-center"><b>Connection Info</b></td>
                 <th class="text-center"><b>Flag</b></td>
-                <th class="text-center"><b>Since</b></td>
-                <th class="text-center"><b>Until</b></td>
+                <th class="sort-col text-center"><b>Since</b></td>
+                <th class="sort-col text-center"><b>Until</b></td>
                 <th class="sort-col text-center"><b>Last Renew</b></td>
                 <th class="text-center"><b>Renew</b></td>
+                <th class="text-center"><b>Restart</b></td>
                 <th class="text-center"><b>Delete</b></td>
             </tr>
             </thead>
@@ -78,13 +82,22 @@
                         {% endif %}
                     </td>
 
-                    <td class="text-left">
-                        {{ instance.connectionInfo }}
+                    <td class="text-center">
+                        <button class="btn btn-link p-0 click-copy"
+                            data-copy="{{ instance.connectionInfo }}"
+                            title="{{ instance.connectionInfo }}">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
                     </td>
 
-                    <td class="text-left">
+                    <td class="text-center">
                         {% if instance.flag %}
-                        {{ instance.flag }}
+                        <button class="btn btn-link p-0 click-copy"
+                            data-test-id="flag-{{ instance.sourceId }}"
+                            data-copy="{{ instance.flag }}"
+                            title="{{ instance.flag }}">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
                         {% else %}
                         -
                         {% endif %}
@@ -114,11 +127,21 @@
 
                     <td class="text-center">                        
                         <button class="btn btn-link p-0 renew-instance"                            
-                           challenge-id="{{ instance.challengeId }}" 
+                           challenge-id="{{ instance.challengeId }}"
                            source-id="{{ instance.sourceId }}"
                            data-placement="top"
                            data-toggle="tooltip"
                            title="Renew">
+                           <i class="fa-regular fa-clock"></i>
+                        </button>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-link p-0 restart-instance"
+                           challenge-id="{{ instance.challengeId }}"
+                           source-id="{{ instance.sourceId }}"
+                           data-placement="top"
+                           data-toggle="tooltip"
+                           title="Restart">
                             <i class="fas fa-sync"></i>
                         </button>
                     </td>
@@ -129,8 +152,9 @@
                            data-placement="top"
                            data-toggle="tooltip"
                            title="Destroy">
-                            <i class="fas fa-times"></i>
+                           <i class="btn-fa fas fa-trash-alt"></i>
                     </button>
+                    </td>
                 </tr>
                 {% endfor %}
             

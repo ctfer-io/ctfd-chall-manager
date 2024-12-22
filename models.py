@@ -33,7 +33,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     mana_cost = db.Column(db.Integer, default=0)
     until = db.Column(db.Text)  # date
     timeout = db.Column(db.Text)  # duration
-    scope_global = db.Column(db.Boolean, default=False)
+    shared = db.Column(db.Boolean, default=False)
     destroy_on_flag = db.Column(db.Boolean, default=False)
 
     scenario_id = db.Column(
@@ -43,6 +43,10 @@ class DynamicIaCChallenge(DynamicChallenge):
     def __init__(self, *args, **kwargs):
         super(DynamicIaCChallenge, self).__init__(**kwargs)
         self.value = kwargs["initial"]
+
+    def __str__(self):
+        return f"DynamicIaCChallenge(id={self.id}, mana_cost={self.mana_cost}, until={self.until}, timeout={self.timeout}, shared={self.shared}, destroy_on_flag={self.destroy_on_flag})"
+
 
 
 class DynamicIaCValueChallenge(BaseChallenge):
@@ -83,12 +87,12 @@ class DynamicIaCValueChallenge(BaseChallenge):
 
         # lint the plugin attributes by removing empty values
         for key in list(data.keys()): # use list(data.keys()) to prevent RuntimeError
-            if key in ["mana_cost", "until", "timeout", "scope_global", "destroy_on_flag", "scenario_id"] and data[key] == "":
+            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario_id"] and data[key] == "":
                 data.pop(key)
 
         # convert string value to boolean
-        if "scope_global" in data.keys():
-            data["scope_global"] = data["scope_global"] == "true"
+        if "shared" in data.keys():
+            data["shared"] = data["shared"] == "true"
 
         if "destroy_on_flag" in data.keys():
             data["destroy_on_flag"] = data["destroy_on_flag"] == "true"
@@ -156,7 +160,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
                 "mana_cost": challenge.mana_cost,
                 "until": challenge.until,
                 "timeout": challenge.timeout,
-                "scope_global": challenge.scope_global,
+                "shared": challenge.shared,
                 "destroy_on_flag": challenge.destroy_on_flag,
                 "scenario_id": challenge.scenario_id,
             }
@@ -176,9 +180,8 @@ class DynamicIaCValueChallenge(BaseChallenge):
         """
         data = request.form or request.get_json()
 
-        # Change Scope
-        if "scope_global" in data.keys():
-            data["scope_global"] = data["scope_global"] == "true"  # convert string to boolean
+        if "shared" in data.keys():
+            data["shared"] = data["shared"] == "true"  # convert string to boolean
 
             try:
                 r = get_challenge(challenge.id)
@@ -188,7 +191,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
 
             instances = json.loads(r.text)["instances"]
 
-            if data["scope_global"]:  # if true
+            if data["shared"]:  # if true
                 for i in instances:
                     if i["sourceId"] == 0:
                         continue
@@ -315,7 +318,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
             sourceId = str(current_user.get_current_user().team_id)
 
         # CM Plugins extension
-        if challenge.scope_global:
+        if challenge.shared:
             sourceId = 0
 
         logger.info(f"submission of user {current_user.get_current_user().id} as source {sourceId} for challenge {challenge.id} : {submission}")

@@ -37,7 +37,7 @@ class Config:
 
 config = Config()
 
-def create_challenge(scope=False, destroy_on_flag=False, mana_cost=None, timeout=None, until=None, state="visible"):
+def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeout=None, until=None, state="visible"):
 
     payload = {
         "name": "test",
@@ -49,7 +49,7 @@ def create_challenge(scope=False, destroy_on_flag=False, mana_cost=None, timeout
         "minimum":"10",
         "type":"dynamic_iac",
         "scenario_id": config.scenario_id,
-        "scope_global": scope,
+        "shared": shared,
         "destroy_on_flag": destroy_on_flag,  
         "state": state, 
     }

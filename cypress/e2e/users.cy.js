@@ -129,11 +129,11 @@ describe("Permform tests for CTFd in the User Land", () => {
     // Destroy the instance on CM via DELETE request (janitor is not present)
     // With the first user, check that my instance is no longer here and my mana is recover
 
-    it("I have the same connectionInfo for challenge in scope global and (as user) I can't manipulate the instance.", () => {
-        // Test 3 : I have the same connectionInfo for challenge in scope global 
+    it("I have the same connectionInfo for a shared challenge and (as user) I can't manipulate the instance.", () => {
+        // Test 3 : I have the same connectionInfo for shared challenge
         //          And I can't manipulate the instance.
         
-        // With the admin account, deploy an instance of challenge with scope global
+        // With the admin account, i can deploy an instance of shared challenge
         cy.login(Cypress.env('CTFD_NAME'), Cypress.env('CTFD_PASSWORD'))
         cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/panel`)
         cy.wait(500)
@@ -188,77 +188,64 @@ describe("Permform tests for CTFd in the User Land", () => {
     })   
 
     it("I can't submit a flag from another instance", () => {
-        // With the first user, deploy one instance
-        cy.log_and_go_to_chall("user1", "user1", "cypress-none")
-        // Boot the instance
-        cy.boot_current_chall()    
-    
-        /// With the third user, deploy one instance
-        cy.log_and_go_to_chall("user3", "user3", "cypress-none")
-        // Boot the instance
-        cy.boot_current_chall()    
-    
-        // With admin account, get the flags on the 2 instances
-        let flagUser1;
-        let flagUser3;
-        cy.login(Cypress.env('CTFD_NAME'), Cypress.env('CTFD_PASSWORD'))
-        cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/instances`)
-        cy.wait(500)
-    
-        // Find the index of the "Flag" column
-        cy.get('thead tr th').each(($el, index) => {
+    // With the first user, deploy one instance
+    cy.log_and_go_to_chall("user1", "user1", "cypress-none");
+    cy.boot_current_chall();
+
+    // With the third user, deploy one instance
+    cy.log_and_go_to_chall("user3", "user3", "cypress-none");
+    cy.boot_current_chall();
+
+    // With admin account, get the flags on the 2 instances
+    cy.login(Cypress.env('CTFD_NAME'), Cypress.env('CTFD_PASSWORD'));
+    cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/instances`);
+    // Find the index of the "Flag" column
+    cy.get('thead tr th').each(($el, index) => {
         if ($el.text().trim() === 'Flag') {
             cy.wrap(index).as('flagColumnIndex');
         }
         });
-    
-        // Retrieve the flag for the first user (source-id="1")
-        cy.get('@flagColumnIndex').then(flagColumnIndex => {
-        cy.get('input[data-source-id="1"]').closest('tr').within(() => { // FIXME sourceId == 1 is maybe not Team1
-            cy.get('td').eq(flagColumnIndex).invoke('text').then(text => {
-            flagUser1 = text.trim();
-            });
+
+    // Retrieve the flag for the first user (source-id="1") and the second user (source-id="2")
+    cy.get('@flagColumnIndex').then(flagColumnIndex => {
+        // For user1 (source-id="1")
+        cy.get('input[data-source-id="1"]').closest('tr').within(() => {
+            cy.get('[data-test-id="flag-1"]').invoke('attr', 'data-copy').as('flagUser1');
         });
-        });
-    
-        // Retrieve the flag for the second user (source-id="2")
-        cy.get('@flagColumnIndex').then(flagColumnIndex => {
-        cy.get('input[data-source-id="2"]').closest('tr').within(() => { // FIXME sourceId == 2 is maybe not Team2
-            cy.get('td').eq(flagColumnIndex).invoke('text').then(text => { 
-            flagUser3 = text.trim();
-            expect(flagUser3).not.to.equal(flagUser1);
-            });
-        });
-        });
-    
-        // Ensure that flagUser3 is set before trying to use it
-        cy.get('@flagColumnIndex').then(() => {
-        // Log in as the first user and try to submit the flag of the second team
-        cy.log_and_go_to_chall("user1", "user1", "cypress-none") 
-        cy.get('[data-test-id="cm-connectionInfo-id"]', { timeout: 20000 }).should('be.visible');
-        
-        // Ensure flagUser3 is defined before typing it
-        cy.wrap(flagUser3).should('not.be.undefined').then(flag => {
-            cy.get('input[placeholder="Flag"]').type(flag, { parseSpecialCharSequences: false });
-            cy.get('button').contains('Submit').click();
-            cy.get('[x-text="response.data.message"]').should('be.visible').contains("Incorrect");
-        });
-        });
-    
-        // Ensure that flagUser3 is set before trying to use it
-        cy.get('@flagColumnIndex').then(() => {
-        // Log in as the third user and try to submit the flag of the second team
-        cy.log_and_go_to_chall("user3", "user3", "cypress-none") 
-        cy.get('[data-test-id="cm-connectionInfo-id"]', { timeout: 20000 }).should('be.visible');
-        
-        // Ensure flagUser3 is defined before typing it
-        cy.wrap(flagUser3).should('not.be.undefined').then(flag => {
-            cy.get('input[placeholder="Flag"]').type(flag, { parseSpecialCharSequences: false });
-            cy.get('button').contains('Submit').click();
-            cy.get('[x-text="response.data.message"]').should('be.visible').contains("Correct");
-        });
+
+        // For user3 (source-id="2")
+        cy.get('input[data-source-id="2"]').closest('tr').within(() => {
+            cy.get('[data-test-id="flag-2"]').invoke('attr', 'data-copy').as('flagUser3');
         });
     });
+
+    // Assert that the flags are different
+    cy.get('@flagUser1').then(flagUser1 => {
+        cy.get('@flagUser3').then(flagUser3 => {
+            expect(flagUser3).not.to.equal(flagUser1);
+        });
+    });
+
+    // Ensure that flagUser3 is set before trying to use it (for user1)
+    cy.get('@flagUser3').then(flagUser3 => {
+        // Log in as the first user and try to submit the flag of the second team
+        cy.log_and_go_to_chall("user1", "user1", "cypress-none");
+        cy.get('[data-test-id="cm-connectionInfo-id"]', { timeout: 20000 }).should('be.visible');
+        cy.get('input[placeholder="Flag"]').type(flagUser3, { parseSpecialCharSequences: false });
+        cy.get('button').contains('Submit').click();
+        cy.get('[x-text="response.data.message"]').should('be.visible').contains("Incorrect");
+
+        cy.log_and_go_to_chall("user3", "user3", "cypress-none");
+        cy.get('[data-test-id="cm-connectionInfo-id"]', { timeout: 20000 }).should('be.visible');
+        cy.get('input[placeholder="Flag"]').type(flagUser3, { parseSpecialCharSequences: false });
+        cy.get('button').contains('Submit').click();
+        cy.get('[x-text="response.data.message"]').should('be.visible').contains("Correct");
+    });
+
+
+});
+
+
     
     it("I can provide the flag of CTFd as fallback", () => {
         // With the first user, deploy one instance
