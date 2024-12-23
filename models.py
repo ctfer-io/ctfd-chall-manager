@@ -353,7 +353,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
 
                     msg = "Correct"
 
-                    if challenge.destroy_on_flag and sourceId != 0: # do not destroy a global instance
+                    if challenge.destroy_on_flag:
                         logger.info("destroy the instance")
                         try:
                             delete_instance(challenge.id, sourceId)
@@ -377,7 +377,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
 
                     msg = "Correct"
 
-                    if challenge.destroy_on_flag and sourceId != 0:
+                    if challenge.destroy_on_flag:
                         logger.info("destroy the instance")
                         try:
                             delete_instance(challenge.id, sourceId)
