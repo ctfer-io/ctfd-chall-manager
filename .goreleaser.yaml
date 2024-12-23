@@ -11,11 +11,8 @@ archives:
       - assets/**
       - templates/**
       - utils/**
-      - __init__.py
-      - api.py
+      - "*.py"
       - config.json
-      - decorators.py
-      - models.py
     
     meta: true # create an archive even if build step are skipped
 
