@@ -56,6 +56,10 @@ docker run -d -p 8000:8000 [-e REDIS_URL=redis://redis-svc:6379] -v ./ctfd-chall
   {{< /tab >}}
 {{< /tabpane >}}
 
+{{% alert title="Tips & Tricks" color="primary" %}}
+You can use assets in GitHub releases instead of cloning the whole repository: https://github.com/ctfer-io/ctfd-chall-manager/releases 
+{{% /alert %}}
+
 After completing this step, you should be able to access the plugin settings configuration in the CTFd UI.
 
 {{% imgproc install_check_ui Fit "800x800" %}}

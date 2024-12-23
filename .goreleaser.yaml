@@ -1,0 +1,34 @@
+version: 2
+
+builds:
+- skip: true # https://goreleaser.com/cookbooks/release-a-library/?h=librar#release-a-library
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}"
+    files:
+      - LICENCE
+      - assets/**
+      - templates/**
+      - utils/**
+      - __init__.py
+      - api.py
+      - config.json
+      - decorators.py
+      - models.py
+    
+    meta: true # create an archive even if build step are skipped
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+checksum: 
+  algorithm: sha256
+  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
+
+sboms:
+  - artifacts: archive
