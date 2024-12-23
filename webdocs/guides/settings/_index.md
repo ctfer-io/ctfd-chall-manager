@@ -18,7 +18,7 @@ To configure the plugin at CTFd startup, you can use the next environment variab
 
 | Variable                      	| Default                      	| Description                                 	|
 |-------------------------------	|------------------------------	|---------------------------------------------	|
-| PLUGIN_SETTINGS_CM_API_URL    	| http://localhost:9090/api/v1 	| URL of Chall-Manager API                    	|
+| PLUGIN_SETTINGS_CM_API_URL    	| http://localhost:8080/api/v1 	| URL of Chall-Manager API                    	|
 | PLUGIN_SETTINGS_CM_MANA_TOTAL 	| 0                            	| Maximum mana that source are allowed to use 	|
 
 {{% alert title="Note" color="primary" %}}
@@ -43,4 +43,4 @@ The plugin can optionally use 2 commons variables to configure cache or the logg
 | Variable  	| Default 	| Description                                                                       	|
 |-----------	|---------	|-----------------------------------------------------------------------------------	|
 | REDIS_URL 	| ""      	| The URI to connect to a Redis server. (e.g. redis://user:password@localhost:6379) 	|
-| LOG_INFO  	| "INFO"  	| Enumeration in INFO, DEBUG, ERROR, WARNING                                        	|
+| LOG_LEVEL  	| "INFO"  	| Enumeration in INFO, DEBUG, ERROR, WARNING                                        	|
