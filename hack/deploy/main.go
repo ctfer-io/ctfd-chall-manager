@@ -25,7 +25,7 @@ func main() {
 
 		// 3. Export outputs
 		ctx.Export("connection_info", pulumi.Sprintf("curl https://%s.brefctf.ctfer.io", config["identity"]))
-		ctx.Export("flag", pulumi.String(sdk.VariateFlag(config["identity"], "BREFCTF{Cypress_testing}")))
+		ctx.Export("flag", pulumi.String(sdk.Variate(config["identity"], "BREFCTF{Cypress_testing}")))
 
 		return nil
 	})

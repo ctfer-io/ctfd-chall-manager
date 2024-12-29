@@ -4,6 +4,7 @@ node_modules/
 
 hack/config/Pulumi.*.yaml
 hack/.env
+hack/config/main
 
 test/test_bruteforce.py
 dist/

@@ -100,12 +100,12 @@ runs:
     - name: Generate demo-deploy.zip for tests
       shell: bash
       run: |
-        cd hack/deploy          
+        cd hack/deploy
+        go build -o main main.go
         zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip main
         zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip Pulumi.yaml
       env:
         CGO_ENABLED: 0
-        GOPRIVATE: github.com/ctfer-io/chall-manager
 
     - name: Generate token and store it for GH Actions
       shell: bash
