@@ -7,6 +7,6 @@ description: >
 ---
 
 {{% alert title="Warning" color="warning" %}}
-Currently entering private alpha phase, for any issue: ctfer-io@protonmail.com 
+Currently entering public beta phase, for any issue: ctfer-io@protonmail.com
 {{% /alert %}}
 
