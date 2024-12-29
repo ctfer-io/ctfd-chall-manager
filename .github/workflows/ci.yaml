@@ -16,12 +16,9 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:v0.1.0-rc3@sha256:bc7b15549ec3606fe20ea68f50bc51e2d53178b1201c443be6b87fec24f9b762
+        image: ctferio/chall-manager:v0.1.1@sha256:196f0e1ebf5c0c900b8be04560824538a30cb851baced98fa7276fce727aba95
         ports:
           - 8080:8080
-        credentials:
-          username: ${{ secrets.docker_username }}
-          password: ${{ secrets.docker_password }}
 
       ctfd:
         image: ctfd/ctfd:3.7.5@sha256:7f456b23727286c9df2b58e0b7398cc0196e2b74e4c1c5b3cda7a5b71034637d
