@@ -75,18 +75,18 @@ function loadInfo() {
         $('#cm-panel-loading').hide();
         $('#cm-panel-until').hide(); 
        
-        if (response.message.connectionInfo && response.message.until) { // if instance has an until 
+        if (response.connectionInfo && response.until) { // if instance has an until 
            
             // check instance is not expired
             var now = new Date();
-            var until = new Date(response.message.until)
+            var until = new Date(response.until)
             console.log(until)
             var count_down = until - now
             if (count_down > 0) {   // if the instance is not expired         
                 
                 $('#whale-panel-stopped').hide();
                 $('#whale-panel-started').show();
-                $('#whale-challenge-lan-domain').html(response.message.connectionInfo);                
+                $('#whale-challenge-lan-domain').html(response.connectionInfo);                
                 $('#whale-challenge-count-down').text(formatCountDown(count_down)); 
                 $('#cm-panel-until').show();
                 
@@ -105,10 +105,10 @@ function loadInfo() {
                 $('#whale-challenge-lan-domain').html(''); 
             }
                     
-        } else if (response.message.connectionInfo) {    // if instance has no until         
+        } else if (response.connectionInfo) {    // if instance has no until         
             $('#whale-panel-stopped').hide();
             $('#whale-panel-started').show();
-            $('#whale-challenge-lan-domain').html(response.message.connectionInfo);
+            $('#whale-challenge-lan-domain').html(response.connectionInfo);
         } else { // if instance is expired
             $('#whale-panel-started').hide(); // hide the panel instance is up       
             $('#whale-panel-stopped').show(); // show the panel instance is down     
@@ -158,12 +158,15 @@ function loadInfo() {
 CTFd._internal.challenge.destroy = function() {
     return new Promise((resolve, reject) => {
         var challenge_id = CTFd._internal.challenge.data.id;
-        var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
+        var url = "/api/v1/plugins/ctfd-chall-manager/instance"
 
         $('#whale-button-destroy').text("Waiting...");
         $('#whale-button-destroy').prop('disabled', true);
 
-        var params = {};
+        let params = {
+            "challengeId": challenge_id,
+        };
+    
 
         CTFd.fetch(url, {
             method: 'DELETE',
@@ -205,12 +208,14 @@ CTFd._internal.challenge.destroy = function() {
 
 CTFd._internal.challenge.renew = function () {
     var challenge_id = CTFd._internal.challenge.data.id;
-    var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
+    var url = "/api/v1/plugins/ctfd-chall-manager/instance";
 
     $('#whale-button-renew').text("Waiting...");
     $('#whale-button-renew').prop('disabled', true);
 
-    var params = {};
+    var params = {
+        "challengeId": challenge_id,
+    };
 
     CTFd.fetch(url, {
         method: 'PATCH',

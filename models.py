@@ -49,7 +49,7 @@ class DynamicIaCChallenge(DynamicChallenge):
 
 
 
-class DynamicIaCValueChallenge(BaseChallenge):
+class DynamicIaCValueChallenge(DynamicValueChallenge):
     id = "dynamic_iac"  # Unique identifier used to register challenges
     name = "dynamic_iac"  # Name of a challenge type
     templates = {  # Handlebars templates used for each aspect of challenge editing & viewing
@@ -214,7 +214,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
         # Workaround
         if "state" in data.keys() and len(data.keys()) == 1:
             setattr(challenge, "state", data["state"])
-            return DynamicValueChallenge.calculate_value(challenge)
+            return super().calculate_value(challenge)
 
         # Patch Challenge on CTFd
         optional = {}
@@ -267,7 +267,7 @@ class DynamicIaCValueChallenge(BaseChallenge):
         except Exception as e:
             logger.error(f"Error while patching the challenge: {e}")
 
-        return DynamicValueChallenge.calculate_value(challenge)
+        return super().calculate_value(challenge)
 
     @classmethod
     def delete(cls, challenge):
@@ -392,8 +392,8 @@ class DynamicIaCValueChallenge(BaseChallenge):
         logger.info(f"invalid submission for CTFd flag: challenge {challenge.id} source {sourceId}")
         return False, "Incorrect"
 
+    # remove this ?
     @classmethod
     def solve(cls, user, team, challenge, request):
         super().solve(user, team, challenge, request)
-
-        DynamicValueChallenge.calculate_value(challenge)
+        super().calculate_value(challenge)

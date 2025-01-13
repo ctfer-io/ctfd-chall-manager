@@ -1,11 +1,16 @@
 async function delete_instance(challengeId, sourceId) {
-    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance?challengeId=" + challengeId + "&sourceId=" + sourceId, {
+    let params = {
+        "challengeId": challengeId.toString(),
+        "sourceId": sourceId.toString()
+    };
+    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance" , {
         method: "DELETE",
         credentials: "same-origin",
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify(params)
     });
     console.log(response)
     response = await response.json();
@@ -13,13 +18,18 @@ async function delete_instance(challengeId, sourceId) {
 }
 
 async function renew_instance(challengeId, sourceId) {
-    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance?challengeId=" + challengeId + "&sourceId=" + sourceId, {
+    let params = {
+        "challengeId": challengeId.toString(),
+        "sourceId": sourceId.toString()
+    };
+    let response = await CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/admin/instance", {
         method: "PATCH",
         credentials: "same-origin",
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify(params)
     });
     console.log(response)
     response = await response.json();

@@ -16,12 +16,12 @@ class Test_F_UserInstance(unittest.TestCase):
         r = post_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)        
-        self.assertEqual("connectionInfo" in a["data"]["message"].keys(), True)
+        self.assertEqual("connectionInfo" in a["data"].keys(), True)
 
         r = get_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
-        self.assertEqual("connectionInfo" in a["data"]["message"].keys(), True)
+        self.assertEqual("connectionInfo" in a["data"].keys(), True)
 
         r = patch_instance(chall_id)
         a = json.loads(r.text)
@@ -83,7 +83,7 @@ class Test_F_UserInstance(unittest.TestCase):
         r = post_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)        
-        self.assertEqual("connectionInfo" in a["data"]["message"].keys(), True)
+        self.assertEqual("connectionInfo" in a["data"].keys(), True)
 
         r = post_instance(chall_id)
         a = json.loads(r.text)

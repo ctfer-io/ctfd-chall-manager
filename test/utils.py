@@ -108,11 +108,17 @@ def get_admin_instance(challengeId: int, sourceId: int):
     return r
 
 def delete_instance(challengeId: int):
-    r = requests.delete(f"{config.plugin_url}/instance?challengeId={challengeId}",  headers=config.headers_user)
+    payload = {
+        "challengeId": f"{challengeId}"
+    }
+    r = requests.delete(f"{config.plugin_url}/instance",  headers=config.headers_user, data=json.dumps(payload))
     return r
 
 def patch_instance(challengeId: int): 
-    r = requests.patch(f"{config.plugin_url}/instance?challengeId={challengeId}",  headers=config.headers_user)
+    payload = {
+        "challengeId": f"{challengeId}"
+    }
+    r = requests.patch(f"{config.plugin_url}/instance",  headers=config.headers_user, data=json.dumps(payload))
     return r
 
 # Run post on thread

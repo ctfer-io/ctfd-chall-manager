@@ -36,13 +36,13 @@ class Test_F_AdminInstance(unittest.TestCase):
         r = requests.get(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
-        self.assertEqual("connectionInfo" in a["data"]["message"].keys(), True)
+        self.assertEqual("connectionInfo" in a["data"].keys(), True)
 
-        r = requests.patch(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        r = requests.patch(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
-        r = requests.delete(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        r = requests.delete(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
@@ -64,11 +64,11 @@ class Test_F_AdminInstance(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], False)
 
-        r = requests.patch(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        r = requests.patch(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], False)
 
-        r = requests.delete(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        r = requests.delete(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], False)
 
@@ -88,11 +88,11 @@ class Test_F_AdminInstance(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
-        r = requests.patch(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        r = requests.patch(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
-        r = requests.delete(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        r = requests.delete(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
         
@@ -101,7 +101,12 @@ class Test_F_AdminInstance(unittest.TestCase):
     def test_delete_valid_challenge_but_no_instance(self):
         challengeId = create_challenge()
         sourceId = 999999
-        r = requests.delete(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        payload = {
+            "challengeId": f"{challengeId}",
+            "sourceId": f"{sourceId}"
+        }
+
+        r = requests.delete(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], False)
         delete_challenge(challengeId)
@@ -109,7 +114,12 @@ class Test_F_AdminInstance(unittest.TestCase):
     def test_patch_valid_challenge_but_no_instance(self):
         challengeId = create_challenge(timeout=9999)
         sourceId = 999999
-        r = requests.patch(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+        payload = {
+            "challengeId": f"{challengeId}",
+            "sourceId": f"{sourceId}"
+        }
+
+        r = requests.patch(f"{config.plugin_url}/admin/instance",  headers=config.headers_admin, data=json.dumps(payload))
         a = json.loads(r.text)
         self.assertEqual(a["success"], False)
 
