@@ -49,4 +49,4 @@ To install and use the plugin, refer to the documentation at https://ctfer.io/do
 | Mana     | This is the "money" to regulate the Instance's deployment                                   |
 
 
-Shoutout to [ctfd-whale](https://github.com/frankli0324/CTFd-Whale) which helped us a lot to create this plugin
+Shoutout to [ctfd-whale](https://github.com/frankli0324/CTFd-Whale) which helped us a lot to create this plugin.
