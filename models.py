@@ -391,9 +391,3 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 return False, str(e)
         logger.info(f"invalid submission for CTFd flag: challenge {challenge.id} source {sourceId}")
         return False, "Incorrect"
-
-    # remove this ?
-    @classmethod
-    def solve(cls, user, team, challenge, request):
-        super().solve(user, team, challenge, request)
-        super().calculate_value(challenge)
