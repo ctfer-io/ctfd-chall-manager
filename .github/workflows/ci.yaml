@@ -47,7 +47,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
 
-      - name: Run Fonctional Tests in mode Teams
+      - name: Run Functional Tests in mode Teams
         run: |- 
           python -m unittest test/test_api_challenges.py
           python -m unittest test/test_api_admin_instance.py
@@ -67,7 +67,7 @@ jobs:
           admin_email: ctfer-io@protonmail.com
           admin_password: ${{ env.PASSWORD }}
 
-      - name: Run Fonctional Tests in mode Users
+      - name: Run Functional Tests in mode Users
         run: |- 
           python -m unittest test/test_api_challenges.py
           python -m unittest test/test_api_admin_instance.py
