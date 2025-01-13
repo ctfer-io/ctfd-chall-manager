@@ -58,10 +58,8 @@ class AdminInstance(Resource):
                 'message': f"Error while communicating with CM : {e}",
             }}
 
-        return {'success': True, 'data': {
-            'message': json.loads(r.text),
-        }}
-
+        return {'success': True, 'data': json.loads(r.text)}
+    
     @staticmethod
     @admins_only
     def post():
@@ -112,16 +110,15 @@ class AdminInstance(Resource):
         finally:
             lock.admin_unlock()
 
-        return {'success': True, 'data': {
-            'message': json.loads(r.text),
-        }}
+        return {'success': True, 'data': json.loads(r.text)}
 
     @staticmethod
     @admins_only
     def patch():
         # mandatory
-        challengeId = request.args.get("challengeId")
-        sourceId = request.args.get("sourceId")
+        data = request.get_json()
+        challengeId = data.get("challengeId")
+        sourceId = data.get("sourceId")
 
         adminId = str(current_user.get_current_user().id)
         logger.info(f"Admin {adminId} request instance update for challengeId: {challengeId}, sourceId: {sourceId}")
@@ -136,16 +133,15 @@ class AdminInstance(Resource):
                 'message': f"Error while communicating with CM : {e}",
             }}
 
-        return {'success': True, 'data': {
-            'message': json.loads(r.text),
-        }}
+        return {'success': True, 'data': json.loads(r.text)}
 
     @staticmethod
     @admins_only
     def delete():
         # mandatory
-        challengeId = request.args.get("challengeId")
-        sourceId = request.args.get("sourceId")
+        data = request.get_json()
+        challengeId = data.get("challengeId")
+        sourceId = data.get("sourceId")
 
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
 
@@ -178,9 +174,7 @@ class AdminInstance(Resource):
         finally:
             lock.admin_unlock()
 
-        return {'success': True, 'data': {
-            'message': json.loads(r.text),
-        }}
+        return {'success': True, 'data': json.loads(r.text)}
 
 
 # region UserInstance
@@ -231,9 +225,7 @@ class UserInstance(Resource):
         if 'until' in result.keys():
             data['until'] = result['until']
 
-        return {'success': True, 'data': {
-            'message': data,
-        }}
+        return {'success': True, 'data': data}
 
     @staticmethod
     @authed_only
@@ -319,16 +311,15 @@ class UserInstance(Resource):
         if 'until' in result.keys():
             data['until'] = result['until']
 
-        return {'success': True, 'data': {
-            'message': data,
-        }}
+        return {'success': True, 'data': data}
 
     @staticmethod
     @authed_only
     @challenge_visible
     def patch():
         # mandatory
-        challengeId = request.args.get("challengeId")
+        data = request.get_json()
+        challengeId = data.get("challengeId")
 
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
@@ -359,9 +350,7 @@ class UserInstance(Resource):
                 'message': f"Error while communicating with CM : {e}",
             }}
 
-        return {'success': True, 'data': {
-            'message': f"{r.status_code}",
-        }}
+        return {'success': True, 'data': {}}
 
     @staticmethod
     @authed_only
@@ -370,7 +359,8 @@ class UserInstance(Resource):
         # retrieve all instances deployed by chall-manager
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
 
-        challengeId = request.args.get("challengeId")
+        data = request.get_json()
+        challengeId = data.get("challengeId")
 
         # check userMode of CTFd
         sourceId = str(current_user.get_current_user().id)
@@ -412,9 +402,7 @@ class UserInstance(Resource):
             delete_coupon(challengeId, sourceId)
             logger.info(f"Coupon deleted for challengeId: {challengeId}, sourceId: {sourceId}")
 
-        return {'success': True, 'data': {
-            'message': json.loads(r.text),
-        }}
+        return {'success': True, 'data': {}}
 
 
 # region UserMana
@@ -442,7 +430,7 @@ class UserMana(Resource):
             lock.player_unlock()
 
         return {'success': True, 'data': {
-            'mana_used': f"{mana}",
-            'mana_total': f"{get_config('chall-manager:chall-manager_mana_total')}",
+            'used': f"{mana}",
+            'total': f"{get_config('chall-manager:chall-manager_mana_total')}",
         }}
 

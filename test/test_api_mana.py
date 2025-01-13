@@ -25,7 +25,7 @@ class Test_F_UserMana(unittest.TestCase):
 
         r = requests.get(f"{config.plugin_url}/mana",  headers=config.headers_user)
         a = json.loads(r.text)
-        self.assertEqual(a["data"]["mana_used"], str(mana_cost))
+        self.assertEqual(a["data"]["used"], str(mana_cost))
 
         r = delete_instance(chall_id)
         a = json.loads(r.text)

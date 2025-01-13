@@ -134,7 +134,7 @@ class Test_F_Challenges(unittest.TestCase):
 
         payload = {
             "challenge_id": chall_id,
-            "submission": a["data"]["message"]["flag"]
+            "submission": a["data"]["flag"]
         }
 
         r = requests.post(f"{config.ctfd_url}/api/v1/challenges/attempt", headers=config.headers_user,  data=json.dumps(payload))
