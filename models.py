@@ -32,7 +32,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     )
     mana_cost = db.Column(db.Integer, default=0)
     until = db.Column(db.Text)  # date
-    timeout = db.Column(db.Text)  # duration
+    timeout = db.Column(db.Integer)
     shared = db.Column(db.Boolean, default=False)
     destroy_on_flag = db.Column(db.Boolean, default=False)
 
@@ -92,10 +92,10 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # convert string value to boolean
         if "shared" in data.keys():
-            data["shared"] = data["shared"] == "true"
+            data["shared"] = convert_to_boolean(data["shared"])
 
         if "destroy_on_flag" in data.keys():
-            data["destroy_on_flag"] = data["destroy_on_flag"] == "true"
+            data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
 
         if "scenario_id" not in data.keys():
             logger.error("missing mandatory value in challenge creation")
@@ -181,7 +181,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         data = request.form or request.get_json()
 
         if "shared" in data.keys():
-            data["shared"] = data["shared"] == "true"  # convert string to boolean
+            data["shared"] = convert_to_boolean(data["shared"])
 
             try:
                 r = get_challenge(challenge.id)
@@ -209,7 +209,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # Update the destroy on flag boolean
         if "destroy_on_flag" in data.keys():
-            data["destroy_on_flag"] = data["destroy_on_flag"] == "true" # convert string into boolean
+            data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
 
         # Workaround
         if "state" in data.keys() and len(data.keys()) == 1:
@@ -391,3 +391,15 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 return False, str(e)
         logger.info(f"invalid submission for CTFd flag: challenge {challenge.id} source {sourceId}")
         return False, "Incorrect"
+
+
+def convert_to_boolean(value):
+    # Check if the value is a string and convert it to boolean if it matches "true" or "false" (case-insensitive)
+    if isinstance(value, str):
+        value_lower = value.strip().lower()
+        if value_lower == "true":
+            return True
+        elif value_lower == "false":
+            return False
+    # If the value is already a boolean or doesn't match a boolean string, return it as is
+    return value
