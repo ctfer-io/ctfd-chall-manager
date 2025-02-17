@@ -57,7 +57,7 @@ jobs:
           CTFD_URL: http://localhost:8000
         
       - name: Update CTFd into mode users
-        uses: ctfer-io/ctfd-setup@4f039f18e2e78cb4eeb7a2c89e0c38a5a6afa392 # v1.5.2
+        uses: ctfer-io/ctfd-setup@e11df98977827a789d3e07537790a3b64091493b # v1.6.0
         with:
           url: 'http://ctfd:8000'
           appearance_name: CTFer.io
