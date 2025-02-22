@@ -33,6 +33,14 @@ Last version tested on: [3.7.6](https://github.com/CTFd/CTFd/releases/tag/3.7.6)
 
 <img style="width: 90%; display: block; margin: auto; box-sizing: border-box;" src="res/flags.png"/>
 
+# Trophy list
+
+The following list contains all known events where CTFd-chall-manager has been operated in production:
+Please [open an issue](https://github.com/ctfer-io/ctfd-chall-manager/issues/new) to add your event to the list if we did not ourself.
+
+- 2024/11/20 [NoBracketsCTF 2024](https://github.com/nobrackets-ctf/NoBrackets-2024)
+- 2025/02/09 [ICAISC 2025](https://www.linkedin.com/feed/update/urn:li:ugcPost:7295762712364544001/?actorCompanyId=103798607)
+
 # How install and use
 To install and use the plugin, refer to the documentation at https://ctfer.io/docs/ctfd-chall-manager.
 
