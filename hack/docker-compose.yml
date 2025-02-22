@@ -1,6 +1,6 @@
 services:
   ctfd:
-    image: ctfd/ctfd:3.7.5@sha256:7f456b23727286c9df2b58e0b7398cc0196e2b74e4c1c5b3cda7a5b71034637d
+    image: ctfd/ctfd:3.7.6@sha256:8b424090fae7c143768be19454c707ee2f3754d421fef8122dbe42031efee7aa
     ports:
       - 8000:8000
     networks:
@@ -24,7 +24,7 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:v0.2.0@sha256:088b8871a55dff8d215ab024c3e1dbfb4dcecd90432abb49fdf1a3c6a6bf8532
+    image: ctferio/chall-manager:v0.3.1@sha256:9b83626cb4418127e79a66d0f9ebc58ff07629c05b4681eadd9ee00bd128bf6b
     ports:
       - 8080:8080
     environment:
@@ -33,7 +33,7 @@ services:
       - testing
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.2.0@sha256:6ac7dc0fa50d870f5297bd9b8a7c118b68ec965f59e7b5083b36b79001a0186d
+    image: ctferio/chall-manager-janitor:v0.3.1@sha256:94cb0b470a6df86902fdba7d07cb59ba32f158a8b1c1198e76799b86be1858d4
     environment:
       URL: chall-manager:8080
       TICKER: 30s
@@ -58,7 +58,7 @@ services:
   #     - testing
 
   ctfd-setup:
-    image: ctferio/ctfd-setup:v1.5.2@sha256:4308e91578532869eee94d68488ea51f222ca5e5944d05529eb59c2f2cc3404a
+    image: ctferio/ctfd-setup:v1.6.0@sha256:b716c414170b4b17aa317910d8c12e53f2892867791c4912ff3319984a1ea975
     environment:
       URL: http://ctfd:8000
       FILE: /.ctfd.yaml
