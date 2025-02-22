@@ -24,7 +24,7 @@ jobs:
           - 8080:8080
 
       ctfd:
-        image: ctfd/ctfd:3.7.5@sha256:7f456b23727286c9df2b58e0b7398cc0196e2b74e4c1c5b3cda7a5b71034637d
+        image: ctfd/ctfd:3.7.6@sha256:8b424090fae7c143768be19454c707ee2f3754d421fef8122dbe42031efee7aa
         ports:
           - 8000:8000
         options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
