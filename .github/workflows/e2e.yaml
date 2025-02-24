@@ -61,7 +61,7 @@ jobs:
           CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:8080/api/v1"
           CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "10"
       
-      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # 4.6.0
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
         if: failure()
         with:
           name: cypress-screenshots
