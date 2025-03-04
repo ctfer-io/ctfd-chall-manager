@@ -162,3 +162,16 @@ class Test_F_UserInstance(unittest.TestCase):
         # remove 
         delete_challenge(chall_id)
 
+    # def test_create_instance_with_additional(self):
+    #     chall_id = create_challenge(additional={"test": "test", "ipv4": "enabled"})
+    #     r = post_instance(chall_id) 
+
+    #     a = json.loads(r.text)
+    #     self.assertEqual(a["success"], True)
+
+    #     r = get_instance(chall_id)
+    #     a = json.loads(r.text)
+    #     self.assertEqual(a["success"], True)
+    #     self.assertEqual(a["data"]["ipv4"]) # check that is not empty ?
+
+    #     delete_challenge(chall_id)

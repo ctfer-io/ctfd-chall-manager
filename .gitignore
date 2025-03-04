@@ -6,5 +6,7 @@ hack/config/Pulumi.*.yaml
 hack/.env
 hack/config/main
 
+hack/deploy/main
+
 test/test_bruteforce.py
 dist/
