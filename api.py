@@ -344,8 +344,13 @@ class UserInstance(Resource):
             logger.debug(f"Updating instance for challengeId: {challengeId}, sourceId: {sourceId}")
             r = update_instance(challengeId, sourceId)
             logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} updated successfully.")
+        except ChallManagerException as e:
+            return {'success': False, 'data': {
+                'message': f"{e.message}",
+            }}
+
         except Exception as e:
-            logger.error(f"Error while updating instance: {e}")
+            logger.error(f"Error while creating instance: {e}")
             return {'success': False, 'data': {
                 'message': f"Error while communicating with CM : {e}",
             }}

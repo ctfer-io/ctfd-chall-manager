@@ -131,8 +131,10 @@ def update_instance(challengeId: int, sourceId: int) -> requests.Response | Exce
         raise Exception(f"An exception occurred while communicating with CM: {e}")
     else:
         if r.status_code != 200:
-            logger.error(f"Error from chall-manager: {json.loads(r.text)}")
-            raise Exception(f"Chall-manager returned an error: {json.loads(r.text)}")
+            if r.json()["code"] == 2:
+                message = r.json()["message"]
+                logger.error(f"chall-manager return an error: {message}")
+                raise ChallManagerException(message=message)
  
     return r
 
