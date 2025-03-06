@@ -1,3 +1,4 @@
+import datetime
 import unittest
 import requests
 import json
@@ -160,5 +161,70 @@ class Test_F_UserInstance(unittest.TestCase):
         self.assertEqual(a["success"], False) # user cannot deploy instance 
 
         # remove 
+        delete_challenge(chall_id)
+
+
+    def test_cannot_renew_until_instance(self):
+        '''
+        This test try to renew an instance until the instance is deployed.
+        User cannot renew an instance if a timeout is not defined.
+        '''
+        # create a challenge
+        chall_id = create_challenge(until="2222-12-22T22:22:22.000000000Z")
+
+        r = post_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        r = patch_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], False)
+
+        # remove 
+        delete_challenge(chall_id)
+
+    def test_renew_until_timeout_instance_ok(self):
+        '''
+        This test try to renew an instance until the instance is deployed.
+        User can deploy an instance if a timeout is defined and now+timeout is less than until.
+        '''
+        # create a challenge
+        chall_id = create_challenge(until="2222-12-22T22:22:22.000000000Z", timeout=90)
+        
+        r = post_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        r = patch_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        # remove
+        delete_challenge(chall_id)
+
+    def test_renew_until_timeout_instance_ko(self):
+        '''
+        This test try to renew an instance until the instance is deployed.
+        User cannot deploy an instance if a timeout is defined and now+timeout is greater than until.
+        '''
+        # create a challenge
+
+        # get the current date 
+        now = datetime.datetime.now()
+        # add 10 minutes to the current date
+        until = now + datetime.timedelta(minutes=30)
+        # format the date to string
+        formated_until = until.strftime("%Y-%m-%dT%H:%M:%S.000000000Z")
+
+        chall_id = create_challenge(until=formated_until, timeout=999999999)
+        r = post_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        r = patch_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], False)
+
+        # remove
         delete_challenge(chall_id)
 
