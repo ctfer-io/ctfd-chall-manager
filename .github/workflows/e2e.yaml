@@ -52,7 +52,7 @@ jobs:
 
 
       - name: tests with cypress
-        uses: cypress-io/github-action@9c318d4f950c2f0ff2e96fa4dc4279e5706efd8e # v6.7.14
+        uses: cypress-io/github-action@108b8684ae52e735ff7891524cbffbcd4be5b19f # v6.7.16
         env: 
           CYPRESS_CTFD_NAME: ${{ env.NAME }}
           CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
