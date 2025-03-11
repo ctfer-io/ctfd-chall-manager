@@ -240,7 +240,7 @@ CTFd._internal.challenge.renew = function () {
             loadInfo();
             CTFd._functions.events.eventAlert({
                 title: "Success",
-                html: "Your instance has been renewed!",
+                html: response.data.message, // load custom message from api
             });
         } else {
             CTFd._functions.events.eventAlert({

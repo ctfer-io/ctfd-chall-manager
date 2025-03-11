@@ -170,7 +170,7 @@ class Test_F_UserInstance(unittest.TestCase):
         User cannot renew an instance if a timeout is not defined.
         '''
         # create a challenge
-        chall_id = create_challenge(until="2222-12-22T22:22:22.000000000Z")
+        chall_id = create_challenge(until="2222-12-22T22:22:22Z")
 
         r = post_instance(chall_id)
         a = json.loads(r.text)
@@ -189,7 +189,7 @@ class Test_F_UserInstance(unittest.TestCase):
         User can deploy an instance if a timeout is defined and now+timeout is less than until.
         '''
         # create a challenge
-        chall_id = create_challenge(until="2222-12-22T22:22:22.000000000Z", timeout=90)
+        chall_id = create_challenge(until="2222-12-22T22:22:22Z", timeout=90)
         
         r = post_instance(chall_id)
         a = json.loads(r.text)
@@ -214,16 +214,26 @@ class Test_F_UserInstance(unittest.TestCase):
         # add 10 minutes to the current date
         until = now + datetime.timedelta(minutes=30)
         # format the date to string
-        formated_until = until.strftime("%Y-%m-%dT%H:%M:%S.000000000Z")
+        formated_until = until.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         chall_id = create_challenge(until=formated_until, timeout=999999999)
         r = post_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        before = a["data"]["until"]
+        self.assertEqual(before, formated_until)
+
         r = patch_instance(chall_id)
         a = json.loads(r.text)
-        self.assertEqual(a["success"], False)
+        self.assertEqual(a["success"], True)
+
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        after = a["data"]["until"]
+        self.assertEqual(after, before)
 
         # remove
         delete_challenge(chall_id)
