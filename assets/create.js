@@ -2,7 +2,7 @@
 // convert Local into UTC
 document.getElementById('until-input-local').addEventListener('change', function() {
   var datetimeLocal = document.getElementById("until-input-local").value;  
-  var datetimeUTC =(new Date(datetimeLocal)).toISOString();
+  var datetimeUTC =(new Date(datetimeLocal)).toISOString().split('.')[0] + 'Z'; // remove .000Z of the ISOString format
   document.getElementById("until-input-utc").value = datetimeUTC;
 });
 

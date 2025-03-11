@@ -350,12 +350,22 @@ class UserInstance(Resource):
             }}
 
         except Exception as e:
-            logger.error(f"Error while creating instance: {e}")
+            logger.error(f"Error while updating instance: {e}")
             return {'success': False, 'data': {
                 'message': f"Error while communicating with CM : {e}",
             }}
 
-        return {'success': True, 'data': {}}
+
+        msg = "Your instance has been renewed !"
+        a = json.loads(r.text)
+
+        if challenge.until and challenge.timeout:
+            if challenge.until  == a["until"]:
+                msg = "You have renewed your instance, but it can't be renewed anymore !"
+
+        return {'success': True, 'data': {
+            'message': msg
+        }}
 
     @staticmethod
     @authed_only
