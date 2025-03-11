@@ -35,6 +35,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     timeout = db.Column(db.Integer)
     shared = db.Column(db.Boolean, default=False)
     destroy_on_flag = db.Column(db.Boolean, default=False)
+    additional = db.Column(db.JSON)
 
     scenario_id = db.Column(
         db.Integer, db.ForeignKey("files.id")
@@ -130,6 +131,9 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         if "until" in data.keys():
             optional["until"] = f"{data['until']}"
 
+        if "additional" in data.keys():
+            optional["config"] = data["additional"]
+
         # handle challenge creation on chall-manager
         try:
             logger.debug(f"creating challenge {challenge.id} on CM")
@@ -163,6 +167,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "shared": challenge.shared,
                 "destroy_on_flag": challenge.destroy_on_flag,
                 "scenario_id": challenge.scenario_id,
+                "additional": challenge.additional if current_user.is_admin() else {},
+                "user_is_admin": current_user.is_admin() # TODO remove before PR
             }
         )
 

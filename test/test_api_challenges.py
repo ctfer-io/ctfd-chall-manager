@@ -31,7 +31,7 @@ base_challenge = {
 
 class Test_F_Challenges(unittest.TestCase):
     def test_create_challenge_with_all_params(self):
-        chall_id = create_challenge(shared="true", destroy_on_flag="true", until="2222-02-22T21:22:00.000Z", timeout=2222)
+        chall_id = create_challenge(shared="true", destroy_on_flag="true", until="2222-02-22T21:22:00Z",  additional={"test": "test"}, timeout=2222)
 
         r = requests.get(f"{config.ctfd_url}/api/v1/challenges/{chall_id}", headers=config.headers_admin)
         a = json.loads(r.text)
@@ -39,9 +39,10 @@ class Test_F_Challenges(unittest.TestCase):
 
         self.assertEqual(a["data"]["shared"], True)
         self.assertEqual(a["data"]["destroy_on_flag"], True) 
-        self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00.000Z") 
+        self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00Z") 
         self.assertEqual(a["data"]["timeout"], 2222)
-        self.assertEqual(a["data"]["scenario_id"], config.scenario_id) 
+        self.assertEqual(a["data"]["scenario_id"], config.scenario_id)
+        self.assertEqual(a["data"]["additional"], {"test": "test"})
 
         delete_challenge(chall_id)
 
@@ -61,12 +62,14 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["data"]["destroy_on_flag"], False)
         self.assertEqual(a["data"]["until"], None)
         self.assertEqual(a["data"]["timeout"], None)
+        self.assertEqual(a["data"]["additional"], {})
 
         payload = {
             "shared": "true",
             "destroy_on_flag": "true",
-            "until": "2222-02-22T21:22:00.000Z",
+            "until": "2222-02-22T21:22:00Z",
             "timeout": "2222",
+            "additional": {"test": "test"}
         }
 
         r = requests.patch(f"{config.ctfd_url}/api/v1/challenges/{chall_id}", headers=config.headers_admin, data=json.dumps(payload))
@@ -77,8 +80,9 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["success"], True) 
         self.assertEqual(a["data"]["shared"], True)
         self.assertEqual(a["data"]["destroy_on_flag"], True) 
-        self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00.000Z") 
+        self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00Z") 
         self.assertEqual(a["data"]["timeout"], 2222)
+        self.assertEqual(a["data"]["additional"], {"test": "test"})
         
         # clean testing environment
         delete_challenge(chall_id)
