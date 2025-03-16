@@ -151,37 +151,38 @@
 						<th class="sort-col text-left"><b>Key</b></td>
 						<th class="sort-col text-left"><b>Value</b></td>
 					</tr>
-					</thead>
-	
-				<tr>
-					<td class="text-left">
-                        <button class="btn btn-link p-0 text-danger"
-                           data-placement="top"
-                           data-toggle="tooltip"
-						   onclick="deleteRow(this)">
-                           <i class="fa-solid fa-xmark"></i>
-                    </button>
-                    </td>
-					<td><input type="text" class="form-control" placeholder="Key"></td>
-					<td><input type="text" class="form-control" placeholder="Value"></td>
-				</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="text-left">
+							<button class="btn btn-link p-0 text-danger"
+							   data-placement="top"
+							   data-toggle="tooltip"
+							   onclick="deleteRow(this)">
+							   <i class="fa-solid fa-xmark"></i>
+						</button>
+						</td>
+						<td><input type="text" class="form-control" placeholder="Key"></td>
+						<td><input type="text" class="form-control" placeholder="Value"></td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
-		<label for="value">Instance configuration</label>
+		<!-- <label for="value">Instance configuration</label>
 
 		<div>
-			<input type="checkbox" id="instance-config" name="instance-config" value="false"> <!-- TODO: change id -->
+			<input type="checkbox" id="instance-config" name="instance-config" value="false"> 
 			<label for="instance-config">IPv4</label>
 		</div>
 
 		<div>
-			<input type="checkbox" id="instance-config" name="instance-config" value="false"> <!-- TODO: change id -->
+			<input type="checkbox" id="instance-config" name="instance-config" value="false">
 			<label for="instance-config">IPv6</label>
-		</div>
+		</div> -->
 
 
 
-		<input type="hidden" id="additional-json" name="additional">
+		<input type="hidden" id="additional-json" name="additional" value="{}">
 
 	</div>
   </div>

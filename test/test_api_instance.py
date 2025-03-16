@@ -238,3 +238,16 @@ class Test_F_UserInstance(unittest.TestCase):
         # remove
         delete_challenge(chall_id)
 
+    def test_create_instance_with_additional(self):
+        chall_id = create_challenge(additional={"test": "test"})
+        r = post_instance(chall_id) 
+
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        # self.assertEqual(a["data"]["additional"]["test"], "test") # check that is not empty ?
+
+        delete_challenge(chall_id)

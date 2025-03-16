@@ -111,7 +111,8 @@ function generateAdditionalJson(){
 document.getElementById('additional-configuration').addEventListener('change', function(event) {
   // console.log('table change')
   const jsonData = generateAdditionalJson();
-  document.getElementById('additional-json').value = JSON.stringify(jsonData, null, 2);
+  document.getElementById('additional-json').value = JSON.stringify(jsonData)
+  // document.getElementById('additional-json').value = jsonData
   document.getElementById('additional-json').dispatchEvent(new Event('change'));
 });
 

@@ -10,9 +10,6 @@ import (
 type Additional struct {
 	Flag           string `json:"add-flag"`
 	ConnectionInfo string `json:"add-connection-info"`
-	VariateEnable  string `json:"add-variate-enable"`
-
-	Ipv4 string `json:"add-ipv4"`
 }
 
 func main() {
@@ -29,13 +26,17 @@ func main() {
 			return err
 		}
 
-		resp.Flag = pulumi.String(additionalData.Flag).ToStringOutput()
-
-		if additionalData.VariateEnable == "true" {
-			resp.Flag = pulumi.String(sdk.Variate(req.Config.Identity, additionalData.Flag)).ToStringOutput()
+		if additionalData.Flag == "" {
+			additionalData.Flag = "BREFCTF{Cypress_testing}"
 		}
 
-		resp.ConnectionInfo = pulumi.String(additionalData.ConnectionInfo).ToStringOutput()
+		if additionalData.ConnectionInfo == "" {
+			additionalData.ConnectionInfo = "http://localhost"
+		}
+
+		resp.Flag = pulumi.String(sdk.Variate(req.Config.Identity, additionalData.Flag)).ToStringOutput()
+		resp.ConnectionInfo = pulumi.String(sdk.Variate(req.Config.Identity, additionalData.ConnectionInfo)).ToStringOutput()
+
 		return nil
 	})
 }

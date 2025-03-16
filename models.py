@@ -132,7 +132,18 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             optional["until"] = f"{data['until']}"
 
         if "additional" in data.keys():
-            optional["config"] = data["additional"]
+            logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")
+            
+            # convert str info json dict
+            if isinstance(data["additional"], str):
+                try:
+                    # Attempt to parse the string as JSON
+                    optional["config"] = json.loads(data["additional"])
+                except json.JSONDecodeError as e :
+                    logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+                    return
+            else:
+                optional["config"] = data["additional"]
 
         # handle challenge creation on chall-manager
         try:
@@ -167,8 +178,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "shared": challenge.shared,
                 "destroy_on_flag": challenge.destroy_on_flag,
                 "scenario_id": challenge.scenario_id,
-                "additional": challenge.additional if current_user.is_admin() else {},
-                "user_is_admin": current_user.is_admin() # TODO remove before PR
+                "additional": challenge.additional if current_user.is_admin() else {}, # do not display additional for all user, can contains secrets
             }
         )
 
@@ -249,6 +259,21 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             optional["until"] = None
             if data["until"] != "":
                 optional["until"] = f"{data['until']}"
+
+        if "additional" in data.keys():
+            logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")
+            
+            # convert str info json dict
+            if isinstance(data["additional"], str):
+                try:
+                    # Attempt to parse the string as JSON
+                    optional["config"] = json.loads(data["additional"])
+                except json.JSONDecodeError:
+                    logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+                    return
+            else:
+                optional["config"] = data["additional"]
+
 
         if "updateStrategy" in data.keys():
             optional["updateStrategy"] = data["updateStrategy"]

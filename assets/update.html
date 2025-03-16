@@ -164,4 +164,38 @@
 	</select>
 </div>
 
+<p>
+	<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#advanced" aria-expanded="false" aria-controls="advanced">
+	  Advanced
+	</button>
+  </p>
+  <div class="collapse" id="advanced" >
+	<div class="card card-body">
+		<label for="value">Challenge configuration</label>
+
+		<div>
+			<button class="btn btn-primary" type="button" onclick=addRow()>
+				Add + 
+			</button>
+		</div>
+		
+
+		<div id="table-div-id">
+			<table class="table table-striped border" id="additional-configuration">
+				<thead>
+					<tr>
+						<th class="sort-col text-left"><b></b></td>
+						<th class="sort-col text-left"><b>Key</b></td>
+						<th class="sort-col text-left"><b>Value</b></td>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+
+		<input type="hidden" id="additional-json" name="additional" value="{}">
+		<input type="hidden" id="current-additional-json"  value="{{ challenge.additional }}">
+   </div>	
+  </div>
 {% endblock %}

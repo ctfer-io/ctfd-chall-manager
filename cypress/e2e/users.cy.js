@@ -143,7 +143,7 @@ describe("Permform tests for CTFd in the User Land", () => {
   
         // select the last challenges 
         cy.get('[type="checkbox"]').last().check() // FIXME this is a workaround to get the last (cypress-shared-enable in challenge.cy.js)
-        cy.get('[data-test-id="panel-preprovisioning-button"]').click()
+        cy.get('[data-test-id="panel-provisioning-button"]').click()
         cy.popup('Yes')
         cy.wait(2500)
 
