@@ -159,6 +159,9 @@ def update_challenge(id: int, *args) -> requests.Response:
     if "until" in payload.keys():
         updateMask.append("until")
 
+    if "config" in payload.keys():
+        updateMask.append("config")
+
     payload["updateMask"] = ",".join(updateMask)
 
     try:

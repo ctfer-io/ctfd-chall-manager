@@ -37,7 +37,7 @@ class Config:
 
 config = Config()
 
-def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeout=None, until=None, state="visible"):
+def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeout=None, until=None, additional={},  state="visible"):
 
     payload = {
         "name": "test",
@@ -50,8 +50,9 @@ def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeou
         "type":"dynamic_iac",
         "scenario_id": config.scenario_id,
         "shared": shared,
-        "destroy_on_flag": destroy_on_flag,  
-        "state": state, 
+        "destroy_on_flag": destroy_on_flag,
+        "additional": additional,
+        "state": state,
     }
 
     if mana_cost:
@@ -145,11 +146,10 @@ def get_source_id():
 
 def bypass_ratelimit():
     payload = {
-        "key": "incorrect_submissions_per_min",
         "value": "99999999999"
     }
 
-    r = requests.patch(f"{config.ctfd_url}/api/v1/configs", headers=config.headers_admin, data=json.dumps(payload))
+    r = requests.patch(f"{config.ctfd_url}/api/v1/configs/incorrect_submissions_per_min", headers=config.headers_admin, data=json.dumps(payload))
     return r
 
 def reset_all_submissions():

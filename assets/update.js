@@ -82,6 +82,26 @@ function sendFile(file){
   });
 }
 
+function addRow() {
+  const table = document.getElementById('additional-configuration').getElementsByTagName('tbody')[0];
+  const newRow = table.insertRow();
+  
+  const actionCell = newRow.insertCell(0);
+  const keyCell = newRow.insertCell(1);
+  const valueCell = newRow.insertCell(2);
+
+  keyCell.innerHTML = '<input type="text" class="form-control" placeholder="Key">';
+  valueCell.innerHTML = '<input type="text" class="form-control" placeholder="Value">';
+  actionCell.innerHTML = '<button class="btn btn-link p-0 text-danger" data-placement="top" data-toggle="tooltip" onclick="deleteRow(this)"><i class="fa-solid fa-xmark"></i></button>';
+}                     
+
+// Function to delete a row
+function deleteRow(button) {
+  const row = button.closest('tr');
+  row.remove();
+}
+
+
 function displayCurrentUntil() {
   var datetimeUTC = document.getElementById("until-input-utc").value; 
   if (datetimeUTC) {
@@ -95,6 +115,48 @@ function displayCurrentUntil() {
   }
 }
 
+function displayCurrentAdditional() {
+  const jsonData = JSON.parse(document.getElementById('current-additional-json').value);
+  console.log(jsonData)
+  const table = document.getElementById('additional-configuration').getElementsByTagName('tbody')[0];
+  // const rows = table.getElementsByTagName('tr');
+
+  Object.keys(jsonData).forEach(function(key) {
+    const newRow = table.insertRow();
+    const actionCell = newRow.insertCell(0);
+    const keyCell = newRow.insertCell(1);
+    const valueCell = newRow.insertCell(2);
+    keyCell.innerHTML = '<input type="text" class="form-control" placeholder="Key" value="' + key + '">';
+    valueCell.innerHTML = '<input type="text" class="form-control" placeholder="Value" value="' + jsonData[key] + '">';
+    actionCell.innerHTML = '<button class="btn btn-link p-0 text-danger" data-placement="top" data-toggle="tooltip" onclick="deleteRow(this)"><i class="fa-solid fa-xmark"></i></button>';
+  });
+}
+
+// parse the additional configuration add  generate the associated json
+function generateAdditionalJson(){
+  const table = document.getElementById('additional-configuration').getElementsByTagName('tbody')[0];
+  const rows = table.getElementsByTagName('tr');
+  const jsonData = {};
+  for (let i = 0; i < rows.length; i++) {
+    const key = rows[i].cells[1].getElementsByTagName('input')[0].value;
+    const value = rows[i].cells[2].getElementsByTagName('input')[0].value;
+    jsonData[key] = value;
+  }
+  return jsonData;
+}
+
+// auto update the additional configuration json on table change
+document.getElementById('additional-configuration').addEventListener('change', function(event) {
+  console.log('table change')
+  const jsonData = generateAdditionalJson();
+  document.getElementById('additional-json').value = JSON.stringify(jsonData)
+  // document.getElementById('additional-json').value = jsonData
+  document.getElementById('additional-json').dispatchEvent(new Event('change'));
+});
+
+
+
 displayCurrentUntil()
 displayCurrentScenario()
+displayCurrentAdditional()
 

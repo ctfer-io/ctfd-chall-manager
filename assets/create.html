@@ -9,6 +9,57 @@
 {% endblock %}
 
 {% block value %}
+
+
+<div class="form-group">
+	<label for="value">Initial Value<br>
+		<small class="form-text text-muted">
+			This is how many points the challenge is worth initially.
+		</small>
+	</label>
+	<input type="number" class="form-control" name="initial" placeholder="Enter value" required>
+</div>
+
+<div class="form-group">
+	<label for="value">Decay Function<br>
+		<small class="form-text text-muted">
+			<span>How the dynamic value will be calculated based on the Decay value</span>
+			<ul>
+				<li>Linear: Calculated as <code>Initial - (Decay * SolveCount)</code></li>
+				<li>Logarithmic: Calculated as <code>(((Minimum - Initial) / (Decay^2)) * (SolveCount^2)) + Initial</code></li>
+			</ul>
+		</small>
+	</label>
+	<select name="function" class="custom-select">
+		<option value="linear">Linear</option>
+		<option value="logarithmic">Logarithmic</option>
+	</select>
+</div>
+
+<div class="form-group">
+	<label for="value">Decay<br>
+		<small class="form-text text-muted">
+			<span>The decay value is used differently depending on the above Decay Function</span>
+			<ul>
+				<li>Linear: The amount of points deducted per solve. Equal deduction per solve.</li>
+				<li>Logarithmic: The amount of solves before the challenge reaches its minimum value. Earlier solves will lose less
+					points. Later solves will lose more points</li>
+			</ul>
+		</small>
+	</label>
+	<input type="number" class="form-control" name="decay" min="1" placeholder="Enter Decay value" required>
+</div>
+
+<div class="form-group">
+	<label for="value">Minimum Value<br>
+		<small class="form-text text-muted">
+			This is the lowest that the challenge can be worth
+		</small>
+	</label>
+	<input type="number" class="form-control" name="minimum" placeholder="Enter minimum value" required>
+</div>
+
+
 <!-- Chall-manager specifics -->
 <div class="form-group">
 	<label for="value">Sharing<br>
@@ -72,57 +123,72 @@
 		</small>
 	</label>
 	<input type="file" class="form-control" id="scenario" data-test-id="scenario-create-id" name="scenario" accept=".zip" required>
-	<input type="hidden" id="scenario_id" class="form-control" name="scenario_id">
+	<input type="hidden" id="scenario_id" class="form-control" name="scenario_id" required>
 </div>
+
+
+  <p>
+	<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#advanced" aria-expanded="false" aria-controls="advanced">
+	  Advanced
+	</button>
+  </p>
+  <div class="collapse" id="advanced" >
+	<div class="card card-body">
+		<label for="value">Challenge configuration</label>
+
+		<div>
+			<button class="btn btn-primary" type="button" onclick=addRow()>
+				Add + 
+			</button>
+		</div>
+		
+
+		<div id="table-div-id">
+			<table class="table table-striped border" id="additional-configuration">
+				<thead>
+					<tr>
+						<th class="sort-col text-left"><b></b></td>
+						<th class="sort-col text-left"><b>Key</b></td>
+						<th class="sort-col text-left"><b>Value</b></td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="text-left">
+							<button class="btn btn-link p-0 text-danger"
+							   data-placement="top"
+							   data-toggle="tooltip"
+							   onclick="deleteRow(this)">
+							   <i class="fa-solid fa-xmark"></i>
+						</button>
+						</td>
+						<td><input type="text" class="form-control" placeholder="Key"></td>
+						<td><input type="text" class="form-control" placeholder="Value"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- <label for="value">Instance configuration</label>
+
+		<div>
+			<input type="checkbox" id="instance-config" name="instance-config" value="false"> 
+			<label for="instance-config">IPv4</label>
+		</div>
+
+		<div>
+			<input type="checkbox" id="instance-config" name="instance-config" value="false">
+			<label for="instance-config">IPv6</label>
+		</div> -->
+
+
+
+		<input type="hidden" id="additional-json" name="additional" value="{}">
+
+	</div>
+  </div>
+
 <!-- Chall-manager specifics -->
 
-<div class="form-group">
-	<label for="value">Initial Value<br>
-		<small class="form-text text-muted">
-			This is how many points the challenge is worth initially.
-		</small>
-	</label>
-	<input type="number" class="form-control" name="initial" placeholder="Enter value" required>
-</div>
-
-<div class="form-group">
-	<label for="value">Decay Function<br>
-		<small class="form-text text-muted">
-			<span>How the dynamic value will be calculated based on the Decay value</span>
-			<ul>
-				<li>Linear: Calculated as <code>Initial - (Decay * SolveCount)</code></li>
-				<li>Logarithmic: Calculated as <code>(((Minimum - Initial) / (Decay^2)) * (SolveCount^2)) + Initial</code></li>
-			</ul>
-		</small>
-	</label>
-	<select name="function" class="custom-select">
-		<option value="linear">Linear</option>
-		<option value="logarithmic">Logarithmic</option>
-	</select>
-</div>
-
-<div class="form-group">
-	<label for="value">Decay<br>
-		<small class="form-text text-muted">
-			<span>The decay value is used differently depending on the above Decay Function</span>
-			<ul>
-				<li>Linear: The amount of points deducted per solve. Equal deduction per solve.</li>
-				<li>Logarithmic: The amount of solves before the challenge reaches its minimum value. Earlier solves will lose less
-					points. Later solves will lose more points</li>
-			</ul>
-		</small>
-	</label>
-	<input type="number" class="form-control" name="decay" min="1" placeholder="Enter Decay value" required>
-</div>
-
-<div class="form-group">
-	<label for="value">Minimum Value<br>
-		<small class="form-text text-muted">
-			This is the lowest that the challenge can be worth
-		</small>
-	</label>
-	<input type="number" class="form-control" name="minimum" placeholder="Enter minimum value" required>
-</div>
 {% endblock %}
 
 {% block type %}

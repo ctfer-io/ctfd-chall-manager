@@ -30,7 +30,7 @@ describe('Dynamic IaC Challenge', () => {
       // select the last challenges 
       cy.get('[type="checkbox"]').last().check()
 
-      cy.get('[data-test-id="panel-preprovisioning-button"]').click()
+      cy.get('[data-test-id="panel-provisioning-button"]').click()
 
       cy.contains('Yes').click()
 
