@@ -1,4 +1,9 @@
 from flask import Blueprint, request, current_app
+
+from CTFd.exceptions.challenges import (  # type: ignore
+    ChallengeCreateException,
+    ChallengeUpdateException,
+)
 from CTFd.models import (  # type: ignore
     Flags,
     Files,
@@ -100,7 +105,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         if "scenario_id" not in data.keys():
             logger.error("missing mandatory value in challenge creation")
-            raise Exception('missing mandatory value in challenge creation')
+            raise ChallengeCreateException('missing mandatory value in challenge creation')
 
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
@@ -120,7 +125,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 content = encoded_string.decode("utf-8")
         except Exception as e:
             logger.error(f"An exception occurred while opening file {int(data['scenario_id'])}: {e}")
-            return
+            raise ChallengeCreateException(f"An exception occurred while opening file {int(data['scenario_id'])}: {e}")
 
         # check optional configuration for dynamic_iac
         # init optional configuration
@@ -141,7 +146,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     optional["config"] = json.loads(data["additional"])
                 except json.JSONDecodeError as e :
                     logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
-                    return
+                    raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
             else:
                 optional["config"] = data["additional"]
 
@@ -155,7 +160,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             logger.debug("deleting challenge on CTFd due to an issue while creating it on CM")
             cls.delete(challenge)
             logger.info(f"challenge {challenge.id} deleted sucessfully")
-            return
+            raise ChallengeCreateException(f"An exception occurred while sending challenge {challenge.id} to CM: {e}")
 
         # return CTFd Challenge if no error
         return challenge
@@ -270,7 +275,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     optional["config"] = json.loads(data["additional"])
                 except json.JSONDecodeError:
                     logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
-                    return
+                    raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
             else:
                 optional["config"] = data["additional"]
 
@@ -291,12 +296,14 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     optional["scenario"] = content
             except Exception as e:
                 logger.error(f"An exception occurred while opening file {int(challenge['scenario_id'])}: {e}")
+                raise ChallengeUpdateException(f"An exception occurred while opening file {int(challenge['scenario_id'])}: {e}")
 
         # send updates to CM
         try:
             update_challenge(challenge.id, optional)
         except Exception as e:
             logger.error(f"Error while patching the challenge: {e}")
+            raise ChallengeUpdateException(f"Error while patching the challenge: {e}")
 
         return super().calculate_value(challenge)
 

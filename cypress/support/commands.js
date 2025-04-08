@@ -31,6 +31,7 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
     
   
   cy.get('[data-test-id="scenario-create-id"]').selectFile(scenario_path) //upload file
+  cy.wait(1000) // wait file upload 
 
   // dynamic attributs
   cy.get("input[placeholder=\"Enter value\"]").type("500")
