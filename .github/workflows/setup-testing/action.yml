@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
     - name: Wait for CTFd server
       shell: bash
@@ -60,7 +60,7 @@ runs:
         fi
 
     - name: Setup CTFd
-      uses: ctfer-io/ctfd-setup@4f039f18e2e78cb4eeb7a2c89e0c38a5a6afa392 # v1.5.2
+      uses: ctfer-io/ctfd-setup@e11df98977827a789d3e07537790a3b64091493b # v1.6.0
       with:
         url: 'http://ctfd:8000'
         appearance_name: CTFer.io
@@ -71,7 +71,7 @@ runs:
         admin_password: ${{ inputs.ctfd_pass }}
 
     - name: Setup Go
-      uses: actions/setup-go@v5.1.0
+      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
 
     - name: Generate token and store it for GH Actions
       shell: bash
@@ -84,7 +84,7 @@ runs:
         CTFD_PASSWORD: ${{ inputs.ctfd_pass }}
 
     - name: Install Pulumi
-      uses: pulumi/actions@v6.0.0
+      uses: pulumi/actions@9519177da243fd32cab35cdbf19cce1ab7472fcc # v6.2.0
 
     - name: Additional configuration for CTFd (users and teams)
       shell: bash
