@@ -19,7 +19,7 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:v0.3.2@sha256:db05b77564502a2db3409d0970810b8586b74d8fa40d0f234ca4a087d06c28d2
+        image: ctferio/chall-manager:v0.3.3@sha256:a2e0d1b233d2269f0d7fa17549a7d39f3add05e8fb545bfd4854ed7d474cc700
         ports:
           - 8080:8080
 
