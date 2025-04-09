@@ -143,12 +143,12 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             if isinstance(data["additional"], str):
                 try:
                     # Attempt to parse the string as JSON
-                    optional["config"] = json.loads(data["additional"])
+                    optional["additional"] = json.loads(data["additional"])
                 except json.JSONDecodeError as e :
                     logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
                     raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
             else:
-                optional["config"] = data["additional"]
+                optional["additional"] = data["additional"]
 
         # handle challenge creation on chall-manager
         try:
@@ -272,12 +272,12 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             if isinstance(data["additional"], str):
                 try:
                     # Attempt to parse the string as JSON
-                    optional["config"] = json.loads(data["additional"])
+                    optional["additional"] = json.loads(data["additional"])
                 except json.JSONDecodeError:
                     logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
                     raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
             else:
-                optional["config"] = data["additional"]
+                optional["additional"] = data["additional"]
 
 
         if "updateStrategy" in data.keys():

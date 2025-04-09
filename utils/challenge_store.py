@@ -54,8 +54,8 @@ def create_challenge(id: int, scenario: str, *args) -> requests.Response:
 
     if len(args) != 0:
         if type(args[0]) is not dict:
-            logger.error("Invalid arguments provided for creating challenge")
-            return
+            logger.error(f"invalid argument, got {args[0]} for type {type(args[0])}, dict is expected")
+            raise Exception(f"invalid argument, got {args[0]} for type {type(args[0])}, dict is expected")
 
         payload = args[0]
 
@@ -94,8 +94,8 @@ def delete_challenge(id: int) -> requests.Response:
         r = requests.delete(url)
         logger.debug(f"Received response: {r.status_code} {r.text}")
     except Exception as e:
-        logger.error(f"Error deleting challenge: {e}")
-        return e
+        logger.error(f"error deleting challenge: {e}")
+        raise Exception(f"error deleting challenge: {e}")
     
     return r
 
@@ -144,7 +144,7 @@ def update_challenge(id: int, *args) -> requests.Response:
     if len(args) != 0:
         if type(args[0]) is not dict:
             logger.error("Invalid arguments provided for updating challenge")
-            return
+            raise Exception(f"Error deleting challenge: {e}")
 
         payload = args[0]
 
@@ -159,8 +159,8 @@ def update_challenge(id: int, *args) -> requests.Response:
     if "until" in payload.keys():
         updateMask.append("until")
 
-    if "config" in payload.keys():
-        updateMask.append("config")
+    if "additional" in payload.keys():
+        updateMask.append("additional")
 
     payload["updateMask"] = ",".join(updateMask)
 
