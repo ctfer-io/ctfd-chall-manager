@@ -15,7 +15,7 @@
 
 This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/chall-manager), to manage scenario and permit Player's to deploy their instances.
 
-Last version tested on: [3.7.6](https://github.com/CTFd/CTFd/releases/tag/3.7.6).
+Last version tested on: [3.7.7](https://github.com/CTFd/CTFd/releases/tag/3.7.7).
 
 # Features
 ## Main features for Users
