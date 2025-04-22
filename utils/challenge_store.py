@@ -164,6 +164,8 @@ def update_challenge(id: int, *args) -> requests.Response:
 
     payload["updateMask"] = ",".join(updateMask)
 
+    logger.debug(f"updating challenge {id} with updateMask {payload['updateMask']}")
+
     try:
         r = requests.patch(url, data=json.dumps(payload), headers=headers)
         logger.debug(f"Received response: {r.status_code} {r.text}")
