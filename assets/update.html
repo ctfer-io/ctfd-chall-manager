@@ -199,6 +199,26 @@
 
 		<input type="hidden" id="additional-json" name="additional" value="{{ challenge.additional }}">
 		<input type="hidden" id="current-additional-json"  value="{{ challenge.additional }}">
-   </div>	
+	</div>
+	<div class="card card-body">
+		<label for="value">Pooler</label>
+
+		<label for="value">Min<br>
+			<small class="form-text text-muted">
+				Min from the pooler feature. <br>
+    			Determine the minimum number of instances we want to pre-provision, and make available for claiming later.
+			</small>
+		</label>
+		<input type="number" class="form-control" name="min" value="{{ challenge.min }}">
+
+		<label for="value">Max<br>
+			<small class="form-text text-muted">
+				Max from the pooler feature. <br>
+				Determine the maximum number of instances that needs to be deployed until we stop pre-provisioning ones in the pool.
+			</small>
+		</label>
+		<input type="number" class="form-control" name="max" value="{{ challenge.max }}">
+
+	</div>
   </div>
 {% endblock %}

@@ -152,7 +152,6 @@ def update_challenge(id: int, *args) -> requests.Response:
 
     updateMask = []
 
-
     if "timeout" in payload.keys():
         updateMask.append("timeout")
 
@@ -161,6 +160,12 @@ def update_challenge(id: int, *args) -> requests.Response:
 
     if "additional" in payload.keys():
         updateMask.append("additional")
+
+    if "min" in payload.keys():
+        updateMask.append("min")
+    
+    if "max" in payload.keys():
+        updateMask.append("max")
 
     payload["updateMask"] = ",".join(updateMask)
 
