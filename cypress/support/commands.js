@@ -37,9 +37,14 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
   cy.get('[data-test-id="scenario-create-id"]').selectFile(scenario_path) //upload file
   cy.wait(1000) // wait file upload 
 
+
+  // open advanced
+  if (additional.length > 0 || min != "0" || max != "0") {
+    cy.get('[data-test-id="additional-button-collapse"]').click()
+  }
+
   // Add additional
   if (additional.length > 0){
-    cy.get('[data-test-id="additional-button-collapse"]').click()
 
     additional.forEach((pair, index) => {
       const key = Object.keys(pair)[0];
@@ -61,20 +66,14 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
 
     cy.get('[data-test-id="additional-button-apply"]').click();
     cy.popup('OK')
-
-    cy.get('[data-test-id="additional-button-collapse"]').click()
   }
 
   if (min != "0") {
-    cy.get('[data-test-id="additional-button-collapse"]').click()
     cy.get('[data-test-id="min-create-id"]').type(min)
-    cy.get('[data-test-id="additional-button-collapse"]').click()
   }
 
   if (max != "0") {
-    cy.get('[data-test-id="additional-button-collapse"]').click()
     cy.get('[data-test-id="max-create-id"]').type(max)
-    cy.get('[data-test-id="additional-button-collapse"]').click()
   }
 
   // Create 
