@@ -251,3 +251,20 @@ class Test_F_UserInstance(unittest.TestCase):
         # self.assertEqual(a["data"]["additional"]["test"], "test") # check that is not empty ?
 
         delete_challenge(chall_id)
+
+    def test_create_instance_pooled(self):
+        chall_id = create_challenge(min=1, max=1)
+
+        before = datetime.datetime.now()
+        r = post_instance(chall_id)   
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        after = datetime.datetime.now()
+
+        delai = abs((after - before).total_seconds())
+        if delai > 0.5:
+            raise Exception("too slow bro")
+        
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)

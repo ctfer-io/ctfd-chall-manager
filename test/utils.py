@@ -37,7 +37,7 @@ class Config:
 
 config = Config()
 
-def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeout=None, until=None, additional={},  state="visible"):
+def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeout=None, until=None, additional={}, min=None, max=None, state="visible"):
 
     payload = {
         "name": "test",
@@ -57,6 +57,12 @@ def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeou
 
     if mana_cost:
         payload["mana_cost"] = mana_cost
+
+    if min:
+        payload["min"] = min
+
+    if max:
+        payload["max"] = max
 
     if timeout:
         payload["timeout"] = timeout

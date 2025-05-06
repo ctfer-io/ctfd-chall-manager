@@ -7,7 +7,7 @@ Cypress.Commands.add('login', (username, password) => {
 })
 
 
-Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, timeout, until, scenario_path, additional, state) => {
+Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, timeout, until, scenario_path, additional, min, max, state) => {
   cy.visit(`${Cypress.env("CTFD_URL")}/admin/challenges/new`) // go on challenge creation
   cy.wait(500) // wait ctfd
   cy.get(".form-check-label").contains("dynamic_iac").click() // select dynamic_iac
@@ -28,15 +28,14 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
   if (until != ""){
     cy.get('[data-test-id="until-create-id"]').type(until) // define until in date
   }
-    
-  
-  cy.get('[data-test-id="scenario-create-id"]').selectFile(scenario_path) //upload file
-  cy.wait(1000) // wait file upload 
 
   // dynamic attributs
   cy.get("input[placeholder=\"Enter value\"]").type("500")
   cy.get("input[placeholder=\"Enter Decay value\"]").type("10")
   cy.get("input[placeholder=\"Enter minimum value\"]").type("100")
+
+  cy.get('[data-test-id="scenario-create-id"]').selectFile(scenario_path) //upload file
+  cy.wait(1000) // wait file upload 
 
   // Add additional
   if (additional.length > 0){
@@ -62,6 +61,20 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
 
     cy.get('[data-test-id="additional-button-apply"]').click();
     cy.popup('OK')
+
+    cy.get('[data-test-id="additional-button-collapse"]').click()
+  }
+
+  if (min != "0") {
+    cy.get('[data-test-id="additional-button-collapse"]').click()
+    cy.get('[data-test-id="min-create-id"]').type(min)
+    cy.get('[data-test-id="additional-button-collapse"]').click()
+  }
+
+  if (max != "0") {
+    cy.get('[data-test-id="additional-button-collapse"]').click()
+    cy.get('[data-test-id="max-create-id"]').type(max)
+    cy.get('[data-test-id="additional-button-collapse"]').click()
   }
 
   // Create 
