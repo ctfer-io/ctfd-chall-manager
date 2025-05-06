@@ -40,7 +40,7 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
 
   // Add additional
   if (additional.length > 0){
-    // cy.get('[data-test-id="additional-button-collapse"]').click()
+    cy.get('[data-test-id="additional-button-collapse"]').click()
 
     additional.forEach((pair, index) => {
       const key = Object.keys(pair)[0];
