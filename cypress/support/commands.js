@@ -7,7 +7,7 @@ Cypress.Commands.add('login', (username, password) => {
 })
 
 
-Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, timeout, until, scenario_path, state) => {
+Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, timeout, until, scenario_path, additional, state) => {
   cy.visit(`${Cypress.env("CTFD_URL")}/admin/challenges/new`) // go on challenge creation
   cy.wait(500) // wait ctfd
   cy.get(".form-check-label").contains("dynamic_iac").click() // select dynamic_iac
@@ -37,6 +37,32 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
   cy.get("input[placeholder=\"Enter value\"]").type("500")
   cy.get("input[placeholder=\"Enter Decay value\"]").type("10")
   cy.get("input[placeholder=\"Enter minimum value\"]").type("100")
+
+  // Add additional
+  if (additional.length > 0){
+    // cy.get('[data-test-id="additional-button-collapse"]').click()
+
+    additional.forEach((pair, index) => {
+      const key = Object.keys(pair)[0];
+      const value = pair[key];
+
+      if (index > 0) {
+        // Click the add button to add a new row
+        cy.get('[data-test-id="additional-button-add"]').click(); // Replace with correct selector
+      }
+
+      cy.get("#additional-configuration tbody tr")
+        .eq(index)
+        .within(() => {
+          cy.get('input[placeholder="Key"]').clear().type(key);
+          cy.get('input[placeholder="Value"]').clear().type(value);
+        });
+
+    });
+
+    cy.get('[data-test-id="additional-button-apply"]').click();
+    cy.popup('OK')
+  }
 
   // Create 
   cy.get(".create-challenge-submit").contains("Create").click()
