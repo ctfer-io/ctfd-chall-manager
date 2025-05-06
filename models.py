@@ -204,30 +204,6 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         if "shared" in data.keys():
             data["shared"] = convert_to_boolean(data["shared"])
 
-            try:
-                r = get_challenge(challenge.id)
-            except Exception as e:
-                logger.error(f"Error while patching the challenge: {e}")
-                return
-
-            instances = json.loads(r.text)["instances"]
-
-            if data["shared"]:  # if true
-                for i in instances:
-                    if i["sourceId"] == 0:
-                        continue
-                    try:
-                        delete_instance(challenge.id, i["sourceId"])
-                    except Exception as e:
-                        logger.warning(f"Failed to delete challenge {challenge.id} for source {i['sourceId']}, instance may not exist")
-
-            else:
-                try:
-                    delete_instance(challenge.id, 0)
-                except Exception as e:
-                    logger.warning(f"Failed to delete challenge {challenge.id} for source 0, instance may not exist")
-
-
         # Update the destroy on flag boolean
         if "destroy_on_flag" in data.keys():
             data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
