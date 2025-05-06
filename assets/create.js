@@ -120,5 +120,3 @@ function applyAdditional() {
 
   document.getElementById('additional-json').value = JSON.stringify(jsonData)
 }
-
-$('.collapse').collapse()
