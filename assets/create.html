@@ -128,7 +128,8 @@
 
 
   <p>
-	<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#advanced" aria-expanded="false" aria-controls="advanced">
+	<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#advanced" aria-expanded="false" aria-controls="advanced"
+		data-test-id="additional-button-collapse">
 	  Advanced
 	</button>
   </p>
@@ -137,14 +138,20 @@
 		<label for="value">Challenge configuration</label>
 
 		<div>
-			<button class="btn btn-primary" type="button" onclick=addRow()>
+			<button class="btn btn-primary" type="button" onclick=addRow()
+				data-test-id="additional-button-add">
 				Add + 
+			</button>
+			<button class="btn btn-primary" type="button" onclick=applyAdditional()
+				data-test-id="additional-button-apply">
+				Apply
 			</button>
 		</div>
 		
 
 		<div id="table-div-id">
-			<table class="table table-striped border" id="additional-configuration">
+			<table class="table table-striped border" id="additional-configuration"
+				data-test-id="additional-table">
 				<thead>
 					<tr>
 						<th class="sort-col text-left"><b></b></td>

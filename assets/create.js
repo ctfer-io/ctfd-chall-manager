@@ -107,15 +107,18 @@ function generateAdditionalJson(){
   return jsonData;
 }
 
-// auto update the additional configuration json on table change
-document.getElementById('additional-configuration').addEventListener('change', function(event) {
-  // console.log('table change')
+
+function applyAdditional() {
   const jsonData = generateAdditionalJson();
+
+  // Display with a pop-up
+  CTFd.ui.ezq.ezAlert({
+    title: "Info",
+    body: "additional is "+ JSON.stringify(jsonData),
+    button: "OK",
+  });
+
   document.getElementById('additional-json').value = JSON.stringify(jsonData)
-  // document.getElementById('additional-json').value = jsonData
-  document.getElementById('additional-json').dispatchEvent(new Event('change'));
-});
-
-
+}
 
 $('.collapse').collapse()
