@@ -145,15 +145,18 @@ function generateAdditionalJson(){
   return jsonData;
 }
 
-// auto update the additional configuration json on table change
-document.getElementById('additional-configuration').addEventListener('change', function(event) {
-  console.log('table change')
-  const jsonData = generateAdditionalJson();
-  document.getElementById('additional-json').value = JSON.stringify(jsonData)
-  // document.getElementById('additional-json').value = jsonData
-  document.getElementById('additional-json').dispatchEvent(new Event('change'));
-});
+function applyAdditional() {
+  const jsonDataOld = JSON.parse(document.getElementById('current-additional-json').value);
+  const jsonDataNew = generateAdditionalJson();
+  // Display with a pop-up
+  CTFd.ui.ezq.ezAlert({
+    title: "Info",
+    body: "Old additional is : " + JSON.stringify(jsonDataOld) + "<br>New addtional is : "+ JSON.stringify(jsonDataNew),
+    button: "OK",
+  });
 
+  document.getElementById('additional-json').value = JSON.stringify(jsonDataNew)
+}
 
 
 displayCurrentUntil()

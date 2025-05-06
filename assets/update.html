@@ -177,6 +177,9 @@
 			<button class="btn btn-primary" type="button" onclick=addRow()>
 				Add + 
 			</button>
+			<button class="btn btn-primary" type="button" onclick=applyAdditional()>
+				Apply
+			</button>
 		</div>
 		
 
@@ -194,7 +197,7 @@
 			</table>
 		</div>
 
-		<input type="hidden" id="additional-json" name="additional" value="{}">
+		<input type="hidden" id="additional-json" name="additional" value="{{ challenge.additional }}">
 		<input type="hidden" id="current-additional-json"  value="{{ challenge.additional }}">
    </div>	
   </div>

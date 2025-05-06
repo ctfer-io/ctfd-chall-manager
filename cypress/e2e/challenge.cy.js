@@ -6,18 +6,20 @@ describe('Dynamic IaC Challenge', () => {
 
   it('Create challenges before testing it in UserLand', () => {
     // create a timeout challenge
-    cy.create_challenge("cypress-timeout", "Disabled", "Disabled", "5","6000", "", Cypress.env('SCENARIO_PATH'), "Visible")
+    cy.create_challenge("cypress-timeout", "Disabled", "Disabled", "5","6000", "", Cypress.env('SCENARIO_PATH'), [], "Visible")
     // create a until challenge
-    cy.create_challenge("cypress-until", "Disabled", "Disabled",  "5", "", "2222-01-20T11:00", Cypress.env('SCENARIO_PATH'), "Visible")
+    cy.create_challenge("cypress-until", "Disabled", "Disabled",  "5", "", "2222-01-20T11:00", Cypress.env('SCENARIO_PATH'), [], "Visible")
     // create a timeout challenge
-    cy.create_challenge("cypress-combine", "Disabled", "Disabled", "5","6000", "2222-01-20T11:00", Cypress.env('SCENARIO_PATH'), "Visible")
+    cy.create_challenge("cypress-combine", "Disabled", "Disabled", "5","6000", "2222-01-20T11:00", Cypress.env('SCENARIO_PATH'),[], "Visible")
     // create a none challenge
-    cy.create_challenge("cypress-none", "Disabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
+    cy.create_challenge("cypress-none", "Disabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), [], "Visible")
     // create a destroy on flag challenge
-    cy.create_challenge("cypress-destroy-on-flag", "Disabled", "Enabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
+    cy.create_challenge("cypress-destroy-on-flag", "Disabled", "Enabled", "5","", "", Cypress.env('SCENARIO_PATH'), [], "Visible")
+
+    cy.create_challenge("cypress-additional", "Disabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), [{"a": "b"}, {"c": "d"}], "Visible")
 
     // create a shared instance (this one must be the last)
-    cy.create_challenge("cypress-shared-enable", "Enabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), "Visible")
+    cy.create_challenge("cypress-shared-enable", "Enabled", "Disabled", "5","", "", Cypress.env('SCENARIO_PATH'), [], "Visible")
 
   })
 

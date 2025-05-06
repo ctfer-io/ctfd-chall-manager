@@ -24,7 +24,7 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:v0.3.3
+    image: ctferio/chall-manager:v0.4.0
     pull_policy: always
     ports:
       - 8080:8080
@@ -37,7 +37,7 @@ services:
       - testing
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.3.1@sha256:94cb0b470a6df86902fdba7d07cb59ba32f158a8b1c1198e76799b86be1858d4
+    image: ctferio/chall-manager-janitor:v0.4.0
     environment:
       URL: chall-manager:8080
       TICKER: 30s
