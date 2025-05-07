@@ -97,7 +97,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # lint the plugin attributes by removing empty values
         for key in list(data.keys()): # use list(data.keys()) to prevent RuntimeError
-            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario_id"] and data[key] == "":
+            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario_id", "min", "max"] and data[key] == "":
                 data.pop(key)
 
         # convert string value to boolean
