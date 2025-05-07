@@ -32,7 +32,3 @@ class Test_F_UserMana(unittest.TestCase):
         self.assertEqual(a["success"], True)
 
         delete_challenge(chall_id)
-
-
-
-
