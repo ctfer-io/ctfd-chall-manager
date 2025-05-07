@@ -111,6 +111,21 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             logger.error("missing mandatory value in challenge creation")
             raise ChallengeCreateException('missing mandatory value in challenge creation')
 
+        if "min" in data.keys():
+            try:
+                data["min"] = int(data["min"])
+            except:
+                logger.error(f"min cannot be convert into int, got {data['min']}")
+                raise ChallengeCreateException(f"min cannot be convert into int, got {data['min']}")
+
+        if "max" in data.keys():
+            try:
+                data["max"] = int(data["max"])
+            except:
+                logger.error(f"max cannot be convert into int, got {data['max']}")
+                raise ChallengeCreateException(f"max cannot be convert into int, got {data['max']}")
+
+
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
         db.session.commit()
