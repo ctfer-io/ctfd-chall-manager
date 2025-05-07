@@ -26,7 +26,7 @@ class Config:
             "Content-Type": "application/json"
         }
 
-        self.scenario_path = "./hack/deploy/additional.zip"
+        self.scenario_path = "./hack/deploy/demo-deploy.zip"
         #self.scenario_id = push_scenario_as_file(self.scenario_path)
         
             
