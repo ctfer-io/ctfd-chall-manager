@@ -16,6 +16,7 @@ from .utils.mana_lock import ManaLock
 from .utils.chall_manager_error import ChallManagerException
 from .decorators import challenge_visible
 
+
 # Configure logger for this module
 logger = configure_logger(__name__)
 lockers = {}
@@ -108,6 +109,7 @@ class AdminInstance(Resource):
             }}
 
         finally:
+            logger.debug(f"admin_unlock {lock}")
             lock.admin_unlock()
 
         return {'success': True, 'data': json.loads(r.text)}
@@ -172,6 +174,7 @@ class AdminInstance(Resource):
             }}
 
         finally:
+            logger.debug(f"admin_unlock {lock}")
             lock.admin_unlock()
 
         return {'success': True, 'data': json.loads(r.text)}

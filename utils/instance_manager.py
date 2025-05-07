@@ -90,7 +90,7 @@ def get_instance(challengeId: int, sourceId: int) -> requests.Response | Excepti
     logger.debug(f"Getting instance information for challengeId={challengeId}, sourceId={sourceId}")
 
     try:        
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=30)
         logger.debug(f"Received response: {r.status_code} {r.text}")
     except Exception as e:
         logger.error(f"Error getting instance: {e}")
@@ -156,7 +156,7 @@ def query_instance(sourceId: int) -> list | Exception:
     logger.debug(f"Querying instances for sourceId={sourceId}")
 
     try:
-        with s.get(url, headers=None, stream=True, timeout=10) as resp:
+        with s.get(url, headers=None, stream=True, timeout=30) as resp:
             for line in resp.iter_lines():
                 if line:
                     res = line.decode("utf-8")
