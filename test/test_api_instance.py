@@ -3,6 +3,7 @@ import unittest
 import requests
 import json
 import threading
+import time
 
 from .utils import config, get_instance, post_instance, patch_instance, delete_instance, run_post_instance, create_challenge, delete_challenge
 
@@ -249,5 +250,26 @@ class Test_F_UserInstance(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
         # self.assertEqual(a["data"]["additional"]["test"], "test") # check that is not empty ?
+
+        delete_challenge(chall_id)
+
+    def test_create_instance_pooled(self):
+        chall_id = create_challenge(min=1, max=1)
+
+        time.sleep(10) # wait the pooler
+
+        before = datetime.datetime.now()
+        r = post_instance(chall_id)   
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        after = datetime.datetime.now()
+
+        delai = abs((after - before).total_seconds())
+        if delai > 0.5:
+            raise Exception("too slow bro")
+        
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
 
         delete_challenge(chall_id)

@@ -42,6 +42,10 @@ class DynamicIaCChallenge(DynamicChallenge):
     destroy_on_flag = db.Column(db.Boolean, default=False)
     additional = db.Column(db.JSON)
 
+    # Pooler feature
+    min = db.Column(db.Integer, default=0) 
+    max = db.Column(db.Integer, default=0)
+
     scenario_id = db.Column(
         db.Integer, db.ForeignKey("files.id")
     )
@@ -93,7 +97,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # lint the plugin attributes by removing empty values
         for key in list(data.keys()): # use list(data.keys()) to prevent RuntimeError
-            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario_id"] and data[key] == "":
+            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario_id", "min", "max"] and data[key] == "":
                 data.pop(key)
 
         # convert string value to boolean
@@ -106,6 +110,21 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         if "scenario_id" not in data.keys():
             logger.error("missing mandatory value in challenge creation")
             raise ChallengeCreateException('missing mandatory value in challenge creation')
+
+        if "min" in data.keys():
+            try:
+                data["min"] = int(data["min"])
+            except:
+                logger.error(f"min cannot be convert into int, got {data['min']}")
+                raise ChallengeCreateException(f"min cannot be convert into int, got {data['min']}")
+
+        if "max" in data.keys():
+            try:
+                data["max"] = int(data["max"])
+            except:
+                logger.error(f"max cannot be convert into int, got {data['max']}")
+                raise ChallengeCreateException(f"max cannot be convert into int, got {data['max']}")
+
 
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
@@ -135,6 +154,18 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         if "until" in data.keys():
             optional["until"] = f"{data['until']}"
+
+        if "min" in data.keys():
+            try:
+                optional["min"] = int(data["min"])
+            except:
+                logger.warning(f"min cannot be convert into int, got {data['min']}")
+
+        if "max" in data.keys():
+            try:
+                optional["max"] = int(data["max"])
+            except:
+                logger.warning(f"min cannot be convert into int, got {data['max']}")
 
         if "additional" in data.keys():
             logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")
@@ -184,6 +215,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "destroy_on_flag": challenge.destroy_on_flag,
                 "scenario_id": challenge.scenario_id,
                 "additional": challenge.additional if current_user.is_admin() else {}, # do not display additional for all user, can contains secrets
+                "min": challenge.min,
+                "max": challenge.max
             }
         )
 
@@ -273,6 +306,12 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             except Exception as e:
                 logger.error(f"An exception occurred while opening file {int(challenge['scenario_id'])}: {e}")
                 raise ChallengeUpdateException(f"An exception occurred while opening file {int(challenge['scenario_id'])}: {e}")
+
+        if "min" in data.keys():
+            optional["min"] = data["min"]
+
+        if "max" in data.keys():
+            optional["max"] = data["max"]
 
         # send updates to CM
         try:

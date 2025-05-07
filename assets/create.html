@@ -192,6 +192,26 @@
 		<input type="hidden" id="additional-json" name="additional" value="{}">
 
 	</div>
+	<div class="card card-body">
+		<label for="value">Pooler</label>
+
+		<label for="value">Min<br>
+			<small class="form-text text-muted">
+				Min from the pooler feature. <br>
+    			Determine the minimum number of instances we want to pre-provision, and make available for claiming later.
+			</small>
+		</label>
+		<input type="number" data-test-id="min-create-id" class="form-control" name="min" placeholder="Enter min value">
+
+		<label for="value">Max<br>
+			<small class="form-text text-muted">
+				Max from the pooler feature. <br>
+				Determine the maximum number of instances that needs to be deployed until we stop pre-provisioning ones in the pool.
+			</small>
+		</label>
+		<input type="number" data-test-id="max-create-id" class="form-control" name="max" placeholder="Enter max value">
+
+	</div>
   </div>
 
 <!-- Chall-manager specifics -->
