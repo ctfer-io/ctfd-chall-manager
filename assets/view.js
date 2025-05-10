@@ -75,7 +75,7 @@ function loadInfo() {
         $('#cm-panel-loading').hide();
         $('#cm-panel-until').hide(); 
        
-        if (response.connectionInfo && response.until) { // if instance has an until 
+        if (response.since && response.until) { // if instance has an until
            
             // check instance is not expired
             var now = new Date();
@@ -105,7 +105,7 @@ function loadInfo() {
                 $('#whale-challenge-lan-domain').html(''); 
             }
                     
-        } else if (response.connectionInfo) {    // if instance has no until         
+        } else if (response.since) {    // if instance has no until
             $('#whale-panel-stopped').hide();
             $('#whale-panel-started').show();
             $('#whale-challenge-lan-domain').html(response.connectionInfo);
