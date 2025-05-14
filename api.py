@@ -317,6 +317,9 @@ class UserInstance(Resource):
         if 'until' in result.keys():
             data['until'] = result['until']
 
+        if 'since' in result.keys():
+            data['since'] = result['since']
+
         return {'success': True, 'data': data}
 
     @staticmethod
