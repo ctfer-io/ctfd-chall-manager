@@ -1,6 +1,7 @@
 services:
   ctfd:
     image: ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
+    container_name: ctfd
     ports:
       - 8000:8000
     networks:
@@ -24,7 +25,8 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:v0.4.2
+    image: ctferio/chall-manager:dev
+    container_name: chall-manager
     pull_policy: always
     ports:
       - 8080:8080
@@ -37,7 +39,9 @@ services:
       - testing
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.4.2
+    image: ctferio/chall-manager-janitor:dev
+    container_name: chall-manager-janitor
+    pull_policy: always
     environment:
       URL: chall-manager:8080
       TICKER: 30s
