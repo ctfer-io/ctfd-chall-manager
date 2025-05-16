@@ -124,6 +124,19 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             except:
                 logger.error(f"max cannot be convert into int, got {data['max']}")
                 raise ChallengeCreateException(f"max cannot be convert into int, got {data['max']}")
+            
+        # convert string into dict in CTFd
+        if "additional" in data.keys():
+            if isinstance(data["additional"], str):
+                try:
+                    # Attempt to parse the string as JSON
+                    data["additional"] = json.loads(data["additional"])
+                except json.JSONDecodeError:
+                    logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+                    raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+            elif not isinstance(data["additional"], dict):
+                raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+
 
 
         challenge = cls.challenge_model(**data)
@@ -168,18 +181,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 logger.warning(f"min cannot be convert into int, got {data['max']}")
 
         if "additional" in data.keys():
-            logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")
-            
-            # convert str info json dict
-            if isinstance(data["additional"], str):
-                try:
-                    # Attempt to parse the string as JSON
-                    optional["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError as e :
-                    logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
-                    raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
-            else:
-                optional["additional"] = data["additional"]
+            logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")            
+            optional["additional"] = data["additional"]
 
         # handle challenge creation on chall-manager
         try:
@@ -256,6 +259,18 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             optional["timeout"] = None
             setattr(challenge, "timeout", "")
 
+        # convert string into dict in CTFd
+        if "additional" in data.keys():
+            if isinstance(data["additional"], str):
+                try:
+                    # Attempt to parse the string as JSON
+                    data["additional"] = json.loads(data["additional"])
+                except json.JSONDecodeError:
+                    logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+                    raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+            elif not isinstance(data["additional"], dict):
+                raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+
         # don't touch this
         for attr, value in data.items():
             # We need to set these to floats so that the next operations don't operate on strings
@@ -276,17 +291,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         if "additional" in data.keys():
             logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")
-            
-            # convert str info json dict
-            if isinstance(data["additional"], str):
-                try:
-                    # Attempt to parse the string as JSON
-                    optional["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError:
-                    logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
-                    raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
-            else:
-                optional["additional"] = data["additional"]
+            optional["additional"] = data["additional"]
 
 
         if "updateStrategy" in data.keys():
