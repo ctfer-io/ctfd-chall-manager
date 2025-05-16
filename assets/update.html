@@ -197,8 +197,8 @@
 			</table>
 		</div>
 
-		<input type="hidden" id="additional-json" name="additional" value="{{ challenge.additional }}">
-		<input type="hidden" id="current-additional-json"  value="{{ challenge.additional }}">
+		<input type="hidden" id="additional-json" name="additional" value='{{ challenge.additional | tojson | safe }}'>
+		<input type="hidden" id="current-additional-json"  value='{{ challenge.additional | tojson | safe }}'>
 	</div>
 	<div class="card card-body">
 		<label for="value">Pooler</label>
