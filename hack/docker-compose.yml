@@ -10,7 +10,8 @@ services:
       - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
     environment:
       LOG_LEVEL: DEBUG
-      PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
+      # PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
+      PLUGIN_SETTINGS_CM_API_URL: http://worker01.dev1.ctfer-io.lab:32395/api/v1
       PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
       # REDIS_URL: redis://redis-svc:6379
       # DATABASE_URL : mysql+pymysql://root:password@mariadb-svc:3306/ctfd
@@ -25,7 +26,7 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:dev
+    image: ctferio/chall-manager:v0.4.3
     container_name: chall-manager
     pull_policy: always
     ports:
@@ -39,7 +40,7 @@ services:
       - testing
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:dev
+    image: ctferio/chall-manager-janitor:v0.4.3
     container_name: chall-manager-janitor
     pull_policy: always
     environment:

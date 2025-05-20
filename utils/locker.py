@@ -92,9 +92,9 @@ class RedisRWLock():
 
         # https://dl.acm.org/doi/pdf/10.1145/362759.362813
 
-        self.m1 = redis_client.lock(name=f"{name}_m1")
-        self.m2 = redis_client.lock(name=f"{name}_m2")
-        self.m3 = redis_client.lock(name=f"{name}_m3")
+        self.m1 = redis_client.lock(name=f"{name}_m1", thread_local=False)
+        self.m2 = redis_client.lock(name=f"{name}_m2", thread_local=False)
+        self.m3 = redis_client.lock(name=f"{name}_m3", thread_local=False)
 
         self.r = redis_client.lock(name=f"{name}_r", thread_local=False)
         self.w = redis_client.lock(name=f"{name}_w", thread_local=False)

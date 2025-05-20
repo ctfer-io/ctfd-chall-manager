@@ -1,0 +1,154 @@
+services:
+  traefik:
+    image: traefik:v3
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --entrypoints.web.address=:8000
+    ports:
+      - "8000:8000"
+      - "8081:8080" # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - testing
+  ctfd-ui-1:
+    image: ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
+    container_name: ctfd-ui-1
+    networks:
+      - testing
+    volumes:
+      - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+      - uploads:/var/uploads
+    environment:
+      LOG_LEVEL: DEBUG
+      PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
+      PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
+      # PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK: true
+      REDIS_URL: redis://redis-svc:6379
+      DATABASE_URL : mysql+pymysql://root:password@mariadb-svc:3306/ctfd
+      SECRET_KEY: toto
+      REVERSE_PROXY: true
+      WORKERS: 2
+      UPLOAD_FOLDER: /var/uploads
+    depends_on:
+      - chall-manager
+      - redis-svc
+      - mariadb-svc
+    healthcheck:
+      test: python3 -c 'import requests; requests.get("http://localhost:8000")'
+      interval: 10s
+      retries: 3
+      timeout: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`localhost`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=8000"
+    
+  ctfd-ui-2:
+    image: ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
+    container_name: ctfd-ui-2
+    networks:
+      - testing
+    volumes:
+      - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+      - uploads:/var/uploads
+    environment:
+      LOG_LEVEL: DEBUG
+      PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
+      PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
+      # PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK: true
+      REDIS_URL: redis://redis-svc:6379
+      DATABASE_URL : mysql+pymysql://root:password@mariadb-svc:3306/ctfd
+      SECRET_KEY: toto
+      REVERSE_PROXY: true
+      WORKERS: 2
+      UPLOAD_FOLDER: /var/uploads      
+    depends_on:
+      ctfd-ui-1:
+        condition: service_healthy        
+    healthcheck:
+      test: python3 -c 'import requests; requests.get("http://localhost:8000")'
+      interval: 10s
+      retries: 3
+      timeout: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`localhost`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=8000"
+
+  chall-manager:
+    image: ctferio/chall-manager:v0.4.3
+    container_name: chall-manager
+    pull_policy: always
+    ports:
+      - 8080:8080
+    environment:
+      SWAGGER: true
+      KUBECONFIG: /tmp/config
+    volumes:
+      - ~/.kube/config:/tmp/config:ro
+    networks:
+      - testing
+    labels:
+      - "traefik.enable=false"
+
+  chall-manager-janitor:
+    image: ctferio/chall-manager-janitor:v0.4.3
+    container_name: chall-manager-janitor
+    pull_policy: always
+    environment:
+      URL: chall-manager:8080
+      TICKER: 30s
+    networks:
+      - testing
+    labels:
+      - "traefik.enable=false"
+
+  redis-svc:
+    image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
+    container_name: redis-svc
+    ports:
+      - 6379:6379
+    networks:
+      - testing
+    labels:
+      - "traefik.enable=false"
+
+  mariadb-svc:
+    image: mariadb:10.11
+    container_name: mariadb-svc
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ctfd
+    ports:
+      - 3306:3306
+    networks:
+      - testing
+    labels:
+      - "traefik.enable=false"
+
+  ctfd-setup:
+    image: ctferio/ctfd-setup:v1.6.0@sha256:b716c414170b4b17aa317910d8c12e53f2892867791c4912ff3319984a1ea975
+    container_name: ctfd-setup
+    environment:
+      URL: http://ctfd-ui-1:8000
+      FILE: /.ctfd.yaml
+    volumes:
+      - .ctfd.yaml:/.ctfd.yaml
+    networks:
+      - testing
+    depends_on:
+      ctfd-ui-2:
+        condition: service_healthy
+    labels:
+    - "traefik.enable=false"
+
+volumes:
+  uploads:
+
+networks:
+  testing:
+    driver: bridge
