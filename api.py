@@ -12,14 +12,13 @@ from .models import DynamicIaCChallenge
 from .utils.instance_manager import create_instance, delete_instance, get_instance, update_instance
 from .utils.mana_coupon import create_coupon, delete_coupon, get_source_mana
 from .utils.logger import configure_logger
-from .utils.mana_lock import ManaLock
+from .utils.mana_lock import load_or_store
 from .utils.chall_manager_error import ChallManagerException
 from .decorators import challenge_visible
 
 
 # Configure logger for this module
 logger = configure_logger(__name__)
-lockers = {}
 
 admin_namespace = Namespace("ctfd-chall-manager-admin")
 user_namespace = Namespace("ctfd-chall-manager-user")
@@ -75,11 +74,7 @@ class AdminInstance(Resource):
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
 
         try:
-            if sourceId not in lockers.keys():
-                lock = ManaLock(f"{sourceId}")
-                lockers[sourceId] = lock
-            else:
-                lock = lockers[sourceId]
+            lock = load_or_store(f"{sourceId}")
             lock.admin_lock()
 
             if cm_mana_total > 0:
@@ -151,12 +146,7 @@ class AdminInstance(Resource):
         logger.info(f"Admin {adminId} request instance delete for challengeId: {challengeId}, sourceId: {sourceId}")
 
         try:
-            if sourceId not in lockers.keys():
-                lock = ManaLock(f"{sourceId}")
-                lockers[sourceId] = lock
-            else:
-                lock = lockers[sourceId]
-
+            lock = load_or_store(f"{sourceId}")
             lock.admin_lock()
 
             logger.debug(f"Deleting instance for challengeId: {challengeId}, sourceId: {sourceId}")
@@ -260,12 +250,7 @@ class UserInstance(Resource):
         # check if sourceId can launch the instance
 
         try:
-            if sourceId not in lockers.keys():
-                lock = ManaLock(f"{sourceId}")
-                lockers[sourceId] = lock
-            else:
-                lock = lockers[sourceId]
-
+            lock = load_or_store(f"{sourceId}")
             lock.player_lock()
 
             if cm_mana_total > 0:
@@ -400,12 +385,7 @@ class UserInstance(Resource):
             }}
 
         try:
-            if sourceId not in lockers.keys():
-                lock = ManaLock(f"{sourceId}")
-                lockers[sourceId] = lock
-            else:
-                lock = lockers[sourceId]
-
+            lock = load_or_store(f"{sourceId}")
             lock.player_lock()
 
             logger.debug(f"Deleting instance for challengeId: {challengeId}, sourceId: {sourceId}")
@@ -440,12 +420,7 @@ class UserMana(Resource):
             sourceId = str(current_user.get_current_user().team_id)
 
         try:
-            if sourceId not in lockers.keys():
-                lock = ManaLock(f"{sourceId}")
-                lockers[sourceId] = lock
-            else:
-                lock = lockers[sourceId]
-
+            lock = load_or_store(f"{sourceId}")
             lock.player_lock()
 
             mana = get_source_mana(sourceId)

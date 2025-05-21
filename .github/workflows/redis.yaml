@@ -38,6 +38,8 @@ jobs:
           PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
           PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
           REDIS_URL: redis://redis-svc:6379
+          WORKERS: 2
+          SECRET_KEY: ctfer
 
     steps:
       - name: Checkout repository
