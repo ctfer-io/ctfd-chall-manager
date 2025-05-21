@@ -13,7 +13,8 @@ lock_is_local = os.getenv('REDIS_URL') == None
 rw_lock = os.getenv("PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK") != None
 
 class ManaLock():
-    # <name>_gr is a lock made to ...
+    # <name>_gr is a lock made to block concurrency calls to chall-manager instances and mana coupons.
+    # rw_lock system is an optional (and experimental) feature that priorise the access of the <name>_gr lock.
 
     def __init__(self, name: str):
         self.name = name
