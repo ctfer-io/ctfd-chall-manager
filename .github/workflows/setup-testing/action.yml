@@ -107,6 +107,7 @@ runs:
       shell: bash
       run: |
         cd hack/deploy
+        chmod +x build.sh
         ./build.sh
       env:
         CGO_ENABLED: 0
