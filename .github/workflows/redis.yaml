@@ -19,9 +19,11 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:v0.4.3@sha256:786ff5ad78a52fab78b25c75957d0f2f46790647321f3d1863c97f12768092fc
+        image: ctferio/chall-manager:dev # TODO update with v0.5.0 when pushed
         ports:
           - 8080:8080
+        env:
+          OCI_INSECURE: true
 
       redis-svc:
         image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3

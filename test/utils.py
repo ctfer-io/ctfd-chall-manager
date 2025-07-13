@@ -26,8 +26,8 @@ class Config:
             "Content-Type": "application/json"
         }
 
-        self.scenario_path = "./hack/deploy/demo-deploy.zip"
-        #self.scenario_id = push_scenario_as_file(self.scenario_path)
+        # This ref need to be pushed before start testing
+        self.scenario = "registry:5000/examples/deploy:latest"
         
             
     def __repr__(self):
@@ -48,7 +48,7 @@ def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeou
         "decay":"10",
         "minimum":"10",
         "type":"dynamic_iac",
-        "scenario_id": config.scenario_id,
+        "scenario": config.scenario,
         "shared": shared,
         "destroy_on_flag": destroy_on_flag,
         "additional": additional,
@@ -83,19 +83,6 @@ def delete_challenge(challengeId):
     a = json.loads(r.text)
     if a["success"] != True:
         raise Exception("error while setting up the testing environment, do not process") 
-
-def push_scenario_as_file(path):
-    files = {'file': open(path, 'rb')}
-    # do not use headers with application/json
-    headers = {
-        "Authorization": f"Token {config.ctfd_token_admin}",
-    }
-    r = requests.post(f"{config.ctfd_url}/api/v1/files",  headers=headers, files=files)
-    a = json.loads(r.text)
-
-    scenario_id = a["data"][0]["id"]
-    return scenario_id
-
 
 # region /instance
 # readable function to manipulate CRUD operation as user on /instance
@@ -150,14 +137,6 @@ def get_source_id():
 
     return sourceId
 
-def bypass_ratelimit():
-    payload = {
-        "value": "99999999999"
-    }
-
-    r = requests.patch(f"{config.ctfd_url}/api/v1/configs/incorrect_submissions_per_min", headers=config.headers_admin, data=json.dumps(payload))
-    return r
-
 def reset_all_submissions():
     r = requests.get(f"{config.ctfd_url}/api/v1/submissions", headers=config.headers_admin)
     a = json.loads(r.text)
@@ -168,6 +147,3 @@ def reset_all_submissions():
 
     for id in submissions:
         r = requests.delete(f"{config.ctfd_url}/api/v1/submissions/{id}", headers=config.headers_admin)
-
-config.scenario_id = push_scenario_as_file(config.scenario_path)
-

@@ -19,9 +19,11 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:v0.4.3@sha256:786ff5ad78a52fab78b25c75957d0f2f46790647321f3d1863c97f12768092fc
+        image: ctferio/chall-manager:dev # TODO update with v0.5.0 when pushed
         ports:
           - 8080:8080
+        env:
+          OCI_INSECURE: true
 
       ctfd:
         image: ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
@@ -32,6 +34,12 @@ jobs:
           LOG_LEVEL: DEBUG
           PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
           PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
+
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+        
 
     steps:
       - name: Checkout repository

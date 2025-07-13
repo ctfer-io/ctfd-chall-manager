@@ -10,15 +10,10 @@ services:
       - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
     environment:
       LOG_LEVEL: DEBUG
-      # PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
-      PLUGIN_SETTINGS_CM_API_URL: http://worker01.dev1.ctfer-io.lab:32395/api/v1
+      PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
       PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
-      # REDIS_URL: redis://redis-svc:6379
-      # DATABASE_URL : mysql+pymysql://root:password@mariadb-svc:3306/ctfd
     depends_on:
       - chall-manager
-      # - redis-svc
-      # - mariadb-svc
     healthcheck:
       test: python3 -c 'import requests; requests.get("http://localhost:8000")'
       interval: 10s
@@ -26,7 +21,7 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:v0.4.3
+    image: ctferio/chall-manager:dev
     container_name: chall-manager
     pull_policy: always
     ports:
@@ -34,13 +29,14 @@ services:
     environment:
       SWAGGER: true
       KUBECONFIG: /tmp/config
+      OCI_INSECURE: true
     volumes:
       - ~/.kube/config:/tmp/config:ro
     networks:
       - testing
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.4.3
+    image: ctferio/chall-manager-janitor:dev
     container_name: chall-manager-janitor
     pull_policy: always
     environment:
@@ -48,23 +44,6 @@ services:
       TICKER: 30s
     networks:
       - testing
-
-  # redis-svc:
-  #   image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
-  #   ports:
-  #     - 6379:6379
-  #   networks:
-  #     - testing
-
-  # mariadb-svc:
-  #   image: mariadb:10.11
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: password
-  #     MYSQL_DATABASE: ctfd
-  #   ports:
-  #     - 3306:3306
-  #   networks:
-  #     - testing
 
   ctfd-setup:
     image: ctferio/ctfd-setup:v1.6.0@sha256:b716c414170b4b17aa317910d8c12e53f2892867791c4912ff3319984a1ea975
@@ -78,6 +57,14 @@ services:
     depends_on:
       ctfd:
         condition: service_healthy
+
+  registry:
+    image: registry:2
+    container_name: registry
+    ports:
+      - 5000:5000
+    networks:
+      - testing
 
 networks:
   testing:

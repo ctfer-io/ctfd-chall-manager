@@ -46,9 +46,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     min = db.Column(db.Integer, default=0) 
     max = db.Column(db.Integer, default=0)
 
-    scenario_id = db.Column(
-        db.Integer, db.ForeignKey("files.id")
-    )
+    scenario = db.Column(db.Text)
 
     def __init__(self, *args, **kwargs):
         super(DynamicIaCChallenge, self).__init__(**kwargs)
@@ -97,7 +95,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # lint the plugin attributes by removing empty values
         for key in list(data.keys()): # use list(data.keys()) to prevent RuntimeError
-            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario_id", "min", "max"] and data[key] == "":
+            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario", "min", "max"] and data[key] == "":
                 data.pop(key)
 
         # convert string value to boolean
@@ -107,7 +105,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         if "destroy_on_flag" in data.keys():
             data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
 
-        if "scenario_id" not in data.keys():
+        if "scenario" not in data.keys():
             logger.error("missing mandatory value in challenge creation")
             raise ChallengeCreateException('missing mandatory value in challenge creation')
 
@@ -145,23 +143,11 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         logger.info(f"challenge {challenge.id} created successfully on CTFd")
 
-        # create challenge on chall-manager
-        # retrieve file based on scenario id provided by user
-        scenario = Files.query.filter_by(id=int(data["scenario_id"])).first()
-
-        # retrieve content of scenario_id to send at CM
-        full_scenario_location = os.path.join(current_app.config.get("UPLOAD_FOLDER"), scenario.location)
-        try:
-            with open(full_scenario_location, "rb") as f:
-                encoded_string = base64.b64encode(f.read())
-                content = encoded_string.decode("utf-8")
-        except Exception as e:
-            logger.error(f"An exception occurred while opening file {int(data['scenario_id'])}: {e}")
-            raise ChallengeCreateException(f"An exception occurred while opening file {int(data['scenario_id'])}: {e}")
-
         # check optional configuration for dynamic_iac
         # init optional configuration
-        optional = {}
+        optional = {
+            "scenario": challenge.scenario,
+        }
         if "timeout" in data.keys():
             optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
@@ -187,7 +173,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         # handle challenge creation on chall-manager
         try:
             logger.debug(f"creating challenge {challenge.id} on CM")
-            create_challenge(int(challenge.id), content, optional)
+            create_challenge(int(challenge.id), optional)
             logger.info(f"challenge {challenge.id} created successfully on CM")
         except Exception as e:
             logger.error(f"An exception occurred while sending challenge {challenge.id} to CM: {e}")
@@ -216,7 +202,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "timeout": challenge.timeout,
                 "shared": challenge.shared,
                 "destroy_on_flag": challenge.destroy_on_flag,
-                "scenario_id": challenge.scenario_id,
+                "scenario": challenge.scenario,
                 "additional": challenge.additional if current_user.is_admin() else {}, # do not display additional for all user, can contains secrets
                 "min": challenge.min,
                 "max": challenge.max
@@ -297,20 +283,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         if "updateStrategy" in data.keys():
             optional["updateStrategy"] = data["updateStrategy"]
 
-        if "scenario_id" in data.keys():
-            # retrieve file based on scenario id provided by user
-            scenario = Files.query.filter_by(id=int(data["scenario_id"])).first()
-
-            # retrieve content of scenario_id to send at CM
-            full_scenario_location = os.path.join(current_app.config.get("UPLOAD_FOLDER"), scenario.location)
-            try:
-                with open(full_scenario_location, "rb") as f:
-                    encoded_string = base64.b64encode(f.read())
-                    content = encoded_string.decode("utf-8")
-                    optional["scenario"] = content
-            except Exception as e:
-                logger.error(f"An exception occurred while opening file {int(challenge['scenario_id'])}: {e}")
-                raise ChallengeUpdateException(f"An exception occurred while opening file {int(challenge['scenario_id'])}: {e}")
+        if "scenario" in data.keys():
+            optional["scenario"] = data["scenario"]
 
         if "min" in data.keys():
             optional["min"] = data["min"]

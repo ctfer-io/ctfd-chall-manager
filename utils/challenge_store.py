@@ -33,12 +33,11 @@ def query_challenges() -> list:
 
     return result
 
-def create_challenge(id: int, scenario: str, *args) -> requests.Response:
+def create_challenge(id: int, *args) -> requests.Response:
     """
     Create challenge on chall-manager
     
     :param id: id of challenge to create (e.g: 1)
-    :param scenario: base64(zip(.)),
     :param *args: additional configuration in dictionary format (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00'})
     
     :return Response: of chall-manager API
@@ -62,7 +61,6 @@ def create_challenge(id: int, scenario: str, *args) -> requests.Response:
     logger.debug(f"Creating challenge with id={id}")
 
     payload["id"] = str(id)
-    payload["scenario"] = scenario
 
     try:
         r = requests.post(url, data=json.dumps(payload), headers=headers)

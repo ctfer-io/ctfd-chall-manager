@@ -97,15 +97,20 @@ runs:
         PULUMI_CONFIG_PASSPHRASE: ""
         CTFD_URL: http://localhost:8000
 
-    - name: Generate demo-deploy.zip for tests
+    - name: Setup oras cli 
+      uses: oras-project/setup-oras@8d34698a59f5ffe24821f0b48ab62a3de8b64b20 # v1.2.3
+    
+    - name: Setup yq
+      uses: chrisdickinson/setup-yq@3d931309f27270ebbafd53f2daee773a82ea1822 # v1.0.1
+
+    - name: Generate scenario and push it in regsitry for tests
       shell: bash
       run: |
         cd hack/deploy
-        go build -o main main.go
-        zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip main
-        zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip Pulumi.yaml
+        ./build.sh
       env:
         CGO_ENABLED: 0
+        REGISTRY: localhost:5000/
 
     - name: Generate token and store it for GH Actions
       shell: bash

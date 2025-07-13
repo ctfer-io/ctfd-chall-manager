@@ -80,7 +80,7 @@ services:
       - "traefik.http.services.web.loadbalancer.server.port=8000"
 
   chall-manager:
-    image: ctferio/chall-manager:v0.4.3
+    image: ctferio/chall-manager:dev
     container_name: chall-manager
     pull_policy: always
     ports:
@@ -96,7 +96,7 @@ services:
       - "traefik.enable=false"
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.4.3
+    image: ctferio/chall-manager-janitor:dev
     container_name: chall-manager-janitor
     pull_policy: always
     environment:
@@ -129,6 +129,7 @@ services:
       - testing
     labels:
       - "traefik.enable=false"
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --wait_timeout=28800, --log-warnings=0]
 
   ctfd-setup:
     image: ctferio/ctfd-setup:v1.6.0@sha256:b716c414170b4b17aa317910d8c12e53f2892867791c4912ff3319984a1ea975
@@ -145,6 +146,15 @@ services:
         condition: service_healthy
     labels:
     - "traefik.enable=false"
+
+
+  registry:
+    image: registry:2
+    container_name: registry
+    ports:
+      - 5000:5000
+    networks:
+      - testing
 
 volumes:
   uploads:

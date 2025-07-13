@@ -118,33 +118,6 @@
 	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout" {% if challenge.timeout != "" %}value={{challenge.timeout}}{% endif %}>
 </div>
 
-<div id="current-scenario-id" style="display: none;">{{ challenge.scenario_id }}</div>
-
-<div class="form-text">
-	<table class="tg">
-		<thead>
-		  <tr>
-			<td class="tg-0lax">
-				<div><b>Current Scenario : </b></div>
-			</td>
-			<td class="tg-0pky">
-				<div id="scenario_file"></div>
-			</td>			
-		  </tr>
-		</thead>
-		</table>	
-</div>
-
-<div class="form-group">
-	<label for="value">Scenario archive<br>
-		<small class="form-text text-muted">
-			This is the IaC Archives
-		</small>
-	</label>
-	<input type="file" class="form-control" id="scenario" data-test-id="scenario-create-id" name="scenario" accept=".zip">
-	<input type="hidden" id="scenario_id" class="form-control" name="scenario_id">
-</div>
-
 <div id="update-strategy-div" class="form-group" style="display: none;">
 	<label for="value">Update Strategy<br>
 		<small class="form-text text-muted">
@@ -162,6 +135,15 @@
 		<option value="blue_green">Blue Green</option>
 		<option value="recreate">Recreate</option>
 	</select>
+</div>
+
+<div class="form-group">
+	<label for="value">Scenario<br>
+		<small class="form-text text-muted">
+			Scenario reference (e.g registry.lan/category/challenge-scenario:v0.1.0@sha256:a0b1...c2d3)
+		</small>
+	</label>
+	<input type="text" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="scenario" required value="{{ challenge.scenario }}">
 </div>
 
 <p>

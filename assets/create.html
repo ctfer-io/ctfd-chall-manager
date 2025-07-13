@@ -117,13 +117,12 @@
 </div>
 
 <div class="form-group">
-	<label for="value">Scenario archive<br>
+	<label for="value">Scenario<br>
 		<small class="form-text text-muted">
-			This is the IaC Archives
+			Scenario reference (e.g registry.lan/category/challenge-scenario:v0.1.0@sha256:a0b1...c2d3)
 		</small>
 	</label>
-	<input type="file" class="form-control" id="scenario" data-test-id="scenario-create-id" name="scenario" accept=".zip" required>
-	<input type="hidden" id="scenario_id" class="form-control" name="scenario_id" required>
+	<input type="text" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="scenario" required>
 </div>
 
 

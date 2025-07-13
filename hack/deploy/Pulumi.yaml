@@ -1,6 +1,3 @@
 name: prebuilt
-runtime:
-  name: go
-  options:
-   binary: ./main
+runtime: go
 description: A prebuilt Go Pulumi entrypoint
