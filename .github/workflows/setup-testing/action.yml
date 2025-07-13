@@ -104,7 +104,8 @@ runs:
     - name: Setup yq
       shell: bash
       run: |
-        apt update -y && apt install yq -y
+        sudo apt update
+        sudo apt install yq -y
 
     - name: Generate scenario and push it in regsitry for tests
       shell: bash
