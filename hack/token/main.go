@@ -45,13 +45,19 @@ func main() {
 		log.Fatalf("Creating API token: %s", err)
 	}
 
-	ghf := os.Getenv("GITHUB_ENV")
-	f, err := os.OpenFile(ghf, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		log.Fatalf("Opening $GITHUB_ENV file (%s): %s", ghf, err)
+	if os.Getenv("CI") == "true" {
+		ghf := os.Getenv("GITHUB_ENV")
+		f, err := os.OpenFile(ghf, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			log.Fatalf("Opening $GITHUB_ENV file (%s): %s", ghf, err)
+		}
+		defer f.Close()
+		if _, err := f.WriteString(fmt.Sprintf("%s=%s\n", key, *token.Value)); err != nil {
+			log.Fatalf("Writing %s to $GITHUB_ENV file (%s): %s", key, ghf, err)
+		}
+
+	} else {
+		fmt.Printf("token = %s\n", *token.Value)
 	}
-	defer f.Close()
-	if _, err := f.WriteString(fmt.Sprintf("%s=%s\n", key, *token.Value)); err != nil {
-		log.Fatalf("Writing %s to $GITHUB_ENV file (%s): %s", key, ghf, err)
-	}
+
 }

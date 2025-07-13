@@ -7,7 +7,7 @@ Cypress.Commands.add('login', (username, password) => {
 })
 
 
-Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, timeout, until, scenario_path, additional, min, max, state) => {
+Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, timeout, until, scenario, additional, min, max, state) => {
   cy.visit(`${Cypress.env("CTFD_URL")}/admin/challenges/new`) // go on challenge creation
   cy.wait(500) // wait ctfd
   cy.get(".form-check-label").contains("dynamic_iac").click() // select dynamic_iac
@@ -34,7 +34,7 @@ Cypress.Commands.add('create_challenge', (label, shared, destroy_on_flag, mana, 
   cy.get("input[placeholder=\"Enter Decay value\"]").type("10")
   cy.get("input[placeholder=\"Enter minimum value\"]").type("100")
 
-  cy.get('[data-test-id="scenario-create-id"]').selectFile(scenario_path) //upload file
+  cy.get('[data-test-id="scenario-create-id"]').type(scenario)
   cy.wait(1000) // wait file upload 
 
 
