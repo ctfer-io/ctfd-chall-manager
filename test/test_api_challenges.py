@@ -14,7 +14,6 @@ from .utils import (
     get_admin_instance,
     get_source_id,
     reset_all_submissions,
-    bypass_ratelimit
     )
 
 base_challenge = {
@@ -101,8 +100,6 @@ class Test_F_Challenges(unittest.TestCase):
         # https://github.com/CTFd/CTFd/issues/2674
 
     def test_attempt_ctfd_flag(self):
-        bypass_ratelimit()
-
         chall_id = create_challenge()
 
         ctfd_flag = "fallback"
@@ -135,8 +132,6 @@ class Test_F_Challenges(unittest.TestCase):
 
 
     def test_attempt_variate_flag(self):
-        bypass_ratelimit()
-
         chall_id = create_challenge()
         post_instance(chall_id)
 
@@ -161,7 +156,6 @@ class Test_F_Challenges(unittest.TestCase):
 
 
     def test_attempt_expired(self):
-        bypass_ratelimit()
         chall_id = create_challenge()
 
         payload = {
