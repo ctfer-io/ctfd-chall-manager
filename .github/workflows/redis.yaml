@@ -81,7 +81,7 @@ jobs:
           admin_name: ${{ env.NAME }}
           admin_email: ctfer-io@protonmail.com
           admin_password: ${{ env.PASSWORD }}
-          accounts_incorrect_submissions_per_minutes: 9999
+          accounts_incorrect_submissions_per_minute: 9999
 
       - name: Run Functional Tests in mode Users
         run: |- 
