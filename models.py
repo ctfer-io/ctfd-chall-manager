@@ -143,37 +143,37 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         logger.info(f"challenge {challenge.id} created successfully on CTFd")
 
-        # check optional configuration for dynamic_iac
-        # init optional configuration
-        optional = {
+        # check params configuration for dynamic_iac
+        # init params configuration
+        params = {
             "scenario": challenge.scenario,
         }
         if "timeout" in data.keys():
-            optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
+            params["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
         if "until" in data.keys():
-            optional["until"] = f"{data['until']}"
+            params["until"] = f"{data['until']}"
 
         if "min" in data.keys():
             try:
-                optional["min"] = int(data["min"])
+                params["min"] = int(data["min"])
             except:
                 logger.warning(f"min cannot be convert into int, got {data['min']}")
 
         if "max" in data.keys():
             try:
-                optional["max"] = int(data["max"])
+                params["max"] = int(data["max"])
             except:
                 logger.warning(f"min cannot be convert into int, got {data['max']}")
 
         if "additional" in data.keys():
             logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")            
-            optional["additional"] = data["additional"]
+            params["additional"] = data["additional"]
 
         # handle challenge creation on chall-manager
         try:
             logger.debug(f"creating challenge {challenge.id} on CM")
-            create_challenge(int(challenge.id), optional)
+            create_challenge(int(challenge.id), params)
             logger.info(f"challenge {challenge.id} created successfully on CM")
         except Exception as e:
             logger.error(f"An exception occurred while sending challenge {challenge.id} to CM: {e}")
@@ -236,13 +236,13 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             return super().calculate_value(challenge)
 
         # Patch Challenge on CTFd
-        optional = {}
+        params = {}
         if "until" not in data.keys():
-            optional["until"] = None
+            params["until"] = None
             setattr(challenge, "until", "")
 
         if "timeout" not in data.keys():
-            optional["timeout"] = None
+            params["timeout"] = None
             setattr(challenge, "timeout", "")
 
         # convert string into dict in CTFd
@@ -266,35 +266,35 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # Patch Challenge on CM
         if "timeout" in data.keys():
-            optional["timeout"] = None
+            params["timeout"] = None
             if data["timeout"] != "":
-                optional["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
+                params["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
         if "until" in data.keys():
-            optional["until"] = None
+            params["until"] = None
             if data["until"] != "":
-                optional["until"] = f"{data['until']}"
+                params["until"] = f"{data['until']}"
 
         if "additional" in data.keys():
             logger.debug(f"retrieving additional configuration for challenge {challenge.id}: {data['additional']}")
-            optional["additional"] = data["additional"]
+            params["additional"] = data["additional"]
 
 
         if "updateStrategy" in data.keys():
-            optional["updateStrategy"] = data["updateStrategy"]
+            params["updateStrategy"] = data["updateStrategy"]
 
         if "scenario" in data.keys():
-            optional["scenario"] = data["scenario"]
+            params["scenario"] = data["scenario"]
 
         if "min" in data.keys():
-            optional["min"] = data["min"]
+            params["min"] = data["min"]
 
         if "max" in data.keys():
-            optional["max"] = data["max"]
+            params["max"] = data["max"]
 
         # send updates to CM
         try:
-            update_challenge(challenge.id, optional)
+            update_challenge(challenge.id, params)
         except Exception as e:
             logger.error(f"Error while patching the challenge: {e}")
             raise ChallengeUpdateException(f"Error while patching the challenge: {e}")
