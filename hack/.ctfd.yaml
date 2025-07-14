@@ -11,3 +11,4 @@ mode: 'teams'
 
 accounts:
   team_creation: true
+  incorrect_submissions_per_minutes: 9999 # bypass ratelimit

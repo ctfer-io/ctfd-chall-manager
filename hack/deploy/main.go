@@ -31,11 +31,11 @@ func main() {
 		}
 
 		if additionalData.ConnectionInfo == "" {
-			additionalData.ConnectionInfo = "http://localhost"
+			additionalData.ConnectionInfo = "localhost"
 		}
 
 		resp.Flag = pulumi.String(sdk.Variate(req.Config.Identity, additionalData.Flag)).ToStringOutput()
-		resp.ConnectionInfo = pulumi.String(sdk.Variate(req.Config.Identity, additionalData.ConnectionInfo)).ToStringOutput()
+		resp.ConnectionInfo = pulumi.Sprintf("http://%s.%s", req.Config.Identity, sdk.Variate(req.Config.Identity, additionalData.ConnectionInfo)).ToStringOutput()
 
 		return nil
 	})

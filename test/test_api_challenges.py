@@ -14,7 +14,6 @@ from .utils import (
     get_admin_instance,
     get_source_id,
     reset_all_submissions,
-    bypass_ratelimit
     )
 
 base_challenge = {
@@ -41,7 +40,7 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["data"]["destroy_on_flag"], True) 
         self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00Z") 
         self.assertEqual(a["data"]["timeout"], 2222)
-        self.assertEqual(a["data"]["scenario_id"], config.scenario_id)
+        self.assertEqual(a["data"]["scenario"], config.scenario)
         self.assertEqual(a["data"]["additional"], {"test": "test"})
         self.assertEqual(a["data"]["min"], 1)
         self.assertEqual(a["data"]["max"], 2)
@@ -51,13 +50,13 @@ class Test_F_Challenges(unittest.TestCase):
 
 
     def test_create_challenge_with_mandatory_params(self):
-        # create a challenge with mandatory params (scenario_id is the only one)
+        # create a challenge with mandatory params (scenario is the only one)
         chall_id = create_challenge()
 
         r = requests.get(f"{config.ctfd_url}/api/v1/challenges/{chall_id}", headers=config.headers_admin)
         a = json.loads(r.text)        
         self.assertEqual(a["success"], True) 
-        self.assertEqual(a["data"]["scenario_id"], config.scenario_id) 
+        self.assertEqual(a["data"]["scenario"], config.scenario) 
 
         # check on default values
         self.assertEqual(a["data"]["shared"], False)
@@ -95,14 +94,12 @@ class Test_F_Challenges(unittest.TestCase):
         # clean testing environment
         delete_challenge(chall_id)
 
-    def test_cannot_create_challenge_if_no_scenario_id(self):
+    def test_cannot_create_challenge_if_no_scenario(self):
         r = requests.post(f"{config.ctfd_url}/api/v1/challenges",  headers=config.headers_admin, data=json.dumps(base_challenge))
         self.assertEqual(r.status_code, 500) # CTFd return internal server error
         # https://github.com/CTFd/CTFd/issues/2674
 
     def test_attempt_ctfd_flag(self):
-        bypass_ratelimit()
-
         chall_id = create_challenge()
 
         ctfd_flag = "fallback"
@@ -135,8 +132,6 @@ class Test_F_Challenges(unittest.TestCase):
 
 
     def test_attempt_variate_flag(self):
-        bypass_ratelimit()
-
         chall_id = create_challenge()
         post_instance(chall_id)
 
@@ -161,7 +156,6 @@ class Test_F_Challenges(unittest.TestCase):
 
 
     def test_attempt_expired(self):
-        bypass_ratelimit()
         chall_id = create_challenge()
 
         payload = {

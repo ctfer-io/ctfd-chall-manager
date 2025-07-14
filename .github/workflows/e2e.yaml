@@ -19,14 +19,11 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:v0.4.3@sha256:786ff5ad78a52fab78b25c75957d0f2f46790647321f3d1863c97f12768092fc
+        image: ctferio/chall-manager:v0.5.0@sha256:a197c53b5b64b91ec4397d90c81e3a43808c1349ef5eec38bb611a074d9d11a2
         ports:
           - 8080:8080
-
-      redis-svc:
-        image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
-        ports: 
-          - 6379:6379
+        env:
+          OCI_INSECURE: true
 
       ctfd:
         image: ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
@@ -37,7 +34,11 @@ jobs:
           LOG_LEVEL: DEBUG
           PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
           PLUGIN_SETTINGS_CM_MANA_TOTAL: 15
-          REDIS_URL: redis://redis-svc:6379
+      
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
       - name: Checkout repository
@@ -57,7 +58,7 @@ jobs:
           CYPRESS_CTFD_NAME: ${{ env.NAME }}
           CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
           CYPRESS_CTFD_URL: "http://localhost:8000" 
-          CYPRESS_SCENARIO_PATH: "${{ github.workspace }}/hack/deploy/demo-deploy.zip"
+          CYPRESS_SCENARIO: "registry:5000/examples/deploy:latest"
           CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:8080/api/v1"
           CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "10"
       

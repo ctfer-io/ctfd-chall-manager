@@ -19,9 +19,11 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:v0.4.3@sha256:786ff5ad78a52fab78b25c75957d0f2f46790647321f3d1863c97f12768092fc
+        image: ctferio/chall-manager:v0.5.0@sha256:a197c53b5b64b91ec4397d90c81e3a43808c1349ef5eec38bb611a074d9d11a2
         ports:
           - 8080:8080
+        env:
+          OCI_INSECURE: true
 
       redis-svc:
         image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
@@ -40,6 +42,11 @@ jobs:
           REDIS_URL: redis://redis-svc:6379
           WORKERS: 2
           SECRET_KEY: ctfer
+
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
       - name: Checkout repository
@@ -74,6 +81,7 @@ jobs:
           admin_name: ${{ env.NAME }}
           admin_email: ctfer-io@protonmail.com
           admin_password: ${{ env.PASSWORD }}
+          accounts_incorrect_submissions_per_minute: 9999
 
       - name: Run Functional Tests in mode Users
         run: |- 
