@@ -186,7 +186,13 @@ class UserInstance(Resource):
         logger.info(f"user {sourceId} request GET on challenge {challengeId}")
 
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)        
+            sourceId = current_user.get_current_user().team_id
+            # If user has no team
+            if not sourceId:
+                logger.info(f"user {current_user.get_current_user().id} has no team, abort")
+                return {'success': False, 'data': {
+                'message': "Unauthorized"
+            }}
 
         if not challengeId or not sourceId:
             logger.warning("Missing argument: challengeId or sourceId")
@@ -238,7 +244,13 @@ class UserInstance(Resource):
         sourceId = str(current_user.get_current_user().id)
         logger.info(f"user {sourceId} request instance creation of challenge {challengeId}")
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)
+            sourceId = current_user.get_current_user().team_id
+            # If user has no team
+            if not sourceId:
+                logger.info(f"user {current_user.get_current_user().id} has no team, abort")
+                return {'success': False, 'data': {
+                'message': "Unauthorized"
+            }}
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
         if challenge.shared:
@@ -319,7 +331,13 @@ class UserInstance(Resource):
         sourceId = str(current_user.get_current_user().id)
         logger.info(f"user {sourceId} request instance update of challenge {challengeId}")
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)
+            sourceId = current_user.get_current_user().team_id
+            # If user has no team
+            if not sourceId:
+                logger.info(f"user {current_user.get_current_user().id} has no team, abort")
+                return {'success': False, 'data': {
+                'message': "Unauthorized"
+            }}
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
         if challenge.shared:
@@ -375,7 +393,13 @@ class UserInstance(Resource):
         sourceId = str(current_user.get_current_user().id)
         logger.info(f"user {sourceId} requests instance destroy of challenge {challengeId}")
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)
+            sourceId = current_user.get_current_user().team_id
+            # If user has no team
+            if not sourceId: 
+                logger.info(f"user {current_user.get_current_user().id} has no team, abort")
+                return {'success': False, 'data': {
+                'message': "Unauthorized"
+            }} 
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challengeId).first()
         if challenge.shared:
@@ -417,7 +441,13 @@ class UserMana(Resource):
     def get():
         sourceId = str(current_user.get_current_user().id)
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)
+            sourceId = current_user.get_current_user().team_id
+            # If user has no team
+            if not sourceId:
+                logger.info(f"user {current_user.get_current_user().id} has no team, abort")
+                return {'success': False, 'data': {
+                'message': "Unauthorized"
+            }}
 
         try:
             lock = load_or_store(f"{sourceId}")

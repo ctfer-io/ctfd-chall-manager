@@ -1,9 +1,4 @@
 
-// selector for update-strategy
-function displayUpdateStrategy() {
-  document.getElementById('update-strategy-div').style.display = 'block'; 
-}
-
 // convert Local into UTC
 document.getElementById('until-input-local').addEventListener('change', function() {
   console.log("pouet")
