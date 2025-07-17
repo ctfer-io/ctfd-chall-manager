@@ -21,8 +21,8 @@ def create_instance(challengeId: int, sourceId: int) -> requests.Response | Exce
     url = f"{cm_api_url}/instance"
 
     payload = {
-        "challengeId": challengeId,
-        "sourceId": sourceId
+        "challengeId": str(challengeId),
+        "sourceId": str(sourceId)
     }
 
     headers = {
