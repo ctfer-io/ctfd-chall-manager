@@ -1,6 +1,6 @@
 services:
   ctfd:
-    image: ctferio/ctfd:nightly # TODO change this to the 3.7.7-0.4.0 once published
+    image: ctferio/ctfd:3.7.7-0.4.0
     ports:
       - 8000:8000
     environment:
@@ -12,7 +12,6 @@ services:
   chall-manager:
     image: ctferio/chall-manager:v0.5.0 # TODO configure dependabot to monitor this tag
     environment:
-      SWAGGER: true
       OCI_INSECURE: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Used by the example scenario, remove if unecessary
