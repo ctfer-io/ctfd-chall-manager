@@ -7,6 +7,8 @@ hack/.env
 hack/config/main
 
 hack/deploy/main
+hack/docker-scenario/main
+hack/docker-scenario/Pulumi.*.yaml
 
 test/test_bruteforce.py
 dist/
