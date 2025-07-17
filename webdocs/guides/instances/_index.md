@@ -1,5 +1,5 @@
 ---
-title: Instances
+title: Monitor instances
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 4
