@@ -441,7 +441,13 @@ class UserMana(Resource):
     def get():
         sourceId = str(current_user.get_current_user().id)
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)
+            sourceId = current_user.get_current_user().team_id
+            # If user has no team
+            if not sourceId:
+                logger.info(f"user {current_user.get_current_user().id} has no team, abort")
+                return {'success': False, 'data': {
+                'message': "Unauthorized"
+            }}
 
         try:
             lock = load_or_store(f"{sourceId}")
