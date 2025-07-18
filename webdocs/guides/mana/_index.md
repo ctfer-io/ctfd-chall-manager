@@ -1,9 +1,9 @@
 ---
-title: Mana
+title: Monitor mana
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 5
-description: >
+description: |
     Monitor mana usage.
 tags: [Administration]
 categories: [How-to Guides]

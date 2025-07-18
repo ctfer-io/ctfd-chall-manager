@@ -1,9 +1,9 @@
 ---
-title: Challenge
+title: Change challenge attributes
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 2
-description: >
+description: |
     Manage your dynamic_iac challenge.
 tags: [Administration]
 categories: [How-to Guides]
@@ -25,18 +25,9 @@ When you arrive on the modification page, the value displayed is the one configu
 {{% imgproc challenge-sharing Fit "800x800" %}}
 {{% /imgproc %}}
 
-By editing this value, you trigger instances destruction, see workflow belows:
+If you switch to a shared challenge mode, you need to deploy it from the panel. See the [associated documentation](docs/ctfd-chall-manager/guides/panel/#deploy-a-shared-instance).
 
-```mermaid
-flowchart LR
-    A[Update] --> B
-    B[Update on CTFd backend] --> C 
-    C{challenge is shared ?} 
-    C -->|True|F[Destroy all instances]
-    C -->|False| E[Destroy the shared instance] 
-    E --> H[Send update payload to CM]
-    F --> H
-```
+Additionally, you will need to manually destroy instances that are no longer in use, or wait for them to be automatically deleted if a timeout or until condition has been configured.
 
 ## Change the destroy on flag 
 When you arrive on the modification page, the value displayed is the one configured at the challenge level.
@@ -53,7 +44,8 @@ When you arrive on the modification page, the value displayed is the one configu
 {{% /imgproc %}}
 
 By editing this value, you do not edit the existing coupons of this challenge. 
-Also, you can organize sales periods.
+
+This allows you to organize sales periods if you want to.
 
 ## Change Timeout 
 When you arrive on the modification page, the value displayed is the one configured at the challenge level.

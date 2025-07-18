@@ -1,10 +1,10 @@
 ---
-title: Settings
+title: Configure plugin
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 1
-description: >
-    Manage the plugin settings.
+description: |
+    Manage the plugin settings to communicate with Chall-Manager.
 tags: [Administration]
 categories: [How-to Guides]
 ---
@@ -22,7 +22,7 @@ To configure the plugin at CTFd startup, you can use the next environment variab
 | PLUGIN_SETTINGS_CM_MANA_TOTAL 	| 0                            	| Maximum mana that source are allowed to use 	|
 
 {{% alert title="Note" color="primary" %}}
-The environment variable lookup is triggered at CTFd first startup. To modify settings, you need to change it on CTFd UI.
+The environment variable lookup is triggered at CTFd first startup and insert in database. **To modify settings, you need to change it on CTFd UI**.
 {{% /alert %}}
 
 ## Configure in UI

@@ -8,7 +8,7 @@
 </div>
 
 > [!CAUTION]
-> CTFd-chall-Manager is currently in public beta phase.
+> CTFd-chall-manager is currently in public beta phase.
 > It could be run in production, but breaking changes are subject to happen in the upcoming months until General Availability.
 > 
 > It has been tested under production workload during the NoBrackets 2024.
