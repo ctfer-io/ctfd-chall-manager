@@ -14,7 +14,7 @@ categories: [How-to Guides]
 
 ## Goal
 
-In this tutorial, we will create a `dynamic_iac` challenge, a new challenge type introduced by the plugin. We will create a challenge where each player gets their own instance. We want an instance to cost 2 mana units, must be destroyed after 10 minutes without a maximum due date.
+In this tutorial, we will create a `dynamic_iac` challenge, a new challenge type introduced by the plugin. We will create a challenge where each player gets their own instance. We want an instance without mana cost, must be destroyed after 10 minutes without a maximum due date.
 
 {{% alert title="Note" color="primary" %}}
 If you are unfamiliar with the new attributes of the `dynamic_iac` challenge type, please refer to the related [design](/docs/ctfd-chall-manager/design). For guidance on maintenance operations (e.g., modifying challenge attributes), please refer to the relevant [guides](/docs/ctfd-chall-manager/guides). For details on the Infra-as-Code scenario, consult the appropriate [documentation](/docs/chall-manager/challmaker-guides).
@@ -80,9 +80,9 @@ Next, disable the *Destroy on Flag*:
 {{% imgproc create_challenge_destroy-on-flag Fit "800x800" %}}
 {{% /imgproc %}}
 
-Next, set the mana cost. Players will need to spend 2 mana to deploy their own instance of the challenge:
+Next, set the mana cost. You can leave it empty or configure an explicit 0.
 
-{{% imgproc create_challenge_mana_cost_2 Fit "800x800" %}}
+{{% imgproc create_challenge_mana_cost_0 Fit "800x800" %}}
 {{% /imgproc %}}
 
 As mentioned, we want instances to be destroyed after 10 minutes of usage (600 seconds), without any due date:
@@ -129,7 +129,7 @@ To monitor instances directly from CTFd, go to the instance monitoring page at [
 
 In this guide, you have successfully set up a `dynamic_iac` challenge using the `CTFd-chall-manager` plugin. You learned how to create a CTF platform, build and push a scenario to a local registry, and configure a challenge on CTFd. You also explored how to deploy and manage instances of the challenge on demand.
 
-By following these steps, you now have a functional challenge that allows each player to have their own instance, with specific mana costs and timeout settings. This setup leverages the capabilities of Chall-Manager to provide a dynamic and scalable environment for CTF challenges.
+By following these steps, you now have a functional challenge that allows each player to have their own instance, with specific mana costs and timeout settings. This setup leverages the capabilities of Chall-Manager to provide a dynamic environment for CTF challenges."
 
 ## What's Next
 
