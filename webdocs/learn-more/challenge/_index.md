@@ -71,4 +71,4 @@ Find more info [here](/docs/chall-manager/design/expiration).
 
 ### Scenario
 
-The **scenario** is the registry OCI URL reference that Chall-Manager will download and use as scenario.
+The **scenario** is the registry OCI reference that Chall-Manager will download and use as scenario.

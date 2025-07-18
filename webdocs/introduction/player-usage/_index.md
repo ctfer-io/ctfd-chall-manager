@@ -1,4 +1,3 @@
-
 ---
 title: What Players Will See
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager

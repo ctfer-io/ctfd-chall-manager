@@ -27,7 +27,7 @@ This tutorial requires the installation of [Docker](https://docs.docker.com/engi
 ##### Step 1 - Start the Services
 
 {{% alert title="Note" color="primary" %}}
-The `docker-compose.yml` file **should not be used in production as is** because the architecture is not secure by default (certificates, HA, passwords, etc.). This installation will serve as an example in this tutorial and will give you a working base to get started with the plugin without a heavy production installation.
+The `docker-compose.yml` file **should not be used in production as is** because the architecture is not secure by default and prod-ready (certificates, HA, passwords, etc.). This installation will serve as an example in this tutorial and will give you a working base to get started with the plugin without a heavy production installation.
 For a "prod-ready" installation, refer to the following tools: [ctfer](https://github.com/ctfer-io/ctfer) or [fullchain](https://github.com/ctfer-io/fullchain).
 {{% /alert %}}
 

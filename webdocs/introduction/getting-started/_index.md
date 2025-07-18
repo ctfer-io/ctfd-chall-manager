@@ -1,4 +1,3 @@
-
 ---
 title: Getting Started
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
@@ -15,7 +14,7 @@ categories: [How-to Guides]
 
 ## Goal
 
-In this tutorial, we will create a `dynamic_iac` challenge, a new challenge type introduced by the plugin. We will create a challenge where each player gets their own instance. We want that the instance will cost users 2 mana units, must be destroyed after 10 minutes without a maximum due date.
+In this tutorial, we will create a `dynamic_iac` challenge, a new challenge type introduced by the plugin. We will create a challenge where each player gets their own instance. We want an instance to cost 2 mana units, must be destroyed after 10 minutes without a maximum due date.
 
 {{% alert title="Note" color="primary" %}}
 If you are unfamiliar with the new attributes of the `dynamic_iac` challenge type, please refer to the related [design](/docs/ctfd-chall-manager/design). For guidance on maintenance operations (e.g., modifying challenge attributes), please refer to the relevant [guides](/docs/ctfd-chall-manager/guides). For details on the Infra-as-Code scenario, consult the appropriate [documentation](/docs/chall-manager/challmaker-guides).
@@ -23,7 +22,7 @@ If you are unfamiliar with the new attributes of the `dynamic_iac` challenge typ
 
 ## Prerequisites
 
-This tutorial requires the installation of [Docker](https://docs.docker.com/engine/install/), [Docker Compose](https://docs.docker.com/compose/install/linux/), [Golang](https://go.dev/doc/install), and [Oras](https://oras.land/docs/installation).
+This tutorial requires the installation of [Docker](https://docs.docker.com/engine/install/), [Docker Compose](https://docs.docker.com/compose/install/linux/), [Golang](https://go.dev/doc/install), and [ORAS](https://oras.land/docs/installation).
 
 ## Create the CTF Platform
 
@@ -128,10 +127,10 @@ To monitor instances directly from CTFd, go to the instance monitoring page at [
 
 ## Conclusion
 
-In this guide, you have successfully set up a `dynamic_iac` challenge using the `ctfd-chall-manager` plugin. You learned how to create a CTF platform, build and push a scenario to a local registry, and configure a challenge on CTFd. You also explored how to deploy and manage instances of the challenge on demand.
+In this guide, you have successfully set up a `dynamic_iac` challenge using the `CTFd-chall-manager` plugin. You learned how to create a CTF platform, build and push a scenario to a local registry, and configure a challenge on CTFd. You also explored how to deploy and manage instances of the challenge on demand.
 
 By following these steps, you now have a functional challenge that allows each player to have their own instance, with specific mana costs and timeout settings. This setup leverages the capabilities of Chall-Manager to provide a dynamic and scalable environment for CTF challenges.
 
 ## What's Next
 
-For further customization and advanced configurations, refer to the [design documentation](/docs/ctfd-chall-manager/design), [maintenance guides](/docs/ctfd-chall-manager/guides), and [Chall-Maker documentation](/docs/chall-manager/challmaker-guides). These resources will help you deepen your understanding and optimize your challenge setup.
+For further customization and advanced configurations, refer to the [design documentation](/docs/ctfd-chall-manager/design), [maintenance guides](/docs/ctfd-chall-manager/guides), and [ChallMaker documentation](/docs/chall-manager/challmaker-guides). These resources will help you deepen your understanding and optimize your challenge setup.

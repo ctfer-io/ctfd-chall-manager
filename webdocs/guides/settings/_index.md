@@ -4,7 +4,7 @@ github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 1
 description: >
-    Manage the plugin settings to communicate the Chall-Manager.
+    Manage the plugin settings to communicate with Chall-Manager.
 tags: [Administration]
 categories: [How-to Guides]
 ---
