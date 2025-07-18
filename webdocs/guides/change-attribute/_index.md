@@ -3,7 +3,7 @@ title: Change challenge attributes
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 2
-description: >
+description: |
     Manage your dynamic_iac challenge.
 tags: [Administration]
 categories: [How-to Guides]

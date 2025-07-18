@@ -3,7 +3,7 @@ title: Quickstart
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 2
-description: >
+description: |
   A short guide on setting up a simple CTFd with Chall-Manager setup locally with Docker.
 resources:
 - src: "**.png"

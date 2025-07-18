@@ -3,7 +3,7 @@ title: Monitor instances
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 4
-description: >
+description: |
     Monitor and Manage instances.
 tags: [Administration]
 categories: [How-to Guides]

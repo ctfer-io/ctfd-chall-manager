@@ -3,7 +3,7 @@ title: Testing
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 5
-description: >
+description: |
     Learn how we test the plugin.
 tags: [Testing, Security]
 categories: [Explanations]

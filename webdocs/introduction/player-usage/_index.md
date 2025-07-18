@@ -2,7 +2,7 @@
 title: What Players Will See
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
-description: >
+description: |
   Visualize what the player will see during your CTF.
 weight: 4
 resources:

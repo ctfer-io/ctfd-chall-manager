@@ -3,7 +3,7 @@ title: Getting Started
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 3
-description: >
+description: |
   Create a challenge that deploys a Docker image and understand basic configuration.
 resources:
   - src: "**.png"

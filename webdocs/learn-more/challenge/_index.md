@@ -3,7 +3,7 @@ title: Challenge
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 2
-description: >
+description: |
     Learn how we design the *dynamic_iac* challenge.
 categories: [Explanations]
 ---

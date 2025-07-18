@@ -2,8 +2,8 @@
 title: Why the plugin exists
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
-description: >
-A quick introduction to what CTFd-chall-manager is and why it should be used.
+description: |
+    A quick introduction to what CTFd-chall-manager is and why it should be used.
 weight: 1
 resources:
 - src: "**.png"

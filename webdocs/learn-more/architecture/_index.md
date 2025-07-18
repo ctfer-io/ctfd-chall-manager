@@ -3,7 +3,7 @@ title: Architecture
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 1
-description: >
+description: |
     Learn how we design the plugin.
 tags: [Architecture]
 categories: [Explanations]

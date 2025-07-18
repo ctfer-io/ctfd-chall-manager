@@ -3,7 +3,7 @@ title: Mana
 github_repo: https://github.com/ctfer-io/ctfd-chall-manager
 github_project_repo: https://github.com/ctfer-io/ctfd-chall-manager
 weight: 4
-description: >
+description: |
     Discover how we designed *mana* to prevent infrastructure overload.
 tags: [Mana, anticheat]
 categories: [Explanations]
