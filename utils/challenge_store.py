@@ -142,30 +142,13 @@ def update_challenge(id: int, *args) -> requests.Response:
     if len(args) != 0:
         if type(args[0]) is not dict:
             logger.error("Invalid arguments provided for updating challenge")
-            raise Exception(f"Error deleting challenge: {e}")
+            raise Exception(f"Error deleting challenge")
 
         payload = args[0]
 
     logger.debug(f"Updating challenge with id={id}")
 
-    updateMask = []
-
-    if "timeout" in payload.keys():
-        updateMask.append("timeout")
-
-    if "until" in payload.keys():
-        updateMask.append("until")
-
-    if "additional" in payload.keys():
-        updateMask.append("additional")
-
-    if "min" in payload.keys():
-        updateMask.append("min")
-    
-    if "max" in payload.keys():
-        updateMask.append("max")
-
-    payload["updateMask"] = ",".join(updateMask)
+    payload["updateMask"] = ",".join(k for k in ("timeout", "until", "additional", "min", "max") if k in payload)
 
     logger.debug(f"updating challenge {id} with updateMask {payload['updateMask']}")
 

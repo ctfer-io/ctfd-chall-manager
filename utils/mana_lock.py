@@ -19,7 +19,7 @@ class ManaLock():
     def __init__(self, name: str):
         self.name = name
 
-        self.rw = None
+        self.rw = RWLock(None)
         if rw_lock:
             logger.debug("experimental rwlock configured")
             self.rw = RWLock(name)

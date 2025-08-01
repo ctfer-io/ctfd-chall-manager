@@ -6,7 +6,6 @@ from CTFd.exceptions.challenges import (  # type: ignore
 )
 from CTFd.models import (  # type: ignore
     Flags,
-    Files,
     db,
 )
 from CTFd.plugins.challenges import BaseChallenge  # type: ignore
@@ -24,8 +23,6 @@ from .utils.challenge_store import (
 from .utils.instance_manager import delete_instance, get_instance
 from .utils.logger import configure_logger
 
-import os
-import base64
 import json
 
 logger = configure_logger(__name__)
@@ -129,11 +126,11 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 try:
                     # Attempt to parse the string as JSON
                     data["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
                     logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
                     raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
             elif not isinstance(data["additional"], dict):
-                raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+                raise ChallengeCreateException(f"An exception occurred while decoding additional configuration, found {data['additional']}")
 
 
 
@@ -149,10 +146,16 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             "scenario": challenge.scenario,
         }
         if "timeout" in data.keys():
-            params["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
+            if data["timeout"] == None:
+                params["timeout"] = None # must explicitely define it as we append a "s" elseway
+            else:
+                params["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
         if "until" in data.keys():
-            params["until"] = f"{data['until']}"
+            if data["until"] == None:
+                params["until"] = None
+            else:
+                params["until"] = f"{data['until']}"
 
         if "min" in data.keys():
             try:
@@ -223,6 +226,11 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         """
         data = request.form or request.get_json()
 
+        # lint the plugin attributes by removing empty values
+        for key in list(data.keys()): # use list(data.keys()) to prevent RuntimeError
+            if key in ["mana_cost", "until", "timeout", "shared", "destroy_on_flag", "scenario", "min", "max"] and data[key] == "":
+                data.pop(key)
+
         if "shared" in data.keys():
             data["shared"] = convert_to_boolean(data["shared"])
 
@@ -239,11 +247,11 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         params = {}
         if "until" not in data.keys():
             params["until"] = None
-            setattr(challenge, "until", "")
+            setattr(challenge, "until", None)
 
         if "timeout" not in data.keys():
             params["timeout"] = None
-            setattr(challenge, "timeout", "")
+            setattr(challenge, "timeout", None)
 
         # convert string into dict in CTFd
         if "additional" in data.keys():
@@ -251,11 +259,11 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 try:
                     # Attempt to parse the string as JSON
                     data["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
                     logger.error(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
                     raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
             elif not isinstance(data["additional"], dict):
-                raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}")
+                raise ChallengeUpdateException(f"An exception occurred while decoding additional configuration, found {data['additional']}")
 
         # don't touch this
         for attr, value in data.items():
@@ -266,13 +274,15 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # Patch Challenge on CM
         if "timeout" in data.keys():
-            params["timeout"] = None
-            if data["timeout"] != "":
+            if data["timeout"] == None:
+                params["timeout"] = None # must explicitely define it as we append a "s" elseway
+            else:
                 params["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
         if "until" in data.keys():
-            params["until"] = None
-            if data["until"] != "":
+            if data["until"] == None:
+                params["until"] = None
+            else:
                 params["until"] = f"{data['until']}"
 
         if "additional" in data.keys():
@@ -345,9 +355,9 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         submission = data["submission"].strip()  # user input
 
         # check userMode of CTFd
-        sourceId = str(current_user.get_current_user().id)
+        sourceId = int(current_user.get_current_user().id)
         if get_config("user_mode") == "teams":
-            sourceId = str(current_user.get_current_user().team_id)
+            sourceId = int(current_user.get_current_user().team_id)
 
         # CM Plugins extension
         if challenge.shared:
