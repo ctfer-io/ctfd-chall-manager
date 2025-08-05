@@ -30,15 +30,15 @@ base_challenge = {
 
 class Test_F_Challenges(unittest.TestCase):
     def test_create_challenge_with_all_params(self):
-        chall_id = create_challenge(shared="true", destroy_on_flag="true", until="2222-02-22T21:22:00Z", additional={"test": "test"}, min=1, max=2, timeout=2222)
+        chall_id = create_challenge(shared=True, destroy_on_flag=True, until="2222-02-22T21:22:00Z", additional={"test": "test"}, min=1, max=2, timeout=2222)
 
         r = requests.get(f"{config.ctfd_url}/api/v1/challenges/{chall_id}", headers=config.headers_admin)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True) 
-
+ 
         self.assertEqual(a["data"]["shared"], True)
-        self.assertEqual(a["data"]["destroy_on_flag"], True) 
-        self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00Z") 
+        self.assertEqual(a["data"]["destroy_on_flag"], True)
+        self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00Z")
         self.assertEqual(a["data"]["timeout"], 2222)
         self.assertEqual(a["data"]["scenario"], config.scenario)
         self.assertEqual(a["data"]["additional"], {"test": "test"})
@@ -50,15 +50,15 @@ class Test_F_Challenges(unittest.TestCase):
 
 
     def test_create_challenge_with_mandatory_params(self):
-        # create a challenge with mandatory params (scenario is the only one)
+        # Create a challenge with mandatory params (scenario is the only one)
         chall_id = create_challenge()
 
         r = requests.get(f"{config.ctfd_url}/api/v1/challenges/{chall_id}", headers=config.headers_admin)
-        a = json.loads(r.text)        
-        self.assertEqual(a["success"], True) 
-        self.assertEqual(a["data"]["scenario"], config.scenario) 
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["scenario"], config.scenario)
 
-        # check on default values
+        # Check default values
         self.assertEqual(a["data"]["shared"], False)
         self.assertEqual(a["data"]["destroy_on_flag"], False)
         self.assertEqual(a["data"]["until"], None)
@@ -67,6 +67,7 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["data"]["min"], 0)
         self.assertEqual(a["data"]["max"], 0)
 
+        # Then set other ones
         payload = {
             "shared": "true",
             "destroy_on_flag": "true",
@@ -81,7 +82,7 @@ class Test_F_Challenges(unittest.TestCase):
         a = json.loads(r.text)        
         self.assertEqual(a["success"], True)
 
-        # check on update params
+        # Check updated values
         self.assertEqual(a["success"], True) 
         self.assertEqual(a["data"]["shared"], True)
         self.assertEqual(a["data"]["destroy_on_flag"], True) 
@@ -90,8 +91,22 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["data"]["additional"], {"test": "test"})
         self.assertEqual(a["data"]["min"], 1)
         self.assertEqual(a["data"]["max"], 2)
+
+        # Then reset date ones (regression of #163)
+        payload = {
+            "until": None,
+            "timeout": None,
+        }
+
+        r = requests.patch(f"{config.ctfd_url}/api/v1/challenges/{chall_id}", headers=config.headers_admin, data=json.dumps(payload))
+        a = json.loads(r.text)        
+        self.assertEqual(a["success"], True)
+
+        # Check updated values
+        self.assertEqual(a["data"]["until"], None) 
+        self.assertEqual(a["data"]["timeout"], None)
         
-        # clean testing environment
+        # Finally, clean the testing environment
         delete_challenge(chall_id)
 
     def test_cannot_create_challenge_if_no_scenario(self):

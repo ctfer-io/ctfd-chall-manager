@@ -106,7 +106,7 @@
 		</small>
 	</label>
 	<input type="datetime-local" id="until-input-local" data-test-id="until-create-id" class="form-control">
-	<input type="hidden" id="until-input-utc" class="form-control" name="until" {% if challenge.until != "" %}value={{challenge.until}}{% endif %}>
+	<input type="hidden" id="until-input-utc" class="form-control" name="until" {% if challenge.until is not none %}value={{challenge.until}}{% endif %}>
 </div>
 
 <div id="cm-mode-timeout" class="form-group">
@@ -115,7 +115,7 @@
 			Timeout: Define a timeout that the instance will be destroyed by the janitor (e.g 600s for 10 min)
 		</small>
 	</label>
-	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout" {% if challenge.timeout != "" %}value={{challenge.timeout}}{% endif %}>
+	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout" {% if challenge.timeout is not none %}value={{challenge.timeout}}{% endif %}>
 </div>
 
 <div class="form-group">
