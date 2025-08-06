@@ -1,9 +1,23 @@
+"""
+This modules implements RWLock with Writer preference system based on https://dl.acm.org/doi/pdf/10.1145/362759.362813 (Problem 2).
+
+Classes:
+    RWLockInterface: An abstract base class for read-write lock interfaces.
+    ThreadingRWLock: A concrete implementation of RWLockInterface using threading locks.
+    RedisRWLock: A concrete implementation of RWLockInterface using Redis locks.
+
+Functions:
+    RWLock: A factory function that returns an instance of either ThreadingRWLock or RedisRWLock
+            based on the availability of a Redis URL.
+"""
+
+from abc import ABC, abstractmethod
 import threading
 import os
-from .logger import configure_logger
 import redis
-from redis.lock import Lock
 from redis.exceptions import LockError
+
+from .logger import configure_logger # type: ignore
 
 logger = configure_logger(__name__)
 
@@ -15,8 +29,51 @@ if REDIS_URL:
 else:
     logger.info("Local lock configured successfully")
 
-class ThreadingRWLock:
-    def __init__(self, name):
+class RWLockInterface(ABC):
+    """
+    An abstract base class for read-write lock interfaces.
+    """
+
+    @abstractmethod
+    def r_lock(self) -> None:
+        """
+        Acquire a read lock.
+        """
+        pass
+
+    @abstractmethod
+    def r_unlock(self) -> None:
+        """
+        Release a read lock.
+        """
+        pass
+
+    @abstractmethod
+    def rw_lock(self) -> None:
+        """
+        Acquire a read-write lock.
+        """
+        pass
+
+    @abstractmethod
+    def rw_unlock(self) -> None:
+        """
+        Release a read-write lock.
+        """
+        pass
+
+
+class ThreadingRWLock(RWLockInterface):
+    """
+    A concrete implementation of RWLockInterface using threading locks.
+    This class must be used **only** on a standalone CTFd instance. 
+    """
+    def __init__(self, name: str):
+        """
+        Initialize the ThreadingRWLock with a name.
+
+        ``name`` (str): The name of the lock.
+        """
         self.name = name
 
         self.m1 = threading.Lock()
@@ -29,7 +86,7 @@ class ThreadingRWLock:
         self.rcounter = int(0)
         self.wcounter = int(0)
 
-    def r_lock(self):
+    def r_lock(self) -> None:
         try:
             self.m3.acquire()
             self.r.acquire()
@@ -45,7 +102,7 @@ class ThreadingRWLock:
             self.r.release()
             self.m3.release()
 
-    def r_unlock(self):
+    def r_unlock(self) -> None:
         try:
             self.m1.acquire()
 
@@ -57,7 +114,7 @@ class ThreadingRWLock:
         finally:
             self.m1.release()
  
-    def rw_lock(self):
+    def rw_lock(self) -> None:
         try:
             self.m2.acquire()
 
@@ -71,7 +128,7 @@ class ThreadingRWLock:
             self.w.acquire()
             
 
-    def rw_unlock(self):
+    def rw_unlock(self) -> None:
         try:
             self.w.release()
             self.m2.acquire()
@@ -86,8 +143,17 @@ class ThreadingRWLock:
 
 
 
-class RedisRWLock():
-    def __init__(self, name):
+class RedisRWLock(RWLockInterface):
+    """
+    A concrete implementation of RWLockInterface using Redis locks.
+    This class can be used for standalone or multiple CTFd instances for synchronization among instances.   
+    """
+    def __init__(self, name: str):
+        """
+        Initialize the RedisRWLock with a name.
+
+        ``name`` (str): The name of the lock.
+        """
         self.name = name
 
         # https://dl.acm.org/doi/pdf/10.1145/362759.362813
@@ -99,7 +165,7 @@ class RedisRWLock():
         self.r = redis_client.lock(name=f"{name}_r", thread_local=False)
         self.w = redis_client.lock(name=f"{name}_w", thread_local=False)
 
-    def r_lock(self):
+    def r_lock(self) -> None:
         try:
             self.m3.acquire()
             self.r.acquire()
@@ -121,7 +187,7 @@ class RedisRWLock():
             self.r.release()
             self.m3.release()
 
-    def r_unlock(self):
+    def r_unlock(self) -> None:
         try:
             self.m1.acquire()
 
@@ -136,7 +202,7 @@ class RedisRWLock():
         finally:
             self.m1.release()
 
-    def rw_lock(self):
+    def rw_lock(self) -> None:
         try:
             self.m2.acquire()
 
@@ -155,7 +221,7 @@ class RedisRWLock():
             self.m2.release()
             self.w.acquire()    
 
-    def rw_unlock(self):
+    def rw_unlock(self) -> None:
         logger.debug(f"{self.name}_rw unlocked")
         try:
             self.w.release()
@@ -171,11 +237,18 @@ class RedisRWLock():
         finally:
             self.m2.release()
 
-class RWLock():
-    def __new__(cls, name):
-        if REDIS_URL:
-            logger.debug(f"initiate RedisRWLock for {name}")
-            return RedisRWLock(name)
-        else:
-            logger.debug(f"initiate ThreadingRWLock for {name}")
-            return ThreadingRWLock(name)
+def RWLock(name: str) -> RWLockInterface:
+    """
+    A factory function that returns an instance of either ThreadingRWLock or RedisRWLock
+    based on the availability of a Redis URL.
+
+    ``name`` (str): The name of the lock.
+
+    Return an instance of either ThreadingRWLock or RedisRWLock.
+    """    
+    if REDIS_URL:
+        logger.debug(f"initiate RedisRWLock for {name}")
+        return RedisRWLock(name)
+    else:
+        logger.debug(f"initiate ThreadingRWLock for {name}")
+        return ThreadingRWLock(name)
