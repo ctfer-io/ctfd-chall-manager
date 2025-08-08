@@ -1,7 +1,6 @@
 import json
 from flask import Blueprint, render_template, request
 import requests
-from urllib.parse import urlparse
 
 from CTFd.api import CTFd_API_v1  # type: ignore
 from CTFd.plugins import register_plugin_assets_directory  # type: ignore
