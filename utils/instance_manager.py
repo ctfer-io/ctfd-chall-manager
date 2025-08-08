@@ -18,7 +18,7 @@ def create_instance(challengeId: int, sourceId: int) -> requests.Response | Exce
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/instance"
+    url = f"{cm_api_url}/api/v1/instance"
 
     payload = {
         "challengeId": str(challengeId),
@@ -57,7 +57,7 @@ def delete_instance(challengeId: int , sourceId: int) -> requests.Response | Exc
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/instance/{challengeId}/{sourceId}"
+    url = f"{cm_api_url}/api/v1/instance/{challengeId}/{sourceId}"
 
     logger.debug(f"Deleting instance for challengeId={challengeId}, sourceId={sourceId}")
 
@@ -85,7 +85,7 @@ def get_instance(challengeId: int, sourceId: int) -> requests.Response | Excepti
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/instance/{challengeId}/{sourceId}"
+    url = f"{cm_api_url}/api/v1/instance/{challengeId}/{sourceId}"
 
     logger.debug(f"Getting instance information for challengeId={challengeId}, sourceId={sourceId}")
 
@@ -113,7 +113,7 @@ def update_instance(challengeId: int, sourceId: int) -> requests.Response | Exce
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/instance/{challengeId}/{sourceId}"
+    url = f"{cm_api_url}/api/v1/instance/{challengeId}/{sourceId}"
 
     payload = {}
 
@@ -147,7 +147,7 @@ def query_instance(sourceId: int) -> list | Exception:
     """
     
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/instance?sourceId={sourceId}"
+    url = f"{cm_api_url}/api/v1/instance?sourceId={sourceId}"
 
     s = requests.Session()
 

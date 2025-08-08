@@ -10,7 +10,7 @@ logger = configure_logger(__name__)
 def setup_default_configs():
     logger.debug("configure plugin")
 
-    default_cm_api_url = "http://localhost:8080/api/v1"
+    default_cm_api_url = "http://localhost:8080"
     default_cm_mana_total = 0
 
     # Load varenv
@@ -18,7 +18,7 @@ def setup_default_configs():
 
     # Validate cm_api_url
     parsed_url = urlparse(cm_api_url)
-    if not (parsed_url.scheme in ['http', 'https'] and parsed_url.path == '/api/v1'):
+    if not (parsed_url.scheme in ['http'] ):
         logger.warning(f"Invalid PLUGIN_SETTINGS_CM_API_URL, got {cm_api_url}. Falling back to default.")
         cm_api_url = default_cm_api_url
 

@@ -10,7 +10,7 @@ services:
       - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
     environment:
       LOG_LEVEL: DEBUG
-      PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
+      PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080
       PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
     depends_on:
       - chall-manager
