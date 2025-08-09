@@ -13,7 +13,7 @@ def query_challenges() -> list:
     :return list: list of challenges [{ . }, { . }]
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/challenge"
+    url = f"{cm_api_url}/api/v1/challenge"
     s = requests.Session()
     result = []
 
@@ -43,7 +43,7 @@ def create_challenge(id: int, *args) -> requests.Response:
     :return Response: of chall-manager API
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/challenge"
+    url = f"{cm_api_url}/api/v1/challenge"
 
     headers = {
         "Content-Type": "application/json"
@@ -84,7 +84,7 @@ def delete_challenge(id: int) -> requests.Response:
     :return Response: of chall-manager API
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/challenge/{id}"
+    url = f"{cm_api_url}/api/v1/challenge/{id}"
 
     logger.debug(f"Deleting challenge with id={id}")
 
@@ -105,7 +105,7 @@ def get_challenge(id: int) -> requests.Response:
     :return Response: of chall-manager API
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/challenge/{id}"
+    url = f"{cm_api_url}/api/v1/challenge/{id}"
 
     logger.debug(f"Getting challenge information for id={id}")
 
@@ -131,7 +131,7 @@ def update_challenge(id: int, *args) -> requests.Response:
     :return Response: of chall-manager API
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    url = f"{cm_api_url}/challenge/{id}"
+    url = f"{cm_api_url}/api/v1/challenge/{id}"
 
     headers = {
         "Content-Type": "application/json"

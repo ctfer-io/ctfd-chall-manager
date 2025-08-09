@@ -69,7 +69,8 @@ def load(app):
         
         try:
             logger.debug("getting connection status with chall-manager")
-            requests.get(get_config("chall-manager:chall-manager_api_url"), timeout=5)
+            health_url = f'{get_config("chall-manager:chall-manager_api_url")}/healthcheck'
+            requests.get(health_url, timeout=5).raise_for_status()
         except Exception as e:
             logger.warning(f"cannot communicate with CM provided got {e}")
             cm_api_reachable = False

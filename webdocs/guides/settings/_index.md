@@ -18,7 +18,7 @@ To configure the plugin at CTFd startup, you can use the next environment variab
 
 | Variable                      	| Default                      	| Description                                 	|
 |-------------------------------	|------------------------------	|---------------------------------------------	|
-| PLUGIN_SETTINGS_CM_API_URL    	| http://localhost:8080/api/v1 	| URL of Chall-Manager API                    	|
+| PLUGIN_SETTINGS_CM_API_URL    	| http://localhost:8080      	| URL of Chall-Manager API                    	|
 | PLUGIN_SETTINGS_CM_MANA_TOTAL 	| 0                            	| Maximum mana that source are allowed to use 	|
 
 {{% alert title="Note" color="primary" %}}
