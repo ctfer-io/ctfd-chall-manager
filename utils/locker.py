@@ -165,14 +165,17 @@ class RedisRWLock(RWLockInterface):
         self.r = redis_client.lock(name=f"{name}_r", thread_local=False)
         self.w = redis_client.lock(name=f"{name}_w", thread_local=False)
 
+        if redis_client.get(f"{self.name}_readcount") is None:
+            redis_client.set(f"{self.name}_readcount", 0)
+
+        if redis_client.get(f"{self.name}_writecount") is None:
+            redis_client.set(f"{self.name}_writecount", 0)
+
     def r_lock(self) -> None:
         try:
             self.m3.acquire()
             self.r.acquire()
             self.m1.acquire()
-
-            if redis_client.get(f"{self.name}_readcount") == None:
-                redis_client.set(f"{self.name}_readcount", 0)
 
             redis_client.incr(f"{self.name}_readcount")
 
@@ -194,7 +197,7 @@ class RedisRWLock(RWLockInterface):
             redis_client.decr(f"{self.name}_readcount")
 
             if int(redis_client.get(f"{self.name}_readcount")) == 0:
-                self.w.release()
+                redis_client.delete(f"{self.name}_w")
 
         except LockError as e:
             logger.warning(f"Failed to release lock due to error: {str(e)}")
@@ -206,30 +209,27 @@ class RedisRWLock(RWLockInterface):
         try:
             self.m2.acquire()
 
-            if redis_client.get(f"{self.name}_writecount") == None:
-                redis_client.set(f"{self.name}_writecount", 0)
-
             redis_client.incr(f"{self.name}_writecount")
 
             if int(redis_client.get(f"{self.name}_writecount")) == 1:
-                self.r.acquire()            
+                self.r.acquire()
 
         except LockError as e:
             logger.warning(f"Failed to acquire lock due to error: {str(e)}")
 
         finally:
             self.m2.release()
-            self.w.acquire()    
+            self.w.acquire()
 
     def rw_unlock(self) -> None:
         logger.debug(f"{self.name}_rw unlocked")
         try:
-            self.w.release()
+            redis_client.delete(f"{self.name}_w")
             self.m2.acquire()
 
             redis_client.decr(f"{self.name}_writecount")
             if int(redis_client.get(f"{self.name}_writecount")) == 0:
-                self.r.release()
+                redis_client.delete(f"{self.name}_r")
 
         except LockError as e:
             logger.warning(f"Failed to release lock due to error: {str(e)}")
