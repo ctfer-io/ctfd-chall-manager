@@ -1,6 +1,6 @@
 services:
   ctfd:
-    image: ctferio/ctfd:3.7.7-0.4.0
+    image: ctferio/ctfd:latest
     ports:
       - 8000:8000
     environment:
