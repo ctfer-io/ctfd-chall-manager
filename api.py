@@ -260,9 +260,9 @@ class UserInstance(Resource):
             }} 
         
         # check if sourceId can launch the instance
-
         try:
             lock = load_or_store(f"{sourceId}")
+            logger.debug(f"post /instance acquire the player lock for {sourceId}")
             lock.player_lock()
 
             if cm_mana_total > 0:
@@ -303,6 +303,7 @@ class UserInstance(Resource):
             }}
 
         finally:
+            logger.debug(f"post /instance release the player lock for {sourceId}")
             lock.player_unlock()
 
         # return only necessary values
@@ -410,11 +411,18 @@ class UserInstance(Resource):
 
         try:
             lock = load_or_store(f"{sourceId}")
+            logger.debug(f"delete /instance acquire the player lock for {sourceId}")
             lock.player_lock()
 
             logger.debug(f"Deleting instance for challengeId: {challengeId}, sourceId: {sourceId}")
             r = delete_instance(challengeId, sourceId)
             logger.info(f"Instance for challengeId: {challengeId}, sourceId: {sourceId} deleted successfully.")
+
+            if cm_mana_total > 0:
+                logger.debug(f"Deleting coupon for challengeId: {challengeId}, sourceId: {sourceId}")
+                delete_coupon(challengeId, sourceId)
+                logger.info(f"Coupon deleted for challengeId: {challengeId}, sourceId: {sourceId}")
+
         except Exception as e:
             logger.error(f"Error while deleting instance: {e}")
             return {'success': False, 'data': {
@@ -422,13 +430,8 @@ class UserInstance(Resource):
             }}
 
         finally:
-            logger.debug(f"/mana release the {sourceId}_r lock")
+            logger.debug(f"delete /instance release the player lock for {sourceId}")
             lock.player_unlock()
-
-        if cm_mana_total > 0:
-            logger.debug(f"Deleting coupon for challengeId: {challengeId}, sourceId: {sourceId}")
-            delete_coupon(challengeId, sourceId)
-            logger.info(f"Coupon deleted for challengeId: {challengeId}, sourceId: {sourceId}")
 
         return {'success': True, 'data': {}}
 
@@ -451,11 +454,13 @@ class UserMana(Resource):
 
         try:
             lock = load_or_store(f"{sourceId}")
+            logger.debug(f"get /mana acquire the player lock for {sourceId}")
             lock.player_lock()
 
             mana = get_source_mana(sourceId)
             logger.debug(f"Retrieved mana for sourceId: {sourceId}, mana: {mana}")
         finally:
+            logger.debug(f"get /mana release the player lock for {sourceId}")
             lock.player_unlock()
 
         return {'success': True, 'data': {
