@@ -16,7 +16,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 logger = configure_logger(__name__)
 
 
-class ManaCoupon(db.Model):
+class ManaCoupon(db.Model):  # pylint: disable=too-few-public-methods
     """
     ManaCoupon class contains the metadata for a coupons to associate source_id and challenge_id.
     """
@@ -28,7 +28,9 @@ class ManaCoupon(db.Model):
     mana_used = db.Column(db.Integer)
 
     def __repr__(self):
-        return f"<ManaCoupon challenge_id: {self.challenge_id} source_id: {self.source_id} ManaCost:{self.mana_used}>"
+        return f"<ManaCoupon challenge_id: {self.challenge_id} \
+        source_id: {self.source_id} \
+        ManaCost:{self.mana_used}>"
 
 
 def create_coupon(challenge_id: int, source_id: int):
