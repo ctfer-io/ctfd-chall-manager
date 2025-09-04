@@ -87,7 +87,7 @@ def load(app):
                 f'{get_config("chall-manager:chall-manager_api_url")}/healthcheck'
             )
             requests.get(health_url, timeout=5).raise_for_status()
-        except requests.HTTPError as e:
+        except Exception as e:
             logger.warning("cannot communicate with CM provided got %s", e)
             cm_api_reachable = False
         else:

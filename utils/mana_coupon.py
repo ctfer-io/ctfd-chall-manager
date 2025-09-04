@@ -91,7 +91,7 @@ def get_source_mana(source_id: int) -> int:
     for c in coupons:
         exists = False
         for i in instances:
-            if int(i["challenge_id"]) == int(c.challenge_id):
+            if int(i["challengeId"]) == int(c.challenge_id):
                 exists = True
                 break
 

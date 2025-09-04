@@ -242,7 +242,7 @@ class AdminInstance(Resource):
             }, 500
 
         finally:
-            logger.debug("admin_unlock %d", lock)
+            logger.debug("admin_unlock %s", lock)
             lock.admin_unlock()
 
         return {"success": True, "data": json.loads(r.text)}, 200
@@ -876,6 +876,7 @@ def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionErr
     return: dict of {"user_id", "team_id", "source_id", "challenge_id"}
     """
     team_id = 0
+    admin_id = 0
 
     user = current_user.get_current_user()
     if user is None:  # unauthenticated
@@ -883,8 +884,11 @@ def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionErr
         # TODO check if the Error is relevant with @admin_only / @auth_only wrappers
     user_id = int(user.id)
 
+    if admin:
+        admin_id = user_id
+
     # If GET
-    if not request.is_json():
+    if not request.is_json:
         challenge_id = request.args.get("challengeId")
         source_id = request.args.get("sourceId")
     else:  # If POST/PATCH/DELETE
@@ -905,6 +909,7 @@ def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionErr
             source_id = team_id
 
     return {
+        "admin_id": admin_id,
         "user_id": user_id,
         "team_id": team_id,
         "source_id": source_id,

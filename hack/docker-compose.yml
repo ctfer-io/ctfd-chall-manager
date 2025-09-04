@@ -32,6 +32,7 @@ services:
       OCI_INSECURE: true
     volumes:
       - ~/.kube/config:/tmp/config:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - testing
 

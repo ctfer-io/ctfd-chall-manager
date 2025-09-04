@@ -52,6 +52,9 @@ class ManaLock:
             logger.debug("redis client found, use distributed cache")
             self.gr = REDIS_CLIENT.lock(name=f"{name}_gr", thread_local=False)
 
+    def __repr__(self):
+        return f"ManaLock name={self.name}"
+
     def player_lock(self):
         """
         Acquires the lock for a player.
