@@ -20,7 +20,6 @@ from CTFd.models import (
 )
 from CTFd.plugins.flags import FlagException, get_flag_class
 from CTFd.utils import user as current_user
-from CTFd.utils import get_config
 from CTFd.utils.config import is_teams_mode
 from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge
 

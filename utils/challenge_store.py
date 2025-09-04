@@ -37,7 +37,7 @@ def query_challenges() -> list:
         logger.debug("successfully queried challenges: %s", result)
     except Exception as e:
         logger.error("error querying challenges: %s", e)
-        raise Exception("connectionError: %S", e)
+        raise Exception("connectionError: %s", e)
 
     return result
 
