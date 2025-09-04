@@ -422,7 +422,8 @@ class UserInstance(Resource):
     UserInstance class handle CRUD operation for /instance API endpoint.
     To use methods, you need to be authenticated with user capable permission on CTFd.
     The sourceId cannot be defined as long as the current will be retrieve from flask session.
-    If CTFd is configured as Team mode, the sourceId will be replaced by the team_id of the current user.
+    If CTFd is configured as Team mode, the sourceId will be replaced by
+    the team_id of the current user.
     """
 
     @staticmethod
@@ -888,10 +889,10 @@ def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionErr
         admin_id = user_id
 
     # If GET
-    if not request.is_json:
-        challenge_id = request.args.get("challengeId")
-        source_id = request.args.get("sourceId")
-    else:  # If POST/PATCH/DELETE
+    challenge_id = request.args.get("challengeId")
+    source_id = request.args.get("sourceId")
+
+    if challenge_id is None or source_id is None:  # If POST/PATCH/DELETE
         data = request.get_json()
         challenge_id = data.get("challengeId")
         source_id = data.get("sourceId")
