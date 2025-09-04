@@ -20,15 +20,19 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     create_instance,
     delete_instance,
     get_instance,
-    update_instance )
+    update_instance,
+)
 
 from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import (
     create_coupon,
     delete_coupon,
-    get_source_mana )
+    get_source_mana,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import ChallManagerException
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+)
 from CTFd.plugins.ctfd_chall_manager.decorators import challenge_visible
 
 
@@ -46,21 +50,19 @@ def handle_default(err):
     Handler for namespaces error
     """
     logger.error("Unexpected error: %s", err)
-    return {
-        'success': False,
-        'message': 'Unexpected things happened'
-    }, 500
+    return {"success": False, "message": "Unexpected things happened"}, 500
 
 
 # region AdminInstance
 # Resource to monitor all instances
-@admin_namespace.route('/instance')
+@admin_namespace.route("/instance")
 class AdminInstance(Resource):
     """
     AdminInstance class handles CRUD operation for /admin/instance API endpoint.
     This class bypasses the mana verification and Admins can create or destroy instances for Users.
     Required to be authenticated with an admins capable account.
     """
+
     @staticmethod
     @admins_only
     def get():
@@ -77,38 +79,59 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-        except PermissionError: # TODO check if this PermissionError is relevant with @admin_only wrapper
-            return {'success': False, 'data': {
-                'message': "unauthenticad admin user",
-            }}, 403
+
+        # TODO check if this PermissionError is relevant with @admin_only wrapper
+        except PermissionError:
+            return {
+                "success": False,
+                "data": {
+                    "message": "unauthenticad admin user",
+                },
+            }, 403
         except ValueError:
-            return {'success': False, 'data': {
-                'message': "missing challengeId or sourceId",
-            }}, 400
+            return {
+                "success": False,
+                "data": {
+                    "message": "missing challengeId or sourceId",
+                },
+            }, 400
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {'success': False, 'data': {
-                'message': "internal server error: cannot load challenge_id or admin_id",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": "internal server error: cannot load challenge_id or admin_id",
+                },
+            }, 500
 
-        logger.info("Admin %s get instance info for challenge_id: %s, source_id: %s",
-                    admin_id, challenge_id, source_id)
+        logger.info(
+            "Admin %s get instance info for challenge_id: %s, source_id: %s",
+            admin_id,
+            challenge_id,
+            source_id,
+        )
 
         try:
-            logger.debug("getting instance for challenge_id: %s, source_id: %s",
-                        challenge_id, source_id)
+            logger.debug(
+                "getting instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
 
             r = get_instance(challenge_id, source_id)
             logger.info("instance retrieved successfully: %s", json.loads(r.text))
-        except Exception as e: # TODO: lint too general exception
+        except Exception as e:  # TODO: lint too general exception
             logger.error("error while communicating with CM: %s", e)
-            return {'success': False, 'data': {
-                'message': f"error while communicating with CM : {e}",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": f"error while communicating with CM : {e}",
+                },
+            }, 500
 
-        return {'success': True, 'data': json.loads(r.text)}, 200
+        return {"success": True, "data": json.loads(r.text)}, 200
 
     @staticmethod
     @admins_only
@@ -127,24 +150,38 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-        except PermissionError: # TODO check if this PermissionError is relevant with @admin_only wrapper
-            return {'success': False, 'data': {
-                'message': "unauthenticad admin user",
-            }}, 403
+        # TODO check if this PermissionError is relevant with @admin_only wrapper
+        except PermissionError:
+            return {
+                "success": False,
+                "data": {
+                    "message": "unauthenticad admin user",
+                },
+            }, 403
         except ValueError:
-            return {'success': False, 'data': {
-                'message': "missing challengeId or sourceId",
-            }}, 400
+            return {
+                "success": False,
+                "data": {
+                    "message": "missing challengeId or sourceId",
+                },
+            }, 400
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {'success': False, 'data': {
-                'message': "internal server error: cannot load challenge_id or admin_id",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": "internal server error: cannot load challenge_id or admin_id",
+                },
+            }, 500
 
-        logger.info("admin %s request instance creation for challenge_id: %s, source_id: %s",
-                    admin_id, challenge_id, source_id)
+        logger.info(
+            "admin %s request instance creation for challenge_id: %s, source_id: %s",
+            admin_id,
+            challenge_id,
+            source_id,
+        )
 
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
 
@@ -154,40 +191,61 @@ class AdminInstance(Resource):
 
             if cm_mana_total > 0:
                 create_coupon(challenge_id, source_id)
-                logger.info("coupon created for challenge_id: %s, source_id: %s",
-                            challenge_id, source_id)
+                logger.info(
+                    "coupon created for challenge_id: %s, source_id: %s",
+                    challenge_id,
+                    source_id,
+                )
 
-            logger.debug("creating instance for challenge_id: %s, source_id: %s",
-                        challenge_id, source_id)
+            logger.debug(
+                "creating instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
 
             r = create_instance(challenge_id, source_id)
-            logger.info("instance for challenge_id: %s, source_id: %s created successfully",
-                        challenge_id, source_id)
+            logger.info(
+                "instance for challenge_id: %s, source_id: %s created successfully",
+                challenge_id,
+                source_id,
+            )
 
         except ChallManagerException as e:
             if "already exist" in e.message:
-                return {'success': False, 'data': {
-                    'message': "instance already exist",
-                }}, 200
-            return {'success': False, 'data': {
-                    'message': e.message,
-                }}, 500
+                return {
+                    "success": False,
+                    "data": {
+                        "message": "instance already exist",
+                    },
+                }, 200
+            return {
+                "success": False,
+                "data": {
+                    "message": e.message,
+                },
+            }, 500
 
-        except Exception as e: # TODO lint: too general exception
+        except Exception as e:  # TODO lint: too general exception
             logger.error("error while creating instance: %s", e)
             if cm_mana_total > 0:
                 delete_coupon(challenge_id, source_id)
-                logger.info("coupon deleted for challenge_id: %s, source_id: %s",
-                            challenge_id, source_id)
-            return {'success': False, 'data': {
-                'message': f"Error while communicating with CM : {e}",
-            }}, 500
+                logger.info(
+                    "coupon deleted for challenge_id: %s, source_id: %s",
+                    challenge_id,
+                    source_id,
+                )
+            return {
+                "success": False,
+                "data": {
+                    "message": f"Error while communicating with CM : {e}",
+                },
+            }, 500
 
         finally:
             logger.debug("admin_unlock %d", lock)
             lock.admin_unlock()
 
-        return {'success': True, 'data': json.loads(r.text)}, 200
+        return {"success": True, "data": json.loads(r.text)}, 200
 
     @staticmethod
     @admins_only
@@ -207,39 +265,62 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-        except PermissionError: # TODO check if this PermissionError is relevant with @admin_only wrapper
-            return {'success': False, 'data': {
-                'message': "unauthenticad admin user",
-            }}, 403
+        # TODO check if this PermissionError is relevant with @admin_only wrapper
+        except PermissionError:
+            return {
+                "success": False,
+                "data": {
+                    "message": "unauthenticad admin user",
+                },
+            }, 403
         except ValueError:
-            return {'success': False, 'data': {
-                'message': "missing challengeId or sourceId",
-            }}, 400
+            return {
+                "success": False,
+                "data": {
+                    "message": "missing challengeId or sourceId",
+                },
+            }, 400
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {'success': False, 'data': {
-                'message': "internal server error: cannot load challenge_id or admin_id",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": "internal server error: cannot load challenge_id or admin_id",
+                },
+            }, 500
 
-        logger.info("admin %s request instance update for challenge_id: %s, source_id: %s",
-                    admin_id, challenge_id, source_id)
+        logger.info(
+            "admin %s request instance update for challenge_id: %s, source_id: %s",
+            admin_id,
+            challenge_id,
+            source_id,
+        )
 
         try:
-            logger.debug("updating instance for challenge_id: %s, source_id: %s",
-                         challenge_id, source_id)
+            logger.debug(
+                "updating instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
 
             r = update_instance(challenge_id, source_id)
-            logger.info("instance for challenge_id: %s, source_id: %s updated successfully",
-                        challenge_id, source_id)
+            logger.info(
+                "instance for challenge_id: %s, source_id: %s updated successfully",
+                challenge_id,
+                source_id,
+            )
         except Exception as e:  # TODO lint: too general exception
             logger.error("error while updating instance: %s", e)
-            return {'success': False, 'data': {
-                'message': f"Error while communicating with CM : {e}",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": f"Error while communicating with CM : {e}",
+                },
+            }, 500
 
-        return {'success': True, 'data': json.loads(r.text)}, 200
+        return {"success": True, "data": json.loads(r.text)}, 200
 
     @staticmethod
     @admins_only
@@ -258,53 +339,79 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-        except PermissionError: # TODO check if this PermissionError is relevant with @admin_only wrapper
-            return {'success': False, 'data': {
-                'message': "unauthenticad admin user",
-            }}, 403
+        # TODO check if this PermissionError is relevant with @admin_only wrapper
+        except PermissionError:
+            return {
+                "success": False,
+                "data": {
+                    "message": "unauthenticad admin user",
+                },
+            }, 403
         except ValueError:
-            return {'success': False, 'data': {
-                'message': "missing challengeId or sourceId",
-            }}, 400
+            return {
+                "success": False,
+                "data": {
+                    "message": "missing challengeId or sourceId",
+                },
+            }, 400
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {'success': False, 'data': {
-                'message': "internal server error: cannot load challenge_id or admin_id",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": "internal server error: cannot load challenge_id or admin_id",
+                },
+            }, 500
 
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
 
-        logger.info("admin %s request instance delete for challenge_id: %s, source_id: %s",
-                    admin_id, challenge_id, source_id)
+        logger.info(
+            "admin %s request instance delete for challenge_id: %s, source_id: %s",
+            admin_id,
+            challenge_id,
+            source_id,
+        )
 
         try:
             lock = load_or_store(f"{source_id}")
             lock.admin_lock()
 
-            logger.debug("deleting instance for challenge_id: %s, source_id: %s",
-                         challenge_id, source_id)
+            logger.debug(
+                "deleting instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
             r = delete_instance(challenge_id, source_id)
-            logger.info("instance for challenge_id: %s, source_id: %s delete successfully",
-                        challenge_id, source_id)
+            logger.info(
+                "instance for challenge_id: %s, source_id: %s delete successfully",
+                challenge_id,
+                source_id,
+            )
 
             if cm_mana_total > 0:
                 delete_coupon(challenge_id, source_id)
-                logger.info("coupon deleted for challenge_id: %s, source_id: %s",
-                            challenge_id, source_id)
+                logger.info(
+                    "coupon deleted for challenge_id: %s, source_id: %s",
+                    challenge_id,
+                    source_id,
+                )
 
         except Exception as e:  # TODO lint: too general exception
             logger.error("error while deleting instance: %s", e)
-            return {'success': False, 'data': {
-                'message': "error while communicating with CM : {e}",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": "error while communicating with CM : {e}",
+                },
+            }, 500
 
         finally:
             logger.debug(f"admin_unlock {lock}")
             lock.admin_unlock()
 
-        return {'success': True, 'data': json.loads(r.text)}, 200
+        return {"success": True, "data": json.loads(r.text)}, 200
 
 
 # region UserInstance
@@ -317,6 +424,7 @@ class UserInstance(Resource):
     The sourceId cannot be defined as long as the current will be retrieve from flask session.
     If CTFd is configured as Team mode, the sourceId will be replaced by the team_id of the current user.
     """
+
     @staticmethod
     @authed_only
     @challenge_visible
@@ -324,16 +432,14 @@ class UserInstance(Resource):
         """
         Retrieve instance informations of challengeId provided on Chall-Manager.
         """
-        # mandatory     
+        # mandatory
         challenge_id = request.args.get("challengeId")
 
         # check userMode of CTFd
         user = current_user.get_current_user()
         if user is None:
             logger.info()
-            return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         user_id = user.id
         source_id = user_id
@@ -344,15 +450,16 @@ class UserInstance(Resource):
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+                return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         if not challenge_id or not source_id:
             logger.warning("Missing argument: challenge_id or source_id")
-            return {'success': False, 'data': {
-                'message': "Missing argument : challenge_id or source_id",
-            }}, 403
+            return {
+                "success": False,
+                "data": {
+                    "message": "Missing argument : challenge_id or source_id",
+                },
+            }, 403
 
         # if challenge is shared
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
@@ -360,29 +467,35 @@ class UserInstance(Resource):
             source_id = 0
 
         try:
-            logger.debug("getting instance for challenge_id: %s, source_id: %s",
-                         challenge_id, source_id)
+            logger.debug(
+                "getting instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
             r = get_instance(challenge_id, source_id)
             logger.info("instance retrieved successfully : %s", json.loads(r.text))
-        except Exception as e: # TODO: lint too general exception
+        except Exception as e:  # TODO: lint too general exception
             logger.error("error while getting instance: {e}")
-            return {'success': False, 'data': {
-                'message': f"Error while communicating with CM : {e}",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": f"Error while communicating with CM : {e}",
+                },
+            }, 500
 
         # return only necessary values
         data = {}
         result = json.loads(r.text)
-        if 'connectionInfo' in result.keys():
-            data['connectionInfo'] = result['connectionInfo']
+        if "connectionInfo" in result.keys():
+            data["connectionInfo"] = result["connectionInfo"]
 
-        if 'until' in result.keys():
-            data['until'] = result['until']
+        if "until" in result.keys():
+            data["until"] = result["until"]
 
-        if 'since' in result.keys():
-            data['since'] = result['since']
+        if "since" in result.keys():
+            data["since"] = result["since"]
 
-        return {'success': True, 'data': data}, 200
+        return {"success": True, "data": data}, 200
 
     @staticmethod
     @authed_only
@@ -390,40 +503,38 @@ class UserInstance(Resource):
     def post():
         """
         Create an instance of challengeId provided on Chall-Manager.
-        This method requires user to be authenticated and has suffisant mana to perform creation. 
+        This method requires user to be authenticated and has suffisant mana to perform creation.
         """
         data = request.get_json()
         challenge_id = data.get("challengeId")
 
         user = current_user.get_current_user()
         if user is None:
-            return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         user_id = int(user.id)
         source_id = user_id
-        logger.info("user %s request instance creation of challenge %s",
-                    source_id, challenge_id)
+        logger.info(
+            "user %s request instance creation of challenge %s", source_id, challenge_id
+        )
         # check userMode of CTFd
         if is_teams_mode():
             source_id = user.team_id
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+                return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         # retrieve all instance deployed by chall-manager
-        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")       
+        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
         if challenge.shared:
-            logger.warning("unauthorized attempt to create sharing instance challenge_id: %s, source_id: %s",
-                            challenge_id, source_id)
-            return {'success': False, 'data': {
-              'message': "unauthorized"
-            }}, 403
+            logger.warning(
+                "unauthorized attempt to create sharing instance challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         # check if source_id can launch the instance
         try:
@@ -438,40 +549,69 @@ class UserInstance(Resource):
                 source_mana = get_source_mana(int(source_id))
 
                 if source_mana + challenge.mana_cost > cm_mana_total:
-                    logger.warning("source_id %s does not have the necessary mana", source_id)
-                    return {'success': False, 'data': {
-                        'message': "You or your team used up all your mana. \
+                    logger.warning(
+                        "source_id %s does not have the necessary mana", source_id
+                    )
+                    return (
+                        {
+                            "success": False,
+                            "data": {
+                                "message": "You or your team used up all your mana. \
                             You must recover mana by destroying instances of other challenges to continue.",
-                    }}, 403
+                            },
+                        },
+                        403,
+                    )
 
-            logger.debug("creating instance for challenge_id: %s, source_id: %s",
-                         challenge_id, source_id)
+            logger.debug(
+                "creating instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
             r = create_instance(challenge_id, source_id)
-            logger.info("instance for challenge_id: %s, source_id: %s created successfully",
-                        challenge_id, source_id)
+            logger.info(
+                "instance for challenge_id: %s, source_id: %s created successfully",
+                challenge_id,
+                source_id,
+            )
 
             # create a new coupon
             if cm_mana_total > 0:
-                logger.debug("creating coupon for challenge_id: %s, source_id: %s",
-                        challenge_id, source_id)
+                logger.debug(
+                    "creating coupon for challenge_id: %s, source_id: %s",
+                    challenge_id,
+                    source_id,
+                )
                 create_coupon(challenge_id, source_id)
-                logger.info("coupon for challenge_id: %s, source_id: %s created successfully",
-                        challenge_id, source_id)
+                logger.info(
+                    "coupon for challenge_id: %s, source_id: %s created successfully",
+                    challenge_id,
+                    source_id,
+                )
 
         except ChallManagerException as e:
             if "already exist" in e.message:
-                return {'success': False, 'data': {
-                    'message': "instance already exist",
-                }}, 200
-            return {'success': False, 'data': {
-                'message': f"{e.message}",
-            }}, 500
+                return {
+                    "success": False,
+                    "data": {
+                        "message": "instance already exist",
+                    },
+                }, 200
+            return {
+                "success": False,
+                "data": {
+                    "message": f"{e.message}",
+                },
+            }, 500
 
-        except Exception as e: # TODO: lint too general exception
+        except Exception as e:  # TODO: lint too general exception
             logger.error("error while creating instance: %s", e)
-            return {'success': False, 'data': {
-                'message': f"Error while communicating with CM : {e}",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": f"Error while communicating with CM : {e}",
+                },
+            }, 500
 
         finally:
             logger.debug("post /instance release the player lock for %s", source_id)
@@ -480,16 +620,16 @@ class UserInstance(Resource):
         # return only necessary values
         data = {}
         result = json.loads(r.text)
-        if 'connectionInfo' in result.keys():
-            data['connectionInfo'] = result['connectionInfo']
+        if "connectionInfo" in result.keys():
+            data["connectionInfo"] = result["connectionInfo"]
 
-        if 'until' in result.keys():
-            data['until'] = result['until']
+        if "until" in result.keys():
+            data["until"] = result["until"]
 
-        if 'since' in result.keys():
-            data['since'] = result['since']
+        if "since" in result.keys():
+            data["since"] = result["since"]
 
-        return {'success': True, 'data': data}, 200
+        return {"success": True, "data": data}, 200
 
     @staticmethod
     @authed_only
@@ -497,7 +637,7 @@ class UserInstance(Resource):
     def patch():
         """
         Renew instance on Chall-Manager.
-        If the challengeId provided  
+        If the challengeId provided
         """
         # mandatory
         data = request.get_json()
@@ -505,142 +645,168 @@ class UserInstance(Resource):
 
         user = current_user.get_current_user()
         if user is None:
-            return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         user_id = int(user.id)
         source_id = user_id
-        logger.info("user %s request instance renew of challenge %s",
-                    source_id, challenge_id)
+        logger.info(
+            "user %s request instance renew of challenge %s", source_id, challenge_id
+        )
         # check userMode of CTFd
         if is_teams_mode():
             source_id = user.team_id
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+                return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
         if challenge.shared:
-            logger.warning("unauthorized attempt to patch sharing instance challenge_id: %s, source_id: %s",
-                           challenge_id, source_id)
-            return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+            logger.warning(
+                "unauthorized attempt to patch sharing instance challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         if not challenge.timeout:
-            logger.warning("unauthorized attempt to patch non timeout instance challenge_id:%s, source_id: %s",
-                           challenge_id, source_id)
-            return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+            logger.warning(
+                "unauthorized attempt to patch non timeout instance challenge_id:%s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         if not challenge_id or not source_id:
             logger.warning("Missing argument: challenge_id or source_id")
-            return {'success': False, 'data': {
-                'message': "Missing argument : challenge_id or source_id",
-            }}, 400
+            return {
+                "success": False,
+                "data": {
+                    "message": "Missing argument : challenge_id or source_id",
+                },
+            }, 400
 
         try:
-            logger.debug("updating instance for challenge_id: %s, source_id: %s",
-                         challenge_id, source_id)
+            logger.debug(
+                "updating instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
             r = update_instance(challenge_id, source_id)
-            logger.info("instance for challenge_id: %s, source_id: %s updated successfully",
-                        challenge_id, source_id)
+            logger.info(
+                "instance for challenge_id: %s, source_id: %s updated successfully",
+                challenge_id,
+                source_id,
+            )
         except ChallManagerException as e:
-            return {'success': False, 'data': {
-                'message': f"{e.message}",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": f"{e.message}",
+                },
+            }, 500
 
         except Exception as e:  # TODO: lint too general exception
             logger.error("error while updating instance: %s", e)
-            return {'success': False, 'data': {
-                'message': f"error while communicating with CM : {e}",
-            }}, 500
-
+            return {
+                "success": False,
+                "data": {
+                    "message": f"error while communicating with CM : {e}",
+                },
+            }, 500
 
         msg = "Your instance has been renewed !"
         a = json.loads(r.text)
 
         if challenge.until and challenge.timeout:
-            if challenge.until  == a["until"]:
-                msg = "You have renewed your instance, but it can't be renewed anymore !"
+            if challenge.until == a["until"]:
+                msg = (
+                    "You have renewed your instance, but it can't be renewed anymore !"
+                )
 
-        return {'success': True, 'data': {
-            'message': msg
-        }}, 200
+        return {"success": True, "data": {"message": msg}}, 200
 
     @staticmethod
     @authed_only
     @challenge_visible
     def delete():
         """
-        Delete instance of the challengeId provided 
+        Delete instance of the challengeId provided
         """
         data = request.get_json()
         challenge_id = data.get("challengeId")
 
         user = current_user.get_current_user()
         if user is None:
-            return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         user_id = int(user.id)
         source_id = user_id
-        logger.info("user %s request instance delete of challenge %s",
-                    user_id, challenge_id)
+        logger.info(
+            "user %s request instance delete of challenge %s", user_id, challenge_id
+        )
         # check userMode of CTFd
         if is_teams_mode():
             source_id = user.team_id
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+                return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
         if challenge.shared:
-            logger.warning("unauthorized attempt to delete shared instance, challenge_id: %s, source_id: %s",
-                           challenge_id, source_id)
-            return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+            logger.warning(
+                "unauthorized attempt to delete shared instance, challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
+            return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         try:
             lock = load_or_store(f"{source_id}")
             logger.debug("delete /instance acquire the player lock for %s", source_id)
             lock.player_lock()
 
-            logger.debug("deleting instance for challenge_id: %s, source_id: %s",
-                         challenge_id, source_id)
+            logger.debug(
+                "deleting instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
             r = delete_instance(challenge_id, source_id)
-            logger.info("instance for challenge_id: %s, source_id: %s deleted successfully",
-                        challenge_id, source_id)
+            logger.info(
+                "instance for challenge_id: %s, source_id: %s deleted successfully",
+                challenge_id,
+                source_id,
+            )
 
             if cm_mana_total > 0:
-                logger.debug("deleting coupon for challenge_id: %s, source_id: %s",
-                             challenge_id, source_id)
+                logger.debug(
+                    "deleting coupon for challenge_id: %s, source_id: %s",
+                    challenge_id,
+                    source_id,
+                )
                 delete_coupon(challenge_id, source_id)
-                logger.info("coupon deleted for challenge_id: %s, source_id: %s",
-                            challenge_id, source_id)
+                logger.info(
+                    "coupon deleted for challenge_id: %s, source_id: %s",
+                    challenge_id,
+                    source_id,
+                )
 
-        except Exception as e: # TODO: lint too general exception
+        except Exception as e:  # TODO: lint too general exception
             logger.error("error while deleting instance: %s", e)
-            return {'success': False, 'data': {
-                'message': f"error while communicating with CM : {e}",
-            }}, 500
+            return {
+                "success": False,
+                "data": {
+                    "message": f"error while communicating with CM : {e}",
+                },
+            }, 500
 
         finally:
             logger.debug("delete /instance release the player lock for %s", source_id)
             lock.player_unlock()
 
-        return {'success': True, 'data': {}}, 200
+        return {"success": True, "data": {}}, 200
 
 
 # region UserMana
@@ -648,9 +814,10 @@ class UserInstance(Resource):
 class UserMana(Resource):
     """
     UserMana class handle R operation on /mana.
-    When the Player use /mana, all coupons will be updated or deleted regarding the 
-    actual informations on Chall-Manager. 
+    When the Player use /mana, all coupons will be updated or deleted regarding the
+    actual informations on Chall-Manager.
     """
+
     @staticmethod
     @authed_only
     def get():
@@ -660,24 +827,27 @@ class UserMana(Resource):
         If CTFd is in Team mode, the mana_used will be amound all players of a team.
         """
         # TODO: split GET and UPDATE /mana ? UPDATE = retrieve the real mana amount ?
-        mana_total = int(get_config('chall-manager:chall-manager_mana_total'))
+        mana_total = int(get_config("chall-manager:chall-manager_mana_total"))
 
         # If mana disabled, return 0 immediatly
-        if mana_total == 0 :
-            return {'success': True, 'data': {
-            'used': 0,
-            'total': 0,
-        }}, 200
+        if mana_total == 0:
+            return {
+                "success": True,
+                "data": {
+                    "used": 0,
+                    "total": 0,
+                },
+            }, 200
 
         source_id = str(current_user.get_current_user().id)
         if is_teams_mode():
             source_id = current_user.get_current_user().team_id
             # If user has no team
             if not source_id:
-                logger.info("user {current_user.get_current_user().id} has no team, abort")
-                return {'success': False, 'data': {
-                'message': "unauthorized"
-            }}, 403
+                logger.info(
+                    "user {current_user.get_current_user().id} has no team, abort"
+                )
+                return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         try:
             lock = load_or_store(f"{source_id}")
@@ -690,22 +860,25 @@ class UserMana(Resource):
             logger.debug("get /mana release the player lock for %s", source_id)
             lock.player_unlock()
 
-        return {'success': True, 'data': {
-            'used': mana,
-            'total': mana_total,
-        }}, 200
+        return {
+            "success": True,
+            "data": {
+                "used": mana,
+                "total": mana_total,
+            },
+        }, 200
 
 
-def retrieve_all_ids(admin=False)-> dict[str, int] | ValueError | PermissionError:
+def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionError:
     """
     This function return all ids for AdminInstance calls.
-    
+
     return: dict of {"user_id", "team_id", "source_id", "challenge_id"}
     """
     team_id = 0
 
     user = current_user.get_current_user()
-    if user is None: # unauthenticated
+    if user is None:  # unauthenticated
         raise PermissionError("cannot load current user")
         # TODO check if the Error is relevant with @admin_only / @auth_only wrappers
     user_id = int(user.id)
@@ -714,7 +887,7 @@ def retrieve_all_ids(admin=False)-> dict[str, int] | ValueError | PermissionErro
     if not request.is_json():
         challenge_id = request.args.get("challengeId")
         source_id = request.args.get("sourceId")
-    else: # If POST/PATCH/DELETE
+    else:  # If POST/PATCH/DELETE
         data = request.get_json()
         challenge_id = data.get("challengeId")
         source_id = data.get("sourceId")
@@ -731,7 +904,9 @@ def retrieve_all_ids(admin=False)-> dict[str, int] | ValueError | PermissionErro
             team_id = int(user.team_id)
             source_id = team_id
 
-    return {"user_id": user_id,
+    return {
+        "user_id": user_id,
         "team_id": team_id,
-        "source_id":  source_id,
-        "challenge_id": challenge_id}
+        "source_id": source_id,
+        "challenge_id": challenge_id,
+    }

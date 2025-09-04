@@ -18,7 +18,7 @@ services:
     networks:
       - testing
     volumes:
-      - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+      - ../:/opt/CTFd/CTFd/plugins/ctfd_chall_manager
       - uploads:/var/uploads
     environment:
       LOG_LEVEL: DEBUG
@@ -52,7 +52,7 @@ services:
     networks:
       - testing
     volumes:
-      - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+      - ../:/opt/CTFd/CTFd/plugins/ctfd_chall_manager
       - uploads:/var/uploads
     environment:
       LOG_LEVEL: DEBUG

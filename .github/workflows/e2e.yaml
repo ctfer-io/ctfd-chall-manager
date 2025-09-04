@@ -29,7 +29,7 @@ jobs:
         image: ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
         ports:
           - 8000:8000
-        options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+        options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd_chall_manager
         env:
           LOG_LEVEL: DEBUG
           PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080

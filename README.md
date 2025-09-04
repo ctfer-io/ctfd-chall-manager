@@ -50,7 +50,7 @@ Please [open an issue](https://github.com/ctfer-io/ctfd-chall-manager/issues/new
 To install and use the plugin, refer to the documentation at https://ctfer.io/docs/ctfd-chall-manager.
 
 # Limitations
-- Need to use the `core-beta` theme (cf https://github.com/CTFd/CTFd/pull/2630)
+- Need to use the `core-beta` or derivative theme (cf https://github.com/CTFd/CTFd/pull/2630)
 
 # Glossaries
 

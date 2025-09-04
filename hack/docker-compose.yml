@@ -7,7 +7,7 @@ services:
     networks:
       - testing
     volumes:
-      - ../:/opt/CTFd/CTFd/plugins/ctfd-chall-manager
+      - ../:/opt/CTFd/CTFd/plugins/ctfd_chall_manager
     environment:
       LOG_LEVEL: DEBUG
       PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080
