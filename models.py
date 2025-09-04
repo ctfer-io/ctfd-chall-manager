@@ -160,7 +160,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             except ValueError as e:
                 logger.error("max cannot be convert into int, got %s", data["max"])
                 raise ChallengeCreateException(
-                    f"max cannot be convert into int, got {data["max"]}"
+                    f"max cannot be convert into int, got {data['max']}"
                 ) from e
 
         # convert string into dict in CTFd
