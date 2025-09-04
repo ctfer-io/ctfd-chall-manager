@@ -1,10 +1,21 @@
-import requests
+# pylint: disable=missing-timeout
+"""
+This module defines the Config to use to tests cases and
+helper functions inside tests cases.
+"""
+
 import json
 import os
 import threading
+import requests
+
 
 class Config:
-    def __init__(self, **kwargs):
+    """
+    Config class purpose is to configure testing environemnt.
+    """
+
+    def __init__(self):
         self.ctfd_url = os.getenv("CTFD_URL", "http://localhost:8000")
         self.plugin_url = f"{self.ctfd_url}/api/v1/plugins/ctfd-chall-manager"
 
@@ -13,41 +24,55 @@ class Config:
 
         if not self.ctfd_token_user or not self.ctfd_token_admin:
             raise AttributeError("missing CTFD_API_TOKEN_USER or CTFD_API_TOKEN_ADMIN")
-        
+
         self.headers_admin = {
             "Accept": "application/json",
             "Authorization": f"Token {self.ctfd_token_admin}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
         self.headers_user = {
             "Accept": "application/json",
             "Authorization": f"Token {self.ctfd_token_user}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
         # This ref need to be pushed before start testing
         self.scenario = "registry:5000/examples/deploy:latest"
-        
-            
+
     def __repr__(self):
         return f"<Config {self.__dict__}>"
 
 
-
 config = Config()
 
-def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeout=None, until=None, additional={}, min=None, max=None, state="visible"):
+
+# pylint: disable=dangerous-default-value,too-many-arguments,too-many-positional-arguments
+# skipping linting for tests only function (will be fix later)
+def create_challenge(
+    shared=False,
+    destroy_on_flag=False,
+    mana_cost=None,
+    timeout=None,
+    until=None,
+    additional={},
+    pooler_min=None,
+    pooler_max=None,
+    state="visible",
+):
+    """
+    Create challenge based on arguments.
+    """
 
     payload = {
         "name": "test",
-        "category":"test",
-        "description":"test",
-        "initial":"500",
-        "function":"linear",
-        "decay":"10",
-        "minimum":"10",
-        "type":"dynamic_iac",
+        "category": "test",
+        "description": "test",
+        "initial": "500",
+        "function": "linear",
+        "decay": "10",
+        "minimum": "10",
+        "type": "dynamic_iac",
         "scenario": config.scenario,
         "shared": shared,
         "destroy_on_flag": destroy_on_flag,
@@ -58,11 +83,11 @@ def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeou
     if mana_cost:
         payload["mana_cost"] = mana_cost
 
-    if min:
-        payload["min"] = min
+    if pooler_min:
+        payload["min"] = pooler_min
 
-    if max:
-        payload["max"] = max
+    if pooler_max:
+        payload["max"] = pooler_max
 
     if timeout:
         payload["timeout"] = timeout
@@ -70,60 +95,117 @@ def create_challenge(shared=False, destroy_on_flag=False, mana_cost=None, timeou
     if until:
         payload["until"] = until
 
-    r = requests.post(f"{config.ctfd_url}/api/v1/challenges",  headers=config.headers_admin, data=json.dumps(payload))
+    r = requests.post(
+        f"{config.ctfd_url}/api/v1/challenges",
+        headers=config.headers_admin,
+        data=json.dumps(payload),
+    )
     a = json.loads(r.text)
-    if a["success"] != True:
-        raise Exception("error while setting up the testing environment, do not process") 
-    
+    if a["success"] is not True:
+        raise ValueError(
+            "error while setting up the testing environment, do not process"
+        )
+
     # return the chall_id
     return a["data"]["id"]
 
-def delete_challenge(challengeId):
-    r = requests.delete(f"{config.ctfd_url}/api/v1/challenges/{challengeId}",  headers=config.headers_admin)
+
+def delete_challenge(challenge_id: int):
+    """
+    Delete challenge based on challenge_id using user account.
+    """
+    r = requests.delete(
+        f"{config.ctfd_url}/api/v1/challenges/{challenge_id}",
+        headers=config.headers_admin,
+    )
     a = json.loads(r.text)
-    if a["success"] != True:
-        raise Exception("error while setting up the testing environment, do not process") 
+    if a["success"] is not True:
+        raise ValueError(
+            "error while setting up the testing environment, do not process"
+        )
+
 
 # region /instance
 # readable function to manipulate CRUD operation as user on /instance
-def post_instance(challengeId: int):
-    payload = {
-        "challengeId": f"{challengeId}"
-    }
-    r = requests.post(f"{config.plugin_url}/instance", headers=config.headers_user, data=json.dumps(payload))
+def post_instance(challenge_id: int):
+    """
+    Create an instance of challenge_id using user account.
+    """
+    payload = {"challengeId": f"{challenge_id}"}
+    r = requests.post(
+        f"{config.plugin_url}/instance",
+        headers=config.headers_user,
+        data=json.dumps(payload),
+    )
     return r
 
-def get_instance(challengeId: int):
-    r = requests.get(f"{config.plugin_url}/instance?challengeId={challengeId}",  headers=config.headers_user)
+
+def get_instance(challenge_id: int):
+    """
+    Retrieve informations on given challenge_id using user account.
+    """
+    r = requests.get(
+        f"{config.plugin_url}/instance?challengeId={challenge_id}",
+        headers=config.headers_user,
+    )
     return r
 
-def get_admin_instance(challengeId: int, sourceId: int):
-    r = requests.get(f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",  headers=config.headers_admin)
+
+def get_admin_instance(challenge_id: int, source_id: int):
+    """
+    Retrive instance information from the challenge_id and source_id using admin account.
+    """
+    r = requests.get(
+        f"{config.plugin_url}/admin/instance?challengeId={challenge_id}&sourceId={source_id}",
+        headers=config.headers_admin,
+    )
     return r
 
-def delete_instance(challengeId: int):
-    payload = {
-        "challengeId": f"{challengeId}"
-    }
-    r = requests.delete(f"{config.plugin_url}/instance",  headers=config.headers_user, data=json.dumps(payload))
+
+def delete_instance(challenge_id: int):
+    """
+    Delete instance of challenge_id using user account.
+    """
+    payload = {"challengeId": f"{challenge_id}"}
+    r = requests.delete(
+        f"{config.plugin_url}/instance",
+        headers=config.headers_user,
+        data=json.dumps(payload),
+    )
     return r
 
-def patch_instance(challengeId: int): 
-    payload = {
-        "challengeId": f"{challengeId}"
-    }
-    r = requests.patch(f"{config.plugin_url}/instance",  headers=config.headers_user, data=json.dumps(payload))
+
+def patch_instance(challenge_id: int):
+    """
+    Renew instance of challenge_id using user account.
+    """
+    payload = {"challengeId": f"{challenge_id}"}
+    r = requests.patch(
+        f"{config.plugin_url}/instance",
+        headers=config.headers_user,
+        data=json.dumps(payload),
+    )
     return r
+
 
 # Run post on thread
-def run_post_instance(challengeId: int, results: dict, lock: threading.Lock):
-    r = post_instance(challengeId)
+def run_post_instance(challenge_id: int, results: dict, lock: threading.Lock):
+    """
+    Runs post_instance function in parallel.
+    """
+    r = post_instance(challenge_id)
     with lock:
         # Store the result in a shared dictionary with the challengeId as the key
-        results[challengeId] = json.loads(r.text)
+        results[challenge_id] = json.loads(r.text)
+
 
 def get_source_id():
-    r = requests.get(f"{config.ctfd_url}/api/v1/configs/user_mode", headers=config.headers_admin)
+    """
+    Retrieve source_id of the current user based on user_mode configured.
+    """
+    r = requests.get(
+        f"{config.ctfd_url}/api/v1/configs/user_mode", headers=config.headers_admin
+    )
     a = json.loads(r.text)
 
     user_mode = a["data"]["value"]
@@ -131,19 +213,27 @@ def get_source_id():
     r = requests.get(f"{config.ctfd_url}/api/v1/users/me", headers=config.headers_user)
     a = json.loads(r.text)
 
-    sourceId = a["data"]["id"]
+    source_id = a["data"]["id"]
     if user_mode == "teams":
-        sourceId = a["data"]["team_id"]
+        source_id = a["data"]["team_id"]
 
-    return sourceId
+    return source_id
+
 
 def reset_all_submissions():
-    r = requests.get(f"{config.ctfd_url}/api/v1/submissions", headers=config.headers_admin)
+    """
+    Reset all submissions on CTFd.
+    """
+    r = requests.get(
+        f"{config.ctfd_url}/api/v1/submissions", headers=config.headers_admin
+    )
     a = json.loads(r.text)
 
     submissions = []
     for i in a["data"]:
         submissions.append(i["id"])
 
-    for id in submissions:
-        r = requests.delete(f"{config.ctfd_url}/api/v1/submissions/{id}", headers=config.headers_admin)
+    for item in submissions:
+        r = requests.delete(
+            f"{config.ctfd_url}/api/v1/submissions/{item}", headers=config.headers_admin
+        )
