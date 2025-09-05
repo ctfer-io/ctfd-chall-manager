@@ -49,7 +49,7 @@ jobs:
             --name ctfd \
             --network ${{ steps.get_network.outputs.network_name }} \
             -e LOG_LEVEL=DEBUG \
-            -e PLUGIN_SETTINGS_CM_API_URL=http://localhost:8080 \
+            -e PLUGIN_SETTINGS_CM_API_URL=http://chall-manager:8080 \
             -e PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK=true \
             -e PLUGIN_SETTINGS_CM_MANA_TOTAL=10 \
             -v ${{ github.workspace }}:/opt/CTFd/CTFd/plugins/ctfd_chall_manager \

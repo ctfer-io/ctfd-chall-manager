@@ -53,10 +53,10 @@ jobs:
             --name ctfd \
             --network ${{ steps.get_network.outputs.network_name }} \
             -e LOG_LEVEL=DEBUG \
-            -e PLUGIN_SETTINGS_CM_API_URL=http://localhost:8080 \
+            -e PLUGIN_SETTINGS_CM_API_URL=http://chall-manager:8080 \
             -e PLUGIN_SETTINGS_CM_MANA_TOTAL=10 \
             -e PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK=true \
-            -e REDIS_URL=redis://localhost:6379 \
+            -e REDIS_URL=redis://redis-svc:6379 \
             -e WORKERS=2 \
             -e SECRET_KEY=ctfer \
             -v ${{ github.workspace }}:/opt/CTFd/CTFd/plugins/ctfd_chall_manager \
