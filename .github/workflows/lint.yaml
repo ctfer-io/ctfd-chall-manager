@@ -32,6 +32,7 @@ jobs:
       
     - name: Run formatter & linters
       run: |
+        cd CTFd/CTFd/plugins/ctfd_chall_manager
         isort --profile=black --check-only .
         black --check --diff .
         pylint . */*.py
