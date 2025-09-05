@@ -77,3 +77,9 @@ jobs:
           path: cypress/screenshots
           if-no-files-found: ignore      
  
+      - name: Export Logs and clean CTFd
+        if: always()
+        run : |
+          docker logs ctfd
+          docker stop ctfd
+          docker rm ctfd

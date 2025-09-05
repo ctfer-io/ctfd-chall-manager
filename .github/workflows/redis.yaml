@@ -101,3 +101,10 @@ jobs:
           python -m unittest test/test_api_mana.py
         env:
           CTFD_URL: http://localhost:8000
+
+      - name: Export Logs and clean CTFd
+        if: always()
+        run : |
+          docker logs ctfd
+          docker stop ctfd
+          docker rm ctfd
