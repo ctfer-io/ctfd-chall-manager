@@ -3,27 +3,24 @@ This modules defines the entrypoint of the plugin (load)
 and all Admins pages endpoints.
 """
 
-from flask import Blueprint, render_template, request
 import requests
-
 from CTFd.api import CTFd_API_v1
 from CTFd.plugins import register_plugin_assets_directory
-from CTFd.utils.decorators import admins_only
+from CTFd.plugins.challenges import CHALLENGE_CLASSES
+from CTFd.plugins.ctfd_chall_manager.api import admin_namespace, user_namespace
+from CTFd.plugins.ctfd_chall_manager.models import (
+    DynamicIaCChallenge,
+    DynamicIaCValueChallenge,
+)
+from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
+from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import get_all_mana
+from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
+from CTFd.plugins.migrations import upgrade
 from CTFd.utils import get_config, set_config
 from CTFd.utils.challenges import get_all_challenges
-from CTFd.plugins.migrations import upgrade
-from CTFd.plugins.challenges import CHALLENGE_CLASSES
-
-from CTFd.plugins.ctfd_chall_manager.api import user_namespace, admin_namespace
-from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
-from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
-from CTFd.plugins.ctfd_chall_manager.models import (
-    DynamicIaCValueChallenge,
-    DynamicIaCChallenge,
-)
-
-from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import get_all_mana
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from CTFd.utils.decorators import admins_only
+from flask import Blueprint, render_template, request
 
 # Configure logger for this module
 logger = configure_logger(__name__)

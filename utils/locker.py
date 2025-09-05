@@ -1,5 +1,6 @@
 """
-This modules implements RWLock with Writer preference system based on https://dl.acm.org/doi/pdf/10.1145/362759.362813 (Problem 2).
+This modules implements RWLock with Writer preference system based
+on https://dl.acm.org/doi/pdf/10.1145/362759.362813 (Problem 2).
 
 Classes:
     RWLockInterface: An abstract base class for read-write lock interfaces.
@@ -11,13 +12,13 @@ Functions:
             based on the availability of a Redis URL.
 """
 
-from abc import ABC, abstractmethod
-import threading
 import os
-import redis
-from redis.exceptions import LockError
+import threading
+from abc import ABC, abstractmethod
 
+import redis
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from redis.exceptions import LockError
 
 logger = configure_logger(__name__)
 
@@ -236,7 +237,7 @@ class RedisRWLock(RWLockInterface):
             self.m2.release()
 
 
-def RWLock(name: str) -> RWLockInterface:
+def create_rw_lock(name: str) -> RWLockInterface:
     """
     A factory function that returns an instance of either ThreadingRWLock or RedisRWLock
     based on the availability of a Redis URL.

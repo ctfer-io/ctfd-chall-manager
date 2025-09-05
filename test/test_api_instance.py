@@ -3,26 +3,26 @@ This module defines all tests cases for the /instance endpoint.
 """
 
 import datetime
-import unittest
 import json
 import threading
 import time
+import unittest
 
 import requests
 
 from .utils import (
     config,
-    get_instance,
-    post_instance,
-    patch_instance,
-    delete_instance,
-    run_post_instance,
     create_challenge,
     delete_challenge,
+    delete_instance,
+    get_instance,
+    patch_instance,
+    post_instance,
+    run_post_instance,
 )
 
 
-# pylint: disable=invalid-name,missing-timeout
+# pylint: disable=invalid-name,missing-timeout,duplicate-code
 class Test_F_UserInstance(unittest.TestCase):
     """
     Test_F_UserInstance defines all tests for /instance.

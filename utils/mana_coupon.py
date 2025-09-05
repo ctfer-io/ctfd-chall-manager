@@ -3,14 +3,12 @@
 This module contains all functions for mana resources.
 """
 
-from sqlalchemy import func
-
 from CTFd.models import db  # type: ignore
-from CTFd.utils import get_config
-
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from CTFd.utils import get_config
+from sqlalchemy import func
 
 # Configure logger for this module
 logger = configure_logger(__name__)

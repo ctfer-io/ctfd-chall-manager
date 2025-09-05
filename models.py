@@ -7,8 +7,6 @@ The DynamicIaC type of challenge herits from CTFd built-in Dynamic challenges
 
 import json
 
-from flask import Blueprint
-
 # CTFd imports
 from CTFd.exceptions.challenges import (
     ChallengeCreateException,
@@ -18,10 +16,6 @@ from CTFd.models import (
     Flags,
     db,
 )
-from CTFd.plugins.flags import FlagException, get_flag_class
-from CTFd.utils import user as current_user
-from CTFd.utils.config import is_teams_mode
-from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge
 
 # Plugins specific imports
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
@@ -35,6 +29,11 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     get_instance,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge
+from CTFd.plugins.flags import FlagException, get_flag_class
+from CTFd.utils import user as current_user
+from CTFd.utils.config import is_teams_mode
+from flask import Blueprint
 
 logger = configure_logger(__name__)
 

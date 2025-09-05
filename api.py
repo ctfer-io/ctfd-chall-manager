@@ -7,34 +7,30 @@ This module describes the 3 API endpoints of the plugins :
 
 import json
 
-from flask import request
-from flask_restx import Namespace, Resource
-
-from CTFd.utils import get_config
-from CTFd.utils import user as current_user
-from CTFd.utils.decorators import admins_only, authed_only
-from CTFd.utils.config import is_teams_mode
-
+from CTFd.plugins.ctfd_chall_manager.decorators import challenge_visible
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     create_instance,
     delete_instance,
     get_instance,
     update_instance,
 )
-
+from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import (
     create_coupon,
     delete_coupon,
     get_source_mana,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
-    ChallManagerException,
-)
-from CTFd.plugins.ctfd_chall_manager.decorators import challenge_visible
-
+from CTFd.utils import get_config
+from CTFd.utils import user as current_user
+from CTFd.utils.config import is_teams_mode
+from CTFd.utils.decorators import admins_only, authed_only
+from flask import request
+from flask_restx import Namespace, Resource
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -774,7 +770,7 @@ class UserInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            r = delete_instance(challenge_id, source_id)
+            delete_instance(challenge_id, source_id)
             logger.info(
                 "instance for challenge_id: %s, source_id: %s deleted successfully",
                 challenge_id,

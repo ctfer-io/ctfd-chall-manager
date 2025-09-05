@@ -7,17 +7,16 @@ import unittest
 
 import requests
 
-
 from .utils import (
     config,
     create_challenge,
-    post_instance,
     delete_challenge,
     delete_instance,
+    post_instance,
 )
 
 
-# pylint: disable=invalid-name,missing-timeout
+# pylint: disable=invalid-name,missing-timeout,duplicate-code
 class Test_F_UserMana(unittest.TestCase):
     """
     Test_F_UserMana defines tests cases on /mana

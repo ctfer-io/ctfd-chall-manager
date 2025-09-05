@@ -3,8 +3,8 @@ This module contains the logger configuration for the plugin
 """
 
 import logging
-import sys
 import os
+import sys
 
 
 def configure_logger(name: str) -> logging.Logger:

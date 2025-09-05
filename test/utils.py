@@ -7,6 +7,7 @@ helper functions inside tests cases.
 import json
 import os
 import threading
+
 import requests
 
 
@@ -47,7 +48,7 @@ class Config:
 config = Config()
 
 
-# pylint: disable=dangerous-default-value,too-many-arguments,too-many-positional-arguments
+# pylint: disable=dangerous-default-value,too-many-arguments,too-many-positional-arguments,duplicate-code
 # skipping linting for tests only function (will be fix later)
 def create_challenge(
     shared=False,

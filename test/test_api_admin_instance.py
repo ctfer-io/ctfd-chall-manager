@@ -4,12 +4,13 @@ This module defines all tests cases for the /admin/instance endpoint.
 
 import json
 import unittest
+
 import requests
 
 from .utils import config, create_challenge, delete_challenge
 
 
-# pylint: disable=invalid-name,missing-timeout
+# pylint: disable=invalid-name,missing-timeout,duplicate-code
 class Test_F_AdminInstance(unittest.TestCase):
     """
     Test_F_AdminInstance defines all tests cases for the /admin/instance endpoint.

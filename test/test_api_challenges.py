@@ -4,17 +4,17 @@ This module defines all tests cases for the CTFd endpoint with plugin extension.
 
 import json
 import unittest
-import requests
 
+import requests
 
 from .utils import (
     config,
     create_challenge,
     delete_challenge,
-    post_instance,
     delete_instance,
     get_admin_instance,
     get_source_id,
+    post_instance,
     reset_all_submissions,
 )
 
@@ -31,7 +31,7 @@ base_challenge = {
 }
 
 
-# pylint: disable=invalid-name,missing-timeout
+# pylint: disable=invalid-name,missing-timeout,duplicate-code
 class Test_F_Challenges(unittest.TestCase):
     """
     Test_F_Challenges defines all tests for /challenges endpoint on CTFd.

@@ -4,12 +4,11 @@ This module defines decorators used by API endpoints.
 
 import functools
 
+from CTFd.models import Challenges
+from CTFd.utils.user import is_admin
 from flask import request
 from flask_restx import abort
 from sqlalchemy.sql import and_
-
-from CTFd.models import Challenges
-from CTFd.utils.user import is_admin
 
 
 def challenge_visible(func):
