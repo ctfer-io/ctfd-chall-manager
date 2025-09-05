@@ -24,7 +24,7 @@ runs:
     - name: Wait for CTFd server
       shell: bash
       run: |
-        max_attempts=10
+        max_attempts=60
         base_url="http://localhost:8000"
         for ((i=0; i<$max_attempts; i++)); do
           if curl --head --fail --silent --show-error "$base_url" >/dev/null; then
