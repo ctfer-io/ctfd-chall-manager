@@ -12,10 +12,7 @@ from CTFd.exceptions.challenges import (
     ChallengeCreateException,
     ChallengeUpdateException,
 )
-from CTFd.models import (
-    Flags,
-    db,
-)
+from CTFd.models import Flags, db
 
 # Plugins specific imports
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (

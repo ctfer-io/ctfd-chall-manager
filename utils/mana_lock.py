@@ -6,7 +6,7 @@ on ManaCoupon.
 import os
 import threading
 
-from CTFd.plugins.ctfd_chall_manager.utils.locker import REDIS_CLIENT, RWLock
+from CTFd.plugins.ctfd_chall_manager.utils.locker import REDIS_CLIENT, create_rw_lock
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 
 logger = configure_logger(__name__)
@@ -45,7 +45,7 @@ class ManaLock:
 
         if rw_lock_enabled:
             logger.debug("experimental rwlock configured")
-            self.rw = RWLock(name)
+            self.rw = create_rw_lock(name)
 
         self.gr = threading.Lock()
         if REDIS_CLIENT is not None:
