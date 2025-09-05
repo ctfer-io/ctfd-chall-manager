@@ -12,7 +12,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
 
 logger = configure_logger(__name__)
-CM_API_TIMEOUT = int(get_config("chall-manager_api_timeout"))
+CM_API_TIMEOUT = get_config("chall-manager_api_timeout")
 
 
 def query_challenges() -> list:
