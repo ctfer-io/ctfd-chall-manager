@@ -5,10 +5,10 @@ This module contains all functions for mana resources.
 
 from CTFd.models import db  # type: ignore
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
-    ChallManagerException,
-)
-from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import \
+    ChallManagerException
+from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import \
+    query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
 from sqlalchemy import func

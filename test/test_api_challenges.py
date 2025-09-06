@@ -7,16 +7,9 @@ import unittest
 
 import requests
 
-from .utils import (
-    config,
-    create_challenge,
-    delete_challenge,
-    delete_instance,
-    get_admin_instance,
-    get_source_id,
-    post_instance,
-    reset_all_submissions,
-)
+from .utils import (config, create_challenge, delete_challenge,
+                    delete_instance, get_admin_instance, get_source_id,
+                    post_instance, reset_all_submissions)
 
 base_challenge = {
     "name": "test",

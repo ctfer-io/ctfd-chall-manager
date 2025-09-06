@@ -8,28 +8,19 @@ The DynamicIaC type of challenge herits from CTFd built-in Dynamic challenges
 import json
 
 # CTFd imports
-from CTFd.exceptions.challenges import (
-    ChallengeCreateException,
-    ChallengeUpdateException,
-)
+from CTFd.exceptions.challenges import (ChallengeCreateException,
+                                        ChallengeUpdateException)
 from CTFd.models import Flags, db
-
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import \
+    ChallManagerException
 # Plugins specific imports
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
-    create_challenge,
-    delete_challenge,
-    get_challenge,
-    update_challenge,
-)
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
-    ChallManagerException,
-)
+    create_challenge, delete_challenge, get_challenge, update_challenge)
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
-    delete_instance,
-    get_instance,
-)
+    delete_instance, get_instance)
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge
+from CTFd.plugins.dynamic_challenges import (DynamicChallenge,
+                                             DynamicValueChallenge)
 from CTFd.plugins.flags import FlagException, get_flag_class
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode

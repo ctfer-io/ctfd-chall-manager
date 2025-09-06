@@ -8,14 +8,12 @@ from CTFd.api import CTFd_API_v1
 from CTFd.plugins import register_plugin_assets_directory
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 from CTFd.plugins.ctfd_chall_manager.api import admin_namespace, user_namespace
-from CTFd.plugins.ctfd_chall_manager.models import (
-    DynamicIaCChallenge,
-    DynamicIaCValueChallenge,
-)
-from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
-    ChallManagerException,
-)
+from CTFd.plugins.ctfd_chall_manager.models import (DynamicIaCChallenge,
+                                                    DynamicIaCValueChallenge)
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import \
+    ChallManagerException
+from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import \
+    query_challenges
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import get_all_mana
 from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs

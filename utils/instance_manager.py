@@ -5,9 +5,8 @@ This module contains all functions to use Chall-Manager InstanceManager group.
 import json
 
 import requests
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
-    ChallManagerException,
-)
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import \
+    ChallManagerException
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
 

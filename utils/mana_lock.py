@@ -6,7 +6,8 @@ on ManaCoupon.
 import os
 import threading
 
-from CTFd.plugins.ctfd_chall_manager.utils.locker import REDIS_CLIENT, create_rw_lock
+from CTFd.plugins.ctfd_chall_manager.utils.locker import (REDIS_CLIENT,
+                                                          create_rw_lock)
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 
 logger = configure_logger(__name__)
