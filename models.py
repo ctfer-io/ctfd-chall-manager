@@ -63,7 +63,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     scenario = db.Column(db.Text)
 
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        super().__init__(**kwargs)
         self.value = kwargs["initial"]
 
     def __str__(self):
