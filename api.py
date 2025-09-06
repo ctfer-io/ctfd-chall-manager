@@ -75,15 +75,6 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-
-        # TODO check if this PermissionError is relevant with @admin_only wrapper
-        except PermissionError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "unauthenticad admin user",
-                },
-            }, 403
         except ValueError:
             return {
                 "success": False,
@@ -118,7 +109,7 @@ class AdminInstance(Resource):
 
             r = get_instance(challenge_id, source_id)
             logger.info("instance retrieved successfully: %s", json.loads(r.text))
-        except Exception as e:  # TODO: lint too general exception
+        except ChallManagerException as e:
             logger.error("error while communicating with CM: %s", e)
             return {
                 "success": False,
@@ -134,7 +125,8 @@ class AdminInstance(Resource):
     def post():
         """
         Create instance for the sourceId and challengeId provided.
-        This function will create a coupons, but bypass mana checks and deploy instance in all cases.
+        This function will create a coupons, but bypass mana checks and
+        deploy instance in all cases.
         The return value contains all informations given by Chall-Manager API (flag included).
         """
         admin_id = 0
@@ -146,14 +138,6 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-        # TODO check if this PermissionError is relevant with @admin_only wrapper
-        except PermissionError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "unauthenticad admin user",
-                },
-            }, 403
         except ValueError:
             return {
                 "success": False,
@@ -208,21 +192,23 @@ class AdminInstance(Resource):
 
         except ChallManagerException as e:
             if "already exist" in e.message:
+                logger.warning(
+                    "instance for challenge_id: %s, source_id: %s already exists, ignoring",
+                    challenge_id,
+                    source_id,
+                )
                 return {
                     "success": False,
                     "data": {
                         "message": "instance already exist",
                     },
                 }, 200
-            return {
-                "success": False,
-                "data": {
-                    "message": e.message,
-                },
-            }, 500
 
-        except Exception as e:  # TODO lint: too general exception
-            logger.error("error while creating instance: %s", e)
+            logger.error(
+                "error while creating instance for challenge_id: %s, source_id: %s",
+                challenge_id,
+                source_id,
+            )
             if cm_mana_total > 0:
                 delete_coupon(challenge_id, source_id)
                 logger.info(
@@ -233,7 +219,7 @@ class AdminInstance(Resource):
             return {
                 "success": False,
                 "data": {
-                    "message": f"Error while communicating with CM : {e}",
+                    "message": e.message,
                 },
             }, 500
 
@@ -261,14 +247,6 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-        # TODO check if this PermissionError is relevant with @admin_only wrapper
-        except PermissionError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "unauthenticad admin user",
-                },
-            }, 403
         except ValueError:
             return {
                 "success": False,
@@ -307,7 +285,7 @@ class AdminInstance(Resource):
                 challenge_id,
                 source_id,
             )
-        except Exception as e:  # TODO lint: too general exception
+        except ChallManagerException as e:
             logger.error("error while updating instance: %s", e)
             return {
                 "success": False,
@@ -335,14 +313,6 @@ class AdminInstance(Resource):
             admin_id = result["admin_id"]
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
-        # TODO check if this PermissionError is relevant with @admin_only wrapper
-        except PermissionError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "unauthenticad admin user",
-                },
-            }, 403
         except ValueError:
             return {
                 "success": False,
@@ -394,7 +364,7 @@ class AdminInstance(Resource):
                     source_id,
                 )
 
-        except Exception as e:  # TODO lint: too general exception
+        except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
             return {
                 "success": False,
@@ -404,7 +374,7 @@ class AdminInstance(Resource):
             }, 500
 
         finally:
-            logger.debug(f"admin_unlock {lock}")
+            logger.debug("admin_unlock %s", lock)
             lock.admin_unlock()
 
         return {"success": True, "data": json.loads(r.text)}, 200
@@ -471,7 +441,7 @@ class UserInstance(Resource):
             )
             r = get_instance(challenge_id, source_id)
             logger.info("instance retrieved successfully : %s", json.loads(r.text))
-        except Exception as e:  # TODO: lint too general exception
+        except ChallManagerException as e:
             logger.error("error while getting instance: {e}")
             return {
                 "success": False,
@@ -497,7 +467,7 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    def post():
+    def post():  # pylint: disable=too-many-return-statements,too-many-branches
         """
         Create an instance of challengeId provided on Chall-Manager.
         This method requires user to be authenticated and has suffisant mana to perform creation.
@@ -554,7 +524,8 @@ class UserInstance(Resource):
                             "success": False,
                             "data": {
                                 "message": "You or your team used up all your mana. \
-                            You must recover mana by destroying instances of other challenges to continue.",
+                                You must recover mana by destroying instances \
+                                of other challenges to continue.",
                             },
                         },
                         403,
@@ -597,16 +568,7 @@ class UserInstance(Resource):
             return {
                 "success": False,
                 "data": {
-                    "message": f"{e.message}",
-                },
-            }, 500
-
-        except Exception as e:  # TODO: lint too general exception
-            logger.error("error while creating instance: %s", e)
-            return {
-                "success": False,
-                "data": {
-                    "message": f"Error while communicating with CM : {e}",
+                    "message": f"error from Chall-Manager API: {e.message}",
                 },
             }, 500
 
@@ -631,7 +593,7 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    def patch():
+    def patch():  # pylint: disable=too-many-return-statements
         """
         Renew instance on Chall-Manager.
         If the challengeId provided
@@ -699,16 +661,7 @@ class UserInstance(Resource):
             return {
                 "success": False,
                 "data": {
-                    "message": f"{e.message}",
-                },
-            }, 500
-
-        except Exception as e:  # TODO: lint too general exception
-            logger.error("error while updating instance: %s", e)
-            return {
-                "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
+                    "message": f"error from Chall-Manager API: {e.message}",
                 },
             }, 500
 
@@ -790,7 +743,7 @@ class UserInstance(Resource):
                     source_id,
                 )
 
-        except Exception as e:  # TODO: lint too general exception
+        except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
             return {
                 "success": False,
@@ -823,7 +776,6 @@ class UserMana(Resource):
         All existing coupons without actual instances will be destroyed.
         If CTFd is in Team mode, the mana_used will be amound all players of a team.
         """
-        # TODO: split GET and UPDATE /mana ? UPDATE = retrieve the real mana amount ?
         mana_total = int(get_config("chall-manager:chall-manager_mana_total"))
 
         # If mana disabled, return 0 immediatly
@@ -866,7 +818,7 @@ class UserMana(Resource):
         }, 200
 
 
-def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionError:
+def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError:
     """
     This function return all ids for AdminInstance calls.
 
@@ -876,9 +828,6 @@ def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionErr
     admin_id = 0
 
     user = current_user.get_current_user()
-    if user is None:  # unauthenticated
-        raise PermissionError("cannot load current user")
-        # TODO check if the Error is relevant with @admin_only / @auth_only wrappers
     user_id = int(user.id)
 
     if admin:
@@ -902,8 +851,9 @@ def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError | PermissionErr
     if not admin:
         source_id = user_id
         if is_teams_mode():
-            team_id = int(user.team_id)
-            source_id = team_id
+            team_id = user.team_id
+            if team_id is not None:
+                source_id = int(team_id)
 
     return {
         "admin_id": admin_id,

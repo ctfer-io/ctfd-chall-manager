@@ -102,7 +102,8 @@ def load_or_store(name: str) -> ManaLock:
     Notes:
         - If the distributed lock system is activated, it returns a new ManaLock instance.
         - If the distributed lock system is not activated, it uses a local lock system.
-        - The function ensures thread safety by acquiring and releasing a lock on the lockers dictionary.
+        - The function ensures thread safety by acquiring and releasing a lock on the
+        lockers dictionary.
     """
 
     if not lock_is_local:
@@ -112,9 +113,10 @@ def load_or_store(name: str) -> ManaLock:
     try:
 
         logger.debug("distributed locking system not found, use local lock")
-        lockers_lock.acquire()
+        # https://github.com/ctfer-io/ctfd-chall-manager/issues/179
+        lockers_lock.acquire()  # pylint: disable=consider-using-with
 
-        if name in lockers.keys():
+        if name in lockers.keys():  # pylint: disable=consider-iterating-dictionary
             logger.debug("previous lock found in lockers, use previous")
             return lockers[name]
 

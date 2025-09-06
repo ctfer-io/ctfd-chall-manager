@@ -13,6 +13,9 @@ from CTFd.plugins.ctfd_chall_manager.models import (
     DynamicIaCValueChallenge,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import get_all_mana
 from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
@@ -26,13 +29,13 @@ from flask import Blueprint, render_template, request
 logger = configure_logger(__name__)
 
 
-def load(app):
+def load(app):  # pylint: disable=too-many-statements
     """
     Initiate all CTFd configuration for the plugin.
     """
     app.config["RESTX_ERROR_404_HELP"] = False
 
-    plugin_name = __name__.split(".")[-1]
+    plugin_name = __name__.rsplit(".", maxsplit=1)[-1]
     set_config("chall-manager:plugin_name", plugin_name)
     app.db.create_all()
     logger.debug("Database initialized and plugin name set.")
@@ -84,7 +87,7 @@ def load(app):
                 f'{get_config("chall-manager:chall-manager_api_url")}/healthcheck'
             )
             requests.get(health_url, timeout=5).raise_for_status()
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("cannot communicate with CM provided got %s", e)
             cm_api_reachable = False
         else:
@@ -105,7 +108,7 @@ def load(app):
         try:
             result = query_challenges()
             logger.info("retrieved %s challenges successfully", len(result))
-        except Exception as e:
+        except ChallManagerException as e:
             logger.error("error querying challenges: %s", e)
 
         instances = []

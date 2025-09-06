@@ -17,7 +17,11 @@ def configure_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
 
     level = os.getenv("LOG_LEVEL")
-    if level is None or level not in logging.getLevelNamesMapping().keys():
+    if (
+        level is None
+        or level
+        not in logging.getLevelNamesMapping().keys()  # pylint: disable=consider-iterating-dictionary
+    ):
         level = "INFO"
 
     logger.setLevel(logging.getLevelNamesMapping()[level])

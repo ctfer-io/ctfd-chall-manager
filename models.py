@@ -21,6 +21,9 @@ from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
     get_challenge,
     update_challenge,
 )
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     delete_instance,
     get_instance,
@@ -60,11 +63,16 @@ class DynamicIaCChallenge(DynamicChallenge):
     scenario = db.Column(db.Text)
 
     def __init__(self, *args, **kwargs):
-        super(DynamicIaCChallenge, self).__init__(**kwargs)
+        super().__init__()
         self.value = kwargs["initial"]
 
     def __str__(self):
-        return f"DynamicIaCChallenge(id={self.id}, mana_cost={self.mana_cost}, until={self.until}, timeout={self.timeout}, shared={self.shared}, destroy_on_flag={self.destroy_on_flag})"
+        return f"DynamicIaCChallenge(id={self.id}, \
+            mana_cost={self.mana_cost}, \
+            until={self.until}, \
+            timeout={self.timeout}, \
+            shared={self.shared}, \
+            destroy_on_flag={self.destroy_on_flag})"
 
 
 class DynamicIaCValueChallenge(DynamicValueChallenge):
@@ -100,7 +108,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
     challenge_model = DynamicIaCChallenge
 
     @classmethod
-    def create(cls, request):
+    def create(cls, request):  # pylint: disable=too-many-branches,too-many-statements
         """
         This method is used to process the challenge creation request.
 
@@ -229,7 +237,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             logger.debug("creating challenge %s on CM", challenge.id)
             create_challenge(int(challenge.id), params)
             logger.info("challenge %s created successfully on CM", challenge.id)
-        except Exception as e:
+        except (ValueError, ChallManagerException) as e:
             logger.error(
                 "an exception occurred while sending challenge %s to CM: %s",
                 challenge.id,
@@ -250,7 +258,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
     @classmethod
     def read(cls, challenge):
         """
-        This method is in used to access the data of a challenge in a format processable by the front end.
+        This method is in used to access the data of a challenge
+        in a format processable by the front end.
 
         :param challenge:
         :return: Challenge object, data dictionary to be returned to the user
@@ -276,7 +285,9 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         return data
 
     @classmethod
-    def update(cls, challenge, request):
+    def update(
+        cls, challenge, request
+    ):  # pylint: disable=too-many-branches,too-many-statements
         """
         This method is used to update the information associated with a challenge.
         This should be kept strictly to the Challenges table and any child tables.
@@ -335,15 +346,24 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     data["additional"] = json.loads(data["additional"])
                 except json.JSONDecodeError as e:
                     logger.error(
-                        f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}"
+                        "errorwhile decoding additional configuration, found %s : %s",
+                        data["additional"],
+                        e,
                     )
                     raise ChallengeUpdateException(
-                        f"An exception occurred while decoding additional configuration, found {data['additional']} : {e}"
-                    )
+                        f"error while decoding additional configuration, \
+                        found {data['additional']}"
+                    ) from e
             elif not isinstance(data["additional"], dict):
-                raise ChallengeUpdateException(
-                    f"An exception occurred while decoding additional configuration, found {data['additional']}"
+                logger.error(
+                    "errorwhile decoding additional configuration, found %s : %s",
+                    data["additional"],
+                    e,
                 )
+                raise ChallengeUpdateException(
+                    f"error while decoding additional configuration,\
+                    found {data['additional']}"
+                ) from e
 
         # don't touch this
         for attr, value in data.items():
@@ -408,7 +428,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         # check if challenge exists on CM
         try:
             get_challenge(challenge.id)
-        except Exception as e:
+        except ChallManagerException as e:
             logger.info(
                 "ignoring challenge %s as it does not exist on CM: %s", challenge.id, e
             )
@@ -417,7 +437,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 logger.debug("deleting challenge %s on CM", challenge.id)
                 delete_challenge(challenge.id)
                 logger.info("challenge %s on CM delete successfully", challenge.id)
-            except Exception as e:
+            except ChallManagerException as e:
                 logger.error(
                     "failed to delete challenge %s from CM: %s", challenge.id, e
                 )
@@ -428,7 +448,9 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         logger.info("challenge %s on CTFd deleted successfully", challenge.id)
 
     @classmethod
-    def attempt(cls, challenge, request):
+    def attempt(
+        cls, challenge, request
+    ):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         """
         This method is used to check whether a given input is right or wrong.
         It does not make any changes and should return a boolean for correctness
@@ -463,7 +485,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         try:
             result = get_instance(challenge.id, source_id)
-        except Exception as e:
+        except ChallManagerException as e:
             logger.error("error occurred while getting instance: %s", e)
             return False, "error occurred, contact admins!"
 
@@ -513,9 +535,10 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                         try:
                             delete_instance(challenge.id, source_id)
                             msg = "Correct, your instance has been destroyed"
-                        except Exception:
+                        except ChallManagerException:
                             logger.warning(
-                                "failed to delete challenge %s for source %s, instance may not exist",
+                                "failed to delete challenge %s for source %s, \
+                                instance may not exist",
                                 challenge.id,
                                 source_id,
                             )
@@ -551,9 +574,10 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                         try:
                             delete_instance(challenge.id, source_id)
                             msg = "Correct, your instance has been destroyed"
-                        except Exception:
+                        except ChallManagerException:
                             logger.warning(
-                                "failed to delete challenge %s for source %s, instance may not exist",
+                                "failed to delete challenge %s for source %s, \
+                                instance may not exist",
                                 challenge.id,
                                 source_id,
                             )
@@ -579,7 +603,6 @@ def convert_to_boolean(value):
         value_lower = value.strip().lower()
         if value_lower == "true":
             return True
-        elif value_lower == "false":
-            return False
+        return False
     # If the value is already a boolean or doesn't match a boolean string, return it as is
     return value

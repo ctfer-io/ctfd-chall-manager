@@ -14,15 +14,21 @@ from CTFd.utils import get_config
 logger = configure_logger(__name__)
 CM_API_TIMEOUT = get_config("chall-manager_api_timeout")
 
+# pylint: disable=duplicate-code
+# pylint detect duplicate-code between challenge_store and intance_manager
+# This is false positive
 
-def create_instance(challenge_id: int, source_id: int) -> requests.Response | Exception:
+
+def create_instance(
+    challenge_id: int, source_id: int
+) -> requests.Response | ChallManagerException:
     """
     Spins up a challenge instance, iif the challenge is registered and no instance is yet running.
 
     :param challenge_id: id of challenge for the instance
     :param source_id: id of source for the instance
     :return Response: of chall-manager API
-    :raise Exception:
+    :raise ChallManagerException:
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
@@ -43,18 +49,22 @@ def create_instance(challenge_id: int, source_id: int) -> requests.Response | Ex
         logger.debug("received response: %s, %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error creating instance: %s", e)
-        raise Exception("an exception occurred while communicating with CM") from e
+        raise ChallManagerException(
+            "an exception occurred while communicating with CM"
+        ) from e
 
     if r.status_code != 200:
         if r.json()["code"] == 2:
             message = r.json()["message"]
             logger.error("chall-manager return an error: %s", message)
-            raise ChallManagerException(message=message)
+            raise ChallManagerException(message=message) from e
 
     return r
 
 
-def delete_instance(challenge_id: int, source_id: int) -> requests.Response | Exception:
+def delete_instance(
+    challenge_id: int, source_id: int
+) -> requests.Response | ChallManagerException:
     """
     After completion, the challenge instance is no longer required.
     This spins down the instance and removes if from filesystem.
@@ -62,7 +72,7 @@ def delete_instance(challenge_id: int, source_id: int) -> requests.Response | Ex
     :param challenge_id: id of challenge for the instance
     :param source_id: id of source for the instance
     :return Response: of chall-manager API
-    :raise Exception:
+    :raise ChallManagerException:
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
@@ -77,18 +87,22 @@ def delete_instance(challenge_id: int, source_id: int) -> requests.Response | Ex
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error deleting instance: %s", e)
-        raise Exception("an exception occurred while communicating with CM") from e
-    else:
-        if r.status_code != 200:
-            logger.error("error from chall-manager: %s", json.loads(r.text))
-            raise Exception(
-                f"Chall-Manager returned an error: {json.loads(r.text)}"
-            ) from e
+        raise ChallManagerException(
+            "an exception occurred while communicating with CM"
+        ) from e
+
+    if r.status_code != 200:
+        logger.error("error from chall-manager: %s", json.loads(r.text))
+        raise ChallManagerException(
+            f"Chall-Manager returned an error: {json.loads(r.text)}"
+        ) from e
 
     return r
 
 
-def get_instance(challenge_id: int, source_id: int) -> requests.Response | Exception:
+def get_instance(
+    challenge_id: int, source_id: int
+) -> requests.Response | ChallManagerException:
     """
     Once created, you can retrieve the instance information.
     If it has not been created yet, returns an error.
@@ -96,7 +110,7 @@ def get_instance(challenge_id: int, source_id: int) -> requests.Response | Excep
     :param challenge_id: id of challenge for the instance
     :param source_id: id of source for the instance
     :return Response: of chall-manager API
-    :raise Exception:
+    :raise ChallManagerException:
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
@@ -113,25 +127,29 @@ def get_instance(challenge_id: int, source_id: int) -> requests.Response | Excep
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error getting instance: %s", e)
-        raise Exception("an exception occurred while communicating with CM: %s", e)
-    else:
-        if r.status_code != 200:
-            logger.info("no instance on chall-manager: %s", json.loads(r.text))
-            raise ChallManagerException(
-                f"Chall-manager returned an error: {json.loads(r.text)}"
-            )
+        raise ChallManagerException(
+            "an exception occurred while communicating with CM"
+        ) from e
+
+    if r.status_code != 200:
+        logger.info("no instance on chall-manager: %s", json.loads(r.text))
+        raise ChallManagerException(
+            f"Chall-manager returned an error: {json.loads(r.text)}"
+        ) from e
 
     return r
 
 
-def update_instance(challenge_id: int, source_id: int) -> requests.Response | Exception:
+def update_instance(
+    challenge_id: int, source_id: int
+) -> requests.Response | ChallManagerException:
     """
     This will set the until date to the request time more the challenge timeout.
 
     :param challenge_id: id of challenge for the instance
     :param source_id: id of source for the instance
     :return Response: of chall-manager API
-    :raise Exception:
+    :raise ChallManagerException:
     """
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
@@ -152,18 +170,20 @@ def update_instance(challenge_id: int, source_id: int) -> requests.Response | Ex
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("Error updating instance: %s", e)
-        raise Exception("An exception occurred while communicating with CM") from e
+        raise ChallManagerException(
+            "An exception occurred while communicating with CM"
+        ) from e
 
     if r.status_code != 200:
         if r.json()["code"] == 2:
             message = r.json()["message"]
             logger.error("chall-manager return an error: %s", message)
-            raise ChallManagerException(message=message)
+            raise ChallManagerException(message=message) from e
 
     return r
 
 
-def query_instance(source_id: int) -> list | Exception:
+def query_instance(source_id: int) -> list | ChallManagerException:
     """
     This will return a list with all instances that exists on chall-manager for the source_id given.
 
@@ -191,6 +211,6 @@ def query_instance(source_id: int) -> list | Exception:
         logger.debug("successfully queried instances: %s", result)
     except Exception as e:
         logger.error("connection error: %s", e)
-        raise Exception("connection error: %s", e)
+        raise ChallManagerException("connection error") from e
 
     return result

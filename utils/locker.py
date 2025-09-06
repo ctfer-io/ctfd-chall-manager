@@ -31,6 +31,10 @@ else:
     logger.info("local lock configured successfully")
 
 
+# pylint: disable=consider-using-with
+# see https://github.com/ctfer-io/ctfd-chall-manager/issues/179
+
+
 class RWLockInterface(ABC):
     """
     An abstract base class for read-write lock interfaces.
@@ -61,6 +65,7 @@ class RWLockInterface(ABC):
         """
 
 
+# pylint: disable=too-many-instance-attributes
 class ThreadingRWLock(RWLockInterface):
     """
     A concrete implementation of RWLockInterface using threading locks.
@@ -140,6 +145,7 @@ class ThreadingRWLock(RWLockInterface):
             self.m2.release()
 
 
+# pylint: disable=too-many-instance-attributes
 class RedisRWLock(RWLockInterface):
     """
     A concrete implementation of RWLockInterface using Redis locks.

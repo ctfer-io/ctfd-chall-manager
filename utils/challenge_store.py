@@ -14,8 +14,12 @@ from CTFd.utils import get_config
 logger = configure_logger(__name__)
 CM_API_TIMEOUT = get_config("chall-manager_api_timeout")
 
+# pylint: disable=duplicate-code
+# pylint detect duplicate-code between challenge_store and intance_manager
+# This is false positive
 
-def query_challenges() -> list:
+
+def query_challenges() -> list | ChallManagerException:
     """
     Query all challenges information and their instances running.
 
@@ -38,17 +42,20 @@ def query_challenges() -> list:
         logger.debug("successfully queried challenges: %s", result)
     except Exception as e:
         logger.error("error querying challenges: %s", e)
-        raise Exception("error querying challenges") from e
+        raise ChallManagerException("error querying challenges") from e
 
     return result
 
 
-def create_challenge(challenge_id: int, *args) -> requests.Response:
+def create_challenge(
+    challenge_id: int, *args
+) -> requests.Response | ValueError | ChallManagerException:
     """
     Create challenge on chall-manager
 
     :param challenge_id: id of challenge to create (e.g: 1)
-    :param *args: additional configuration in dictionary format (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00'})
+    :param *args: additional configuration in dictionary format
+    (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00'})
 
     :return Response: of chall-manager API
     """
@@ -82,18 +89,20 @@ def create_challenge(challenge_id: int, *args) -> requests.Response:
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error creating challenge: %s", e)
-        raise Exception("an exception occurred while communicating with CM") from e
-    else:
-        if r.status_code != 200:
-            logger.error("error from chall-manager: %s", json.loads(r.text))
-            raise ChallManagerException(
-                f"Chall-manager returned an error: {json.loads(r.text)}"
-            )
+        raise ChallManagerException(
+            "an exception occurred while communicating with CM"
+        ) from e
+
+    if r.status_code != 200:
+        logger.error("error from chall-manager: %s", json.loads(r.text))
+        raise ChallManagerException(
+            f"Chall-manager returned an error: {json.loads(r.text)}"
+        )
 
     return r
 
 
-def delete_challenge(challenge_id: int) -> requests.Response:
+def delete_challenge(challenge_id: int) -> requests.Response | ChallManagerException:
     """
     Delete challenge and its instances running.
 
@@ -111,12 +120,12 @@ def delete_challenge(challenge_id: int) -> requests.Response:
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error deleting challenge: %s", e)
-        raise Exception("error deleting challenge: %s", e)
+        raise ChallManagerException("error deleting challenge") from e
 
     return r
 
 
-def get_challenge(challenge_id: int) -> requests.Response:
+def get_challenge(challenge_id: int) -> requests.Response | ChallManagerException:
     """
     Get challenge information and its instances running.
 
@@ -133,7 +142,9 @@ def get_challenge(challenge_id: int) -> requests.Response:
         logger.debug("recieved response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error getting challenge: %s", e)
-        raise Exception("an exception occurred while communicating with CM") from e
+        raise ChallManagerException(
+            "an exception occurred while communicating with CM"
+        ) from e
 
     if r.status_code != 200:
         logger.error("error from chall-manager: %s", json.loads(r.text))
@@ -144,7 +155,9 @@ def get_challenge(challenge_id: int) -> requests.Response:
     return r
 
 
-def update_challenge(challenge_id: int, *args) -> requests.Response:
+def update_challenge(
+    challenge_id: int, *args
+) -> requests.Response | ValueError | ChallManagerException:
     """
     Update challenge with information provided
 
@@ -163,7 +176,7 @@ def update_challenge(challenge_id: int, *args) -> requests.Response:
     if len(args) != 0:
         if not isinstance(args[0], dict):
             logger.error("invalid arguments provided for updating challenge")
-            raise ValueError("error updating challenge, invalid inputs, got %s", args)
+            raise ValueError(f"error updating challenge, invalid inputs, got {args}")
 
         payload = args[0]
 

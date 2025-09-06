@@ -98,7 +98,7 @@ class Test_F_AdminInstance(unittest.TestCase):
         """
 
         challengeId = 999999
-        sourceId = 1  # TODO config
+        sourceId = 1
 
         r = requests.get(
             f"{config.plugin_url}/admin/instance?challengeId={challengeId}&sourceId={sourceId}",
@@ -223,7 +223,7 @@ class Test_F_AdminInstance(unittest.TestCase):
         """
 
         chall_id = create_challenge(state="hidden")
-        sourceId = 1  # TODO config
+        sourceId = 1
 
         payload = {"challengeId": f"{chall_id}", "sourceId": f"{sourceId}"}
         r = requests.post(

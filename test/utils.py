@@ -11,7 +11,7 @@ import threading
 import requests
 
 
-class Config:
+class Config:  # pylint: disable=too-few-public-methods
     """
     Config class purpose is to configure testing environemnt.
     """

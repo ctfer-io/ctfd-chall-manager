@@ -151,7 +151,8 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_create_multi_instances(self):
         """
-        This test perform 3 creation requests in parallel but only 2 must be approved. (mana limitation)
+        This test perform 3 creation requests in parallel but only 2 must be approved.
+        (mana limitation)
         """
         results = {}
         lock = threading.Lock()
@@ -262,7 +263,8 @@ class Test_F_UserInstance(unittest.TestCase):
     def test_renew_until_timeout_instance_ko(self):
         """
         This test try to renew an instance until the instance is deployed.
-        User cannot deploy an instance if a timeout is defined and now+timeout is greater than until.
+        User cannot deploy an instance if a timeout is defined and now+timeout
+        is greater than until.
         """
         # create a challenge
 
@@ -328,7 +330,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
         delai = abs((after - before).total_seconds())
         if delai > 0.5:
-            raise Exception("too slow bro")
+            raise TimeoutError("too slow bro")
 
         r = get_instance(chall_id)
         a = json.loads(r.text)

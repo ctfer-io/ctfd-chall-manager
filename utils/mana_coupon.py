@@ -5,6 +5,9 @@ This module contains all functions for mana resources.
 
 from CTFd.models import db  # type: ignore
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
@@ -82,11 +85,15 @@ def get_source_mana(source_id: int) -> int:
     """
     # get all coupons that exist
     coupons = ManaCoupon.query.filter_by(source_id=source_id).all()
+    instances = []
 
     # get all instances that exist on CM
-    # TODO handle exception here
-    instances = query_instance(source_id)
-    logger.info("instances found: %s", instances)
+    try:
+        instances = query_instance(source_id)
+        logger.info("instances found: %s", instances)
+    except ChallManagerException as e:
+        logger.error("error while getting all instance %s", e)
+        instances = []
 
     for c in coupons:
         exists = False
