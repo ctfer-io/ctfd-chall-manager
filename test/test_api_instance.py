@@ -10,9 +10,16 @@ import unittest
 
 import requests
 
-from .utils import (config, create_challenge, delete_challenge,
-                    delete_instance, get_instance, patch_instance,
-                    post_instance, run_post_instance)
+from .utils import (
+    config,
+    create_challenge,
+    delete_challenge,
+    delete_instance,
+    get_instance,
+    patch_instance,
+    post_instance,
+    run_post_instance,
+)
 
 
 # pylint: disable=invalid-name,missing-timeout,duplicate-code
