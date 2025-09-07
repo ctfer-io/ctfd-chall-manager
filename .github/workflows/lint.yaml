@@ -36,14 +36,7 @@ jobs:
       
     - name: Run formatter & linters
       run: |
-        pwd
-        ls -l
         cd CTFd/plugins/ctfd_chall_manager
-        pwd
-        ls -l
         isort --profile=black --check-only .
         black --check --diff .
         pylint . */*.py
-
-
-      
