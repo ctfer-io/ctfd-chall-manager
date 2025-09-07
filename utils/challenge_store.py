@@ -42,7 +42,7 @@ def query_challenges() -> list | ChallManagerException:
         logger.debug("successfully queried challenges: %s", result)
     except Exception as e:
         logger.error("error querying challenges: %s", e)
-        raise ChallManagerException("error querying challenges") from e
+        raise ChallManagerException(message="error querying challenges") from e
 
     return result
 
@@ -90,13 +90,13 @@ def create_challenge(
     except Exception as e:
         logger.error("error creating challenge: %s", e)
         raise ChallManagerException(
-            "an exception occurred while communicating with CM"
+            message="an exception occurred while communicating with CM"
         ) from e
 
     if r.status_code != 200:
         logger.error("error from chall-manager: %s", json.loads(r.text))
         raise ChallManagerException(
-            f"Chall-manager returned an error: {json.loads(r.text)}"
+            message=f"Chall-manager returned an error: {json.loads(r.text)}"
         )
 
     return r
@@ -120,7 +120,7 @@ def delete_challenge(challenge_id: int) -> requests.Response | ChallManagerExcep
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error deleting challenge: %s", e)
-        raise ChallManagerException("error deleting challenge") from e
+        raise ChallManagerException(message="error deleting challenge") from e
 
     return r
 
@@ -143,13 +143,13 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
     except Exception as e:
         logger.error("error getting challenge: %s", e)
         raise ChallManagerException(
-            "an exception occurred while communicating with CM"
+            message="an exception occurred while communicating with CM"
         ) from e
 
     if r.status_code != 200:
         logger.error("error from chall-manager: %s", json.loads(r.text))
         raise ChallManagerException(
-            f"Chall-manager returned an error: {json.loads(r.text)}"
+            message=f"Chall-manager returned an error: {json.loads(r.text)}"
         )
 
     return r
@@ -197,12 +197,12 @@ def update_challenge(
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error updating challenge: %s", e)
-        raise ChallManagerException("error while communicating with CM") from e
+        raise ChallManagerException(message="error while communicating with CM") from e
 
     if r.status_code != 200:
         logger.error("error from chall-manager: %s", json.loads(r.text))
         raise ChallManagerException(
-            f"Chall-manager returned an error: {json.loads(r.text)}"
+            message=f"Chall-manager returned an error: {json.loads(r.text)}"
         )
 
     return r

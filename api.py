@@ -290,7 +290,7 @@ class AdminInstance(Resource):
             return {
                 "success": False,
                 "data": {
-                    "message": f"Error while communicating with CM : {e}",
+                    "message": f"error while communicating with CM : {e}",
                 },
             }, 500
 
@@ -369,7 +369,7 @@ class AdminInstance(Resource):
             return {
                 "success": False,
                 "data": {
-                    "message": "error while communicating with CM : {e}",
+                    "message": f"error while communicating with CM : {e}",
                 },
             }, 500
 
