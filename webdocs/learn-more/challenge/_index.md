@@ -43,7 +43,7 @@ Please note: enabling this option will slow down CTFd's response time when the c
 
 ### Mana Cost
 
-The **mana cost** is an integer representing the price users must pay in mana to deploy their own instance. Mana is refunded when the instance is destroyed. This system helps control the impact users have on the platform. For more details, see [how mana works](/docs/ctfd-chall-manager/desing/mana).
+The **mana cost** is an integer representing the price users must pay in mana to deploy their own instance. Mana is refunded when the instance is destroyed. This system helps control the impact users have on the platform. For more details, see [how mana works](/docs/ctfd-chall-manager/learn-more/mana).
 
 
 ### Until

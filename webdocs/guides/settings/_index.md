@@ -16,10 +16,11 @@ This guide assumes you are a CTF administrator and you understand the key concep
 
 To configure the plugin at CTFd startup, you can use the next environment variables:
 
-| Variable                      	| Default                      	| Description                                 	|
-|-------------------------------	|------------------------------	|---------------------------------------------	|
-| PLUGIN_SETTINGS_CM_API_URL    	| http://localhost:8080      	| URL of Chall-Manager API                    	|
-| PLUGIN_SETTINGS_CM_MANA_TOTAL 	| 0                            	| Maximum mana that source are allowed to use 	|
+| Variable                       | Default               | Description                                                        |
+|--------------------------------|-----------------------|--------------------------------------------------------------------|
+| PLUGIN_SETTINGS_CM_API_URL     | http://localhost:8080 | URL of Chall-Manager API                                           |
+| PLUGIN_SETTINGS_CM_API_TIMEOUT | 600                   | Number of seconds before plugin timeout on Chall-Manager API calls |
+| PLUGIN_SETTINGS_CM_MANA_TOTAL  | 0                     | Maximum mana that source are allowed to use                        |
 
 {{% alert title="Note" color="primary" %}}
 The environment variable lookup is triggered at CTFd first startup and insert in database. **To modify settings, you need to change it on CTFd UI**.

@@ -41,4 +41,4 @@ flowchart LR
 
 ```
 
-The rest of the workflows is detailed in [mana](/docs/ctfd-chall-manager/design/mana) section.
+The rest of the workflows is detailed in [mana](/docs/ctfd-chall-manager/learn-more/mana) section.

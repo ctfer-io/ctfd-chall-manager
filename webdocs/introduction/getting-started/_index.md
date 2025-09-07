@@ -133,4 +133,4 @@ By following these steps, you now have a functional challenge that allows each p
 
 ## What's Next
 
-For further customization and advanced configurations, refer to the [design documentation](/docs/ctfd-chall-manager/design), [maintenance guides](/docs/ctfd-chall-manager/guides), and [ChallMaker documentation](/docs/chall-manager/challmaker-guides). These resources will help you deepen your understanding and optimize your challenge setup.
+For further customization and advanced configurations, refer to the [design documentation](/docs/ctfd-chall-manager/learn-more), [maintenance guides](/docs/ctfd-chall-manager/guides), and [ChallMaker documentation](/docs/chall-manager/challmaker-guides). These resources will help you deepen your understanding and optimize your challenge setup.

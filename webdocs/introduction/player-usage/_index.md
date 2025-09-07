@@ -17,7 +17,7 @@ In this tutorial, we will see all actions a user has access to in order to contr
 
 ## Prerequisites
 
-At this step, we assume that you are a CTF player, the infrastructure is already configured, and you understand the key concepts. If not, please refer to the associated [design](/docs/ctfd-chall-manager/design).
+At this step, we assume that you are a CTF player, the infrastructure is already configured, and you understand the key concepts. If not, please refer to the associated [design](/docs/ctfd-chall-manager/learn-more).
 
 ## Different Challenge Modes
 
@@ -78,5 +78,5 @@ With *Timeout* and *Until*, the plugin will display the timeout mode buttons, bu
 Congratulations! If you've made it this far, you'll probably want to make a challenge for your event. The plugin documentation doesn't include explanations on how to do this, so please refer to the associated [documentation](/docs/chall-manager/challmaker-guides/).
 
 Otherwise, you can learn more about the plugin's design or advanced user guides here:
-- [Learn the design](/docs/ctfd-chall-manager/design)
+- [Learn more](/docs/ctfd-chall-manager/learn-more)
 - [Use advanced guides](/docs/ctfd-chall-manager/guides)
