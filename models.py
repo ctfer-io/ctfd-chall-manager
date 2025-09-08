@@ -507,15 +507,12 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 challenge.id,
                 source_id,
             )
-            # return False, "Expired (the instance must be running to submit)"
             return ChallengeResponse(
                 status="incorrect",
                 message="Expired (the instance must be running to submit)",
             )
 
         flags = Flags.query.filter_by(challenge_id=challenge.id).all()
-        print(f"before CM: {flags}")  # TODO remove
-
         logger.debug("check if flag is provided by CM")
         if "flag" in data.keys():
             cm_flag = data["flag"]

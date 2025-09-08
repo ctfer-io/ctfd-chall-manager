@@ -244,9 +244,11 @@ class Test_F_Challenges(unittest.TestCase):
 
     def test_attempt_logic_any(self):
         """
-        Check that the plugin can be use the logic=any feature.
+        Check that the plugin can be used with the logic=any feature.
         """
         chall_id = create_challenge(logic="any")
+        post_instance(chall_id)
+
         # i can flag with variate flag
         r = get_admin_instance(chall_id, get_source_id())
         a = json.loads(r.text)
@@ -269,9 +271,10 @@ class Test_F_Challenges(unittest.TestCase):
 
     def test_attempt_logic_all(self):
         """
-        Check that the plugin can be use the logic=all feature.
+        Check that the plugin can be used with the logic=all feature.
         """
         chall_id = create_challenge(logic="all")
+        post_instance(chall_id)
 
         # create ctfd flag
         ctfd_flag = "fallback"
@@ -320,9 +323,10 @@ class Test_F_Challenges(unittest.TestCase):
 
     def test_attempt_logic_team(self):
         """
-        Check that the plugin can be use the logic=team feature.
+        Check that the plugin can be used with the logic=team feature.
         """
         chall_id = create_challenge(logic="team")
+        post_instance(chall_id)
 
         # provide the second flag provided by Chall-Manager
         r = get_admin_instance(chall_id, get_source_id())
@@ -330,13 +334,12 @@ class Test_F_Challenges(unittest.TestCase):
         payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
         r = requests.post(
             f"{config.ctfd_url}/api/v1/challenges/attempt",
-            headers=config.headers_admin,  # admin account is alone in his team
+            headers=config.headers_user,
             data=json.dumps(payload),
         )
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
-
-        self.assertEqual(a["data"]["status"], "correct")
+        self.assertEqual(a["data"]["status"], "partial")
 
         # clear
         reset_all_submissions()
