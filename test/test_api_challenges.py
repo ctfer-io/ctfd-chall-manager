@@ -328,6 +328,12 @@ class Test_F_Challenges(unittest.TestCase):
         chall_id = create_challenge(logic="team")
         post_instance(chall_id)
 
+        r = requests.get(
+            f"{config.ctfd_url}/api/v1/configs/user_mode", headers=config.headers_admin
+        )
+        a = json.loads(r.text)
+        user_mode = a["data"]["value"]
+
         # provide the second flag provided by Chall-Manager
         r = get_admin_instance(chall_id, get_source_id())
         a = json.loads(r.text)
@@ -339,7 +345,12 @@ class Test_F_Challenges(unittest.TestCase):
         )
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
-        self.assertEqual(a["data"]["status"], "partial")
+
+        # if partial is returned, then logic=mode is enabled
+        if user_mode == "teams":
+            self.assertEqual(a["data"]["status"], "partial")
+        else:
+            self.assertEqual(a["data"]["status"], "correct")
 
         # clear
         reset_all_submissions()
