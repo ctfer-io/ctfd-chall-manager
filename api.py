@@ -454,7 +454,7 @@ class UserInstance(Resource):
         data = {}
         result = json.loads(r.text)
         for k in ["connectionInfo", "until", "since"]:
-            if r in result.keys():
+            if k in result.keys():
                 data[k] = result[k]
 
         return {"success": True, "data": data}, 200
@@ -575,7 +575,7 @@ class UserInstance(Resource):
         data = {}
         result = json.loads(r.text)
         for k in ["connectionInfo", "until", "since"]:
-            if r in result.keys():
+            if k in result.keys():
                 data[k] = result[k]
 
         return {"success": True, "data": data}, 200
