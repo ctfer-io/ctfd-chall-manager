@@ -1,7 +1,7 @@
 # pylint: disable=no-member
 """
 This module contains DynamicIac models and CRUD methods.
-The DynamicIaC type of challenge herits from CTFd built-in Dynamic challenges
+The DynamicIaC type of challenge inherits from CTFd built-in Dynamic challenges
 
 """
 
@@ -40,7 +40,7 @@ logger = configure_logger(__name__)
 
 class DynamicIaCChallenge(DynamicChallenge):
     """
-    DynamicIaCChallenge defines the colums of the dynamic_iac challenge type.
+    DynamicIaCChallenge defines the columns of the dynamic_iac challenge type.
     """
 
     __mapper_args__ = {"polymorphic_identity": "dynamic_iac"}
@@ -258,7 +258,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
     @classmethod
     def read(cls, challenge):
         """
-        This method is in used to access the data of a challenge
+        This method is used to access the data of a challenge
         in a format processable by the front end.
 
         :param challenge:
@@ -346,7 +346,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     data["additional"] = json.loads(data["additional"])
                 except json.JSONDecodeError as e:
                     logger.error(
-                        "errorwhile decoding additional configuration, found %s : %s",
+                        "error while decoding additional configuration, found %s : %s",
                         data["additional"],
                         e,
                     )
@@ -356,7 +356,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     ) from e
             elif not isinstance(data["additional"], dict):
                 logger.error(
-                    "errorwhile decoding additional configuration, found %s : %s",
+                    "error while decoding additional configuration, found %s : %s",
                     data["additional"],
                     e,
                 )

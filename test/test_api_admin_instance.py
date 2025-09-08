@@ -94,7 +94,7 @@ class Test_F_AdminInstance(unittest.TestCase):
         Performs test to create an instance for a challenge that NOT exists
         and for a source that exists.
 
-        The tests must failed on instance creation as long as the challenge do not exists.
+        The tests must fail on instance creation as long as the challenge do not exists.
         """
 
         challengeId = 999999
@@ -179,7 +179,7 @@ class Test_F_AdminInstance(unittest.TestCase):
 
     def test_delete_valid_challenge_but_no_instance(self):
         """
-        Perfoms tests on deleting an instance that NOT exists.
+        Performs tests on deleting an instance that NOT exists.
 
         Must NOT succeed.
         """

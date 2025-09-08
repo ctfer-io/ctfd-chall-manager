@@ -224,7 +224,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_cannot_renew_until_instance(self):
         """
-        This test try to renew an instance until the instance is deployed.
+        This test try to renew an instance with params until only.
         User cannot renew an instance if a timeout is not defined.
         """
         # create a challenge
@@ -243,7 +243,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_renew_until_timeout_instance_ok(self):
         """
-        This test try to renew an instance until the instance is deployed.
+        This test try to renew an instance with until and timeout define.
         User can deploy an instance if a timeout is defined and now+timeout is less than until.
         """
         # create a challenge
@@ -262,7 +262,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_renew_until_timeout_instance_ko(self):
         """
-        This test try to renew an instance until the instance is deployed.
+        This test try to renew an instance with until and timeout define.
         User cannot deploy an instance if a timeout is defined and now+timeout
         is greater than until.
         """
@@ -299,7 +299,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_create_instance_with_additional(self):
         """
-        Checks that user can create an instance where additional is define.
+        Checks that user can create an instance where additional is defined.
         """
         chall_id = create_challenge(additional={"test": "test"})
         r = post_instance(chall_id)
@@ -316,7 +316,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_create_instance_pooled(self):
         """
-        Checks that user can get an instance immediatly from the Pool.
+        Checks that user can get an instance immediately from the Pool.
         """
         chall_id = create_challenge(pooler_min=1, pooler_max=1)
 

@@ -1,5 +1,5 @@
 """
-This module describes the 3 API endpoints of the plugins :
+This module describes the 3 API endpoints of the plugins:
     - AdminInstance: /api/v1/plugins/ctfd-chall-manager/admin/instance
     - UserInstance: /api/v1/plugins/ctfd-chall-manager/instance
     - UserMana: /api/v1/plugins/ctfd-chall-manager/mana
@@ -55,8 +55,8 @@ def handle_default(err):
 class AdminInstance(Resource):
     """
     AdminInstance class handles CRUD operation for /admin/instance API endpoint.
-    This class bypasses the mana verification and Admins can create or destroy instances for Users.
-    Required to be authenticated with an admins capable account.
+    This class bypasses the mana verification and admin can create or destroy instances for Users.
+    Required to be authenticated with an admin capable account.
     """
 
     @staticmethod
@@ -64,7 +64,7 @@ class AdminInstance(Resource):
     def get():
         """
         Retrieve instance infos for the sourceId and challengeId provided.
-        The return value contains all informations given by Chall-Manager API (flag included).
+        The returned value contains all informations given by Chall-Manager API (flag included).
         """
         admin_id = 0
         challenge_id = 0
@@ -94,7 +94,7 @@ class AdminInstance(Resource):
             }, 500
 
         logger.info(
-            "Admin %s get instance info for challenge_id: %s, source_id: %s",
+            "admin %s get instance info for challenge_id: %s, source_id: %s",
             admin_id,
             challenge_id,
             source_id,
@@ -127,7 +127,7 @@ class AdminInstance(Resource):
         Create instance for the sourceId and challengeId provided.
         This function will create a coupons, but bypass mana checks and
         deploy instance in all cases.
-        The return value contains all informations given by Chall-Manager API (flag included).
+        The returned value contains all informations given by Chall-Manager API (flag included).
         """
         admin_id = 0
         challenge_id = 0
@@ -453,14 +453,9 @@ class UserInstance(Resource):
         # return only necessary values
         data = {}
         result = json.loads(r.text)
-        if "connectionInfo" in result.keys():
-            data["connectionInfo"] = result["connectionInfo"]
-
-        if "until" in result.keys():
-            data["until"] = result["until"]
-
-        if "since" in result.keys():
-            data["since"] = result["since"]
+        for k in ["connectionInfo", "until", "since"]:
+            if r in result.keys():
+                data[k] = result[k]
 
         return {"success": True, "data": data}, 200
 
@@ -579,14 +574,9 @@ class UserInstance(Resource):
         # return only necessary values
         data = {}
         result = json.loads(r.text)
-        if "connectionInfo" in result.keys():
-            data["connectionInfo"] = result["connectionInfo"]
-
-        if "until" in result.keys():
-            data["until"] = result["until"]
-
-        if "since" in result.keys():
-            data["since"] = result["since"]
+        for k in ["connectionInfo", "until", "since"]:
+            if r in result.keys():
+                data[k] = result[k]
 
         return {"success": True, "data": data}, 200
 

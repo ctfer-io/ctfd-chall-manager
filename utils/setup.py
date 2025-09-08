@@ -14,8 +14,7 @@ logger = configure_logger(__name__)
 
 def setup_default_configs():
     """
-    This function check if environment variable is used or not.
-    Configure default value is not.
+    Configure settings with environment variable or defaults values.
     """
     logger.debug("configure plugin")
 

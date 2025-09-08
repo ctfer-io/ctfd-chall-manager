@@ -154,7 +154,7 @@ def get_instance(challenge_id: int):
 
 def get_admin_instance(challenge_id: int, source_id: int):
     """
-    Retrive instance information from the challenge_id and source_id using admin account.
+    Retrieve instance information from the challenge_id and source_id using admin account.
     """
     r = requests.get(
         f"{config.plugin_url}/admin/instance?challengeId={challenge_id}&sourceId={source_id}",

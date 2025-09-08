@@ -19,7 +19,7 @@ logger = configure_logger(__name__)
 
 class ManaCoupon(db.Model):  # pylint: disable=too-few-public-methods
     """
-    ManaCoupon class contains the metadata for a coupons to associate source_id and challenge_id.
+    ManaCoupon class contains the metadata for a coupon to associate source_id and challenge_id.
     """
 
     id = db.Column(db.Integer, primary_key=True)
