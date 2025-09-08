@@ -25,17 +25,6 @@ jobs:
         env:
           OCI_INSECURE: true
 
-      ctfd:
-        image: ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
-        ports:
-          - 8000:8000
-        options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
-        env:
-          LOG_LEVEL: DEBUG
-          PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080
-          PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK: true
-          PLUGIN_SETTINGS_CM_MANA_TOTAL: 10
-
       registry:
         image: registry:2
         ports:
@@ -45,6 +34,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Get GitHub Actions network name
+        id: get_network
+        run: |
+          # Find the network ID (GitHub Actions creates one automatically)
+          NETWORK_NAME=$(docker network ls --filter name=github_network_* --format "{{.Name}}")
+          echo $NETWORK_NAME
+          echo "network_name=$NETWORK_NAME" >> $GITHUB_OUTPUT
+
+      - name: Start CTFd after checkout
+        run: |
+          docker run -d -p 8000:8000 \
+            --name ctfd \
+            --network ${{ steps.get_network.outputs.network_name }} \
+            -e LOG_LEVEL=DEBUG \
+            -e PLUGIN_SETTINGS_CM_API_URL=http://chall-manager:8080 \
+            -e PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK=true \
+            -e PLUGIN_SETTINGS_CM_MANA_TOTAL=10 \
+            -v ${{ github.workspace }}:/opt/CTFd/CTFd/plugins/ctfd_chall_manager \
+            ctfd/ctfd:3.7.7@sha256:9847758cdafc5ab86bdc121353dcf5a27a29ce313587270ee90a71bfbda2b910
 
       - name: Setup basic testing env
         uses: ./.github/workflows/setup-testing
@@ -85,3 +94,10 @@ jobs:
           python -m unittest test/test_api_mana.py
         env:
           CTFD_URL: http://localhost:8000
+
+      - name: Export Logs and clean CTFd
+        if: always()
+        run : |
+          docker logs ctfd
+          docker stop ctfd
+          docker rm ctfd
