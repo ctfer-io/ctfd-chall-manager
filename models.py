@@ -533,7 +533,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             )
             flags.append(ctfd_cm_flag)
 
-        # CTFd behavior https://github.com/CTFd/CTFd/blob/3.8.0/CTFd/plugins/challenges/__init__.py#L131
+        # CTFd behavior
+        # https://github.com/CTFd/CTFd/blob/3.8.0/CTFd/plugins/challenges/__init__.py#L131
         if challenge.logic == "all":
             return challenge_attempt_all(submission, challenge, flags)
         if challenge.logic == "team":
