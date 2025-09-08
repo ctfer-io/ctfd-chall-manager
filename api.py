@@ -1,5 +1,5 @@
 """
-This module describes the 3 API endpoints of the plugins:
+This module describes the 3 API endpoints of the plugin:
     - AdminInstance: /api/v1/plugins/ctfd-chall-manager/admin/instance
     - UserInstance: /api/v1/plugins/ctfd-chall-manager/instance
     - UserMana: /api/v1/plugins/ctfd-chall-manager/mana
@@ -125,7 +125,7 @@ class AdminInstance(Resource):
     def post():
         """
         Create instance for the sourceId and challengeId provided.
-        This function will create a coupons, but bypass mana checks and
+        This function will create a coupon, but bypass mana checks and
         deploy instance in all cases.
         The returned value contains all informations given by Chall-Manager API (flag included).
         """
@@ -234,7 +234,7 @@ class AdminInstance(Resource):
     def patch():
         """
         Renew instance for the sourceId and challengeId provided.
-        The return value contains all informations given by Chall-Manager API (flag included).
+        The returned value contains all informations given by Chall-Manager API (flag included).
         """
 
         # mandatory
@@ -301,7 +301,7 @@ class AdminInstance(Resource):
     def delete():
         """
         Destroy instance for the sourceId and challengeId provided.
-        This function will delete the associated coupons.
+        This function will delete the associated coupon.
         """
         # mandatory
         admin_id = 0
