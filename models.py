@@ -13,11 +13,15 @@ from CTFd.exceptions.challenges import (
     ChallengeUpdateException,
 )
 from CTFd.models import Flags, db
+from CTFd.plugins.challenges import ChallengeResponse
+from CTFd.plugins.challenges.logic import (
+    challenge_attempt_all,
+    challenge_attempt_any,
+    challenge_attempt_team,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
-
-# Plugins specific imports
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
     create_challenge,
     delete_challenge,
@@ -30,7 +34,6 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge
-from CTFd.plugins.flags import FlagException, get_flag_class
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
 from flask import Blueprint
@@ -464,14 +467,12 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         data = request.form or request.get_json()
         submission = data["submission"].strip()  # user input
 
-        # check userMode of CTFd
+        # retrieve source_id
         user_id = int(current_user.get_current_user().id)
         source_id = user_id
         if is_teams_mode():
             team_id = int(current_user.get_current_user().team_id)
             source_id = team_id
-
-        # CM Plugins extension
         if challenge.shared:
             source_id = 0
 
@@ -483,11 +484,14 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             submission,
         )
 
+        # checks that the instance is alive
         try:
             result = get_instance(challenge.id, source_id)
         except ChallManagerException as e:
             logger.error("error occurred while getting instance: %s", e)
-            return False, "error occurred, contact admins!"
+            return ChallengeResponse(
+                status="incorrect", message="Error occurred, contact admins!"
+            )
 
         data = json.loads(result.text)
 
@@ -503,10 +507,16 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 challenge.id,
                 source_id,
             )
-            return False, "Expired (the instance must be running to submit)"
+            # return False, "Expired (the instance must be running to submit)"
+            return ChallengeResponse(
+                status="incorrect",
+                message="Expired (the instance must be running to submit)",
+            )
+
+        flags = Flags.query.filter_by(challenge_id=challenge.id).all()
+        print(f"before CM: {flags}")  # TODO remove
 
         logger.debug("check if flag is provided by CM")
-        # If the instance provided its flag
         if "flag" in data.keys():
             cm_flag = data["flag"]
             logger.debug(
@@ -516,82 +526,50 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 cm_flag,
             )
 
-            # if the flag is OK
-            if len(cm_flag) == len(submission):
-                result = 0
-                for x, y in zip(cm_flag, submission):
-                    result |= ord(x) ^ ord(y)
-                if result == 0:
-                    logger.info(
-                        "valid submission for CM flag: challenge %s source %s",
-                        challenge.id,
-                        source_id,
-                    )
+            # create Flags object to ease compare method
+            # this object is NOT stored in database.
+            ctfd_cm_flag = Flags(
+                challenge_id=challenge.id, type="static", content=cm_flag
+            )
+            flags.append(ctfd_cm_flag)
 
-                    msg = "Correct"
+        # CTFd behavior https://github.com/CTFd/CTFd/blob/3.8.0/CTFd/plugins/challenges/__init__.py#L131
+        if challenge.logic == "all":
+            return challenge_attempt_all(submission, challenge, flags)
+        if challenge.logic == "team":
+            return challenge_attempt_team(submission, challenge, flags)
 
-                    if challenge.destroy_on_flag:
-                        logger.info("destroy the instance")
-                        try:
-                            delete_instance(challenge.id, source_id)
-                            msg = "Correct, your instance has been destroyed"
-                        except ChallManagerException:
-                            logger.warning(
-                                "failed to delete challenge %s for source %s, \
-                                instance may not exist",
-                                challenge.id,
-                                source_id,
-                            )
+        return challenge_attempt_any(submission, challenge, flags)
 
-                    return True, msg
+    @classmethod
+    def solve(cls, user, team, challenge, request):
+        super().solve(user, team, challenge, request)
 
+        # retrieve source_id
+        user_id = int(current_user.get_current_user().id)
+        source_id = user_id
+        if is_teams_mode():
+            team_id = int(current_user.get_current_user().team_id)
+            source_id = team_id
+        if challenge.shared:
+            source_id = 0
+
+        if challenge.destroy_on_flag:
             logger.info(
-                "invalid submission for CM flag: challenge %s source %s",
+                "challenge %s solved, destroy instance for source %s",
                 challenge.id,
                 source_id,
             )
-
-        # CTFd behavior
-        logger.debug(
-            "try the CTFd flag for challenge_id %s and source_id %s",
-            challenge.id,
-            source_id,
-        )
-        flags = Flags.query.filter_by(challenge_id=challenge.id).all()
-        for flag in flags:
             try:
-                if get_flag_class(flag.type).compare(flag, submission):
-                    logger.info(
-                        "valid submission for CTFd flag: challenge %s source_id %s",
-                        challenge.id,
-                        source_id,
-                    )
-
-                    msg = "Correct"
-
-                    if challenge.destroy_on_flag:
-                        logger.info("destroy the instance")
-                        try:
-                            delete_instance(challenge.id, source_id)
-                            msg = "Correct, your instance has been destroyed"
-                        except ChallManagerException:
-                            logger.warning(
-                                "failed to delete challenge %s for source %s, \
-                                instance may not exist",
-                                challenge.id,
-                                source_id,
-                            )
-
-                    return True, msg
-            except FlagException as e:
-                logger.error("FlagException: %s", e)
-                return False, str(e)
-        logger.info(
-            "invalid submission for CTFd flag: challenge %s source %s",
-            challenge.id,
-            source_id,
-        )
-        return False, "Incorrect"
+                delete_instance(challenge.id, source_id)
+            except ChallManagerException as e:
+                logger.warning(
+                    "failed to delete challenge %s for source %s, \
+                    instance may not exist got %s",
+                    challenge.id,
+                    source_id,
+                    e,
+                )
 
 
 def convert_to_boolean(value):
