@@ -117,7 +117,7 @@ def get_source_mana(source_id: int) -> int:
     if result["mana"] is None:
         return 0
 
-    return result["mana"]
+    return int(result["mana"])
 
 
 def get_all_mana() -> list:
