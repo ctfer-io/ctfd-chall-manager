@@ -791,7 +791,7 @@ class UserMana(Resource):
                 return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         try:
-            lock = load_or_store(f"{source_id}")
+            lock = load_or_store(str(source_id))
             logger.debug("get /mana acquire the player lock for %s", source_id)
             lock.player_lock()
 

@@ -12,8 +12,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
 
 logger = configure_logger(__name__)
-CM_API_TIMEOUT = get_config("chall-manager_api_timeout")
-
+CM_API_TIMEOUT = get_config("chall-manager:chall-manager_api_timeout")
 # pylint: disable=duplicate-code
 # pylint detect duplicate-code between challenge_store and intance_manager
 # This is false positive
