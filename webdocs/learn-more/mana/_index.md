@@ -36,7 +36,7 @@ Example:
 
 **This system helps administrators control the use of resources on CTF infrastructures.**
 
-Combined with the [flag variation engine](/docs/chall-manager/challmaker-guides/flag-variation-engine/) feature of chall-manager, mana also helps minimize *Flag Holding*. To progress, players must submit flags and destroy instances to reclaim mana. If players choose to hoard flags until the last moment, mana limits their ability to continue, adding a strategic element to the competition.
+Combined with the [flag variation engine](/docs/chall-manager/challmaker-guides/flag-variation-engine/) feature of chall-manager, mana also helps minimize *Flag Hoarding*. To progress, players must submit flags and destroy instances to reclaim mana. If players choose to hoard flags until the last moment, mana limits their ability to continue, adding a strategic element to the competition.
 
 ## How it works
 

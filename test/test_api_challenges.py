@@ -241,3 +241,118 @@ class Test_F_Challenges(unittest.TestCase):
 
         reset_all_submissions()
         delete_challenge(chall_id)
+
+    def test_attempt_logic_any(self):
+        """
+        Check that the plugin can be used with the logic=any feature.
+        """
+        chall_id = create_challenge(logic="any")
+        post_instance(chall_id)
+
+        # i can flag with variate flag
+        r = get_admin_instance(chall_id, get_source_id())
+        a = json.loads(r.text)
+
+        payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
+
+        r = requests.post(
+            f"{config.ctfd_url}/api/v1/challenges/attempt",
+            headers=config.headers_user,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["status"], "correct")
+
+        # clear
+        reset_all_submissions()
+        delete_instance(chall_id)
+        delete_challenge(chall_id)
+
+    def test_attempt_logic_all(self):
+        """
+        Check that the plugin can be used with the logic=all feature.
+        """
+        chall_id = create_challenge(logic="all")
+        post_instance(chall_id)
+
+        # create ctfd flag
+        ctfd_flag = "fallback"
+        payload = {
+            "challenge": chall_id,
+            "content": ctfd_flag,
+            "data": "",
+            "type": "static",
+        }
+        r = requests.post(
+            f"{config.ctfd_url}/api/v1/flags",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        # provide the first flag (ctfd side)
+        payload = {"challenge_id": chall_id, "submission": ctfd_flag}
+        r = requests.post(
+            f"{config.ctfd_url}/api/v1/challenges/attempt",
+            headers=config.headers_user,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["status"], "partial")
+
+        # provide the second flag provided by Chall-Manager
+        r = get_admin_instance(chall_id, get_source_id())
+        a = json.loads(r.text)
+        payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
+        r = requests.post(
+            f"{config.ctfd_url}/api/v1/challenges/attempt",
+            headers=config.headers_user,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["status"], "correct")
+
+        # clear
+        reset_all_submissions()
+        delete_instance(chall_id)
+        delete_challenge(chall_id)
+
+    def test_attempt_logic_team(self):
+        """
+        Check that the plugin can be used with the logic=team feature.
+        """
+        chall_id = create_challenge(logic="team")
+        post_instance(chall_id)
+
+        r = requests.get(
+            f"{config.ctfd_url}/api/v1/configs/user_mode", headers=config.headers_admin
+        )
+        a = json.loads(r.text)
+        user_mode = a["data"]["value"]
+
+        # provide the second flag provided by Chall-Manager
+        r = get_admin_instance(chall_id, get_source_id())
+        a = json.loads(r.text)
+        payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
+        r = requests.post(
+            f"{config.ctfd_url}/api/v1/challenges/attempt",
+            headers=config.headers_user,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        # if partial is returned, then logic=mode is enabled
+        if user_mode == "teams":
+            self.assertEqual(a["data"]["status"], "partial")
+        else:
+            self.assertEqual(a["data"]["status"], "correct")
+
+        # clear
+        reset_all_submissions()
+        delete_instance(chall_id)
+        delete_challenge(chall_id)

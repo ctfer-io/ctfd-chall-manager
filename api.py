@@ -778,13 +778,15 @@ class UserMana(Resource):
                 },
             }, 200
 
-        source_id = str(current_user.get_current_user().id)
+        user_id = int(current_user.get_current_user().id)
+        source_id = user_id
         if is_teams_mode():
-            source_id = current_user.get_current_user().team_id
+            source_id = int(current_user.get_current_user().team_id)
             # If user has no team
             if not source_id:
                 logger.info(
-                    "user {current_user.get_current_user().id} has no team, abort"
+                    "user %s has no team, abort",
+                    user_id,
                 )
                 return {"success": False, "data": {"message": "unauthorized"}}, 403
 

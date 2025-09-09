@@ -25,32 +25,25 @@ Here's the algorithm:
 
 ```mermaid
 flowchart LR
-    Submission --> A{Instance On ?}
-    A -->|True| B{Instance I flag ?}
-    A -->|False| Expired
-    B -->|True| C{submission == I.flag}
-    B -->|False| D{CTFd C flag ?}
-    C -->|True| Correct
-    C -->|False| D
-    D -->|True| E{submission == C.flag}
-    D -->|False| Incorrect
-    E -->|True| Correct
-    E -->|False| Incorrect
-
-    %% I/O
-    Submission
-    Expired
-    Correct
-    Incorrect
+    A[Plugin Attempt] --> B{Instance ON ?}
+    B --> |False| F[incorrect]
+    B --> |True| G[flags = CTFdFlags ]
+    G --> H{Instance define flag ?}
+    H --> |False| C
+    H --> |True| I[flags = CTFdFlags + CMFlags ]
+    
+    I --> C{Attempt}
+    C --> D[partial]
+    C --> E[correct]
+    C --> F[incorrect]
 
 ``` 
 
 On the `submit` method, we get all informations of the instance on chall-manager.
 1. We want the instance ON to prevent *FlagHoarding* and make sure the submitted flag is the one in the instance.
-2. We check if the instance define a flag (if you don't use the flag variation on the sdk).
-3. If the instance define a flag, we check if the submission is correct.
-4. If the instance does not define a flag or if the submission is incorrect, we check if a flag is defined on CTFd (also use as fallback).
-5. Now, it is the classic behavior of CTFd.
+2. We check if the instance define a flag (if you use the flag variation on the sdk).
+3. If the instance define a flag, we add the dynamic flag with the CTFd ones.
+4. Then, we check flags with configured logic defined on CTFd.
 
 
 ## Conclusion
@@ -69,6 +62,3 @@ There are two main reasons for this requirement:
 
 ### Why the CTFd Flag is consider as "fallback" ?
 As we said before, the CTFd Flag system allows users to submit the same flag. We use this system to prevent connection error or latency with chall-manager or if the generated flag is invalid for synthax error (we choose the extended ASCII so it should not happen).
-
-
-

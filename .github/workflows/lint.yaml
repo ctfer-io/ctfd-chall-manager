@@ -14,7 +14,7 @@ jobs:
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with: 
         repository: CTFd/CTFd
-        ref: ce098c38ffc10e881a8ce6f5361b7c54d52c369d # 3.7.7
+        ref: 5d017f72fac42eb05948f46a8dddd06a04f5c050 # 3.8.0
 
     - name: Checkout CTFd-chall-manager
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0

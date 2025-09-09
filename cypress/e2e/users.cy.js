@@ -269,7 +269,7 @@ describe("Permform tests for CTFd in the User Land", () => {
         cy.get('input[placeholder="Flag"]').type("cypress-destroy-on-flag", { parseSpecialCharSequences: false });
         cy.get('button').contains('Submit').click();
 
-        cy.get('[x-text="response.data.message"]').should('be.visible').contains("Correct, your instance has been destroyed");
+        cy.get('[x-text="response.data.message"]').should('be.visible').contains("Correct");
 
         cy.log_and_go_to_chall("user3", "user3", "cypress-destroy-on-flag");
         cy.get('[data-test-id="cm-connectionInfo-id"]').should("not.be.visible");

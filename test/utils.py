@@ -59,6 +59,7 @@ def create_challenge(
     additional={},
     pooler_min=None,
     pooler_max=None,
+    logic=None,
     state="visible",
 ):
     """
@@ -96,6 +97,10 @@ def create_challenge(
     if until:
         payload["until"] = until
 
+    # CTFd 3.8.0 new feature
+    if logic in ["any", "all", "team"]:
+        payload["logic"] = logic
+
     r = requests.post(
         f"{config.ctfd_url}/api/v1/challenges",
         headers=config.headers_admin,
@@ -104,7 +109,7 @@ def create_challenge(
     a = json.loads(r.text)
     if a["success"] is not True:
         raise ValueError(
-            "error while setting up the testing environment, do not process"
+            f"error while setting up the testing environment, do not process: {a}"
         )
 
     # return the chall_id
@@ -122,7 +127,7 @@ def delete_challenge(challenge_id: int):
     a = json.loads(r.text)
     if a["success"] is not True:
         raise ValueError(
-            "error while setting up the testing environment, do not process"
+            f"error while setting up the testing environment, do not process: {a}"
         )
 
 
