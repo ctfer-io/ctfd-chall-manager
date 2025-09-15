@@ -7,7 +7,7 @@ import requests
 from CTFd.api import CTFd_API_v1
 from CTFd.plugins import register_plugin_assets_directory
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
-from CTFd.plugins.ctfd_chall_manager.api import admin_namespace, user_namespace
+from CTFd.plugins.ctfd_chall_manager.api import register_api_endpoints
 from CTFd.plugins.ctfd_chall_manager.models import (
     DynamicIaCChallenge,
     DynamicIaCValueChallenge,
@@ -69,11 +69,7 @@ def load(app):  # pylint: disable=too-many-statements
         url_prefix="/plugins/ctfd-chall-manager",
     )
 
-    # create namespaces in /api/v1/plugins/ctfd-chall-manager/xx/xx
-    CTFd_API_v1.add_namespace(admin_namespace, path="/plugins/ctfd-chall-manager/admin")
-    CTFd_API_v1.add_namespace(user_namespace, path="/plugins/ctfd-chall-manager")
-
-    logger.info("API namespaces added.")
+    register_api_endpoints()
 
     # Route to configure Chall-manager plugins
     @page_blueprint.route("/admin/settings")
