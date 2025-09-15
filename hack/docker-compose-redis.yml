@@ -133,7 +133,7 @@ services:
     command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --wait_timeout=28800, --log-warnings=0]
 
   ctfd-setup:
-    image: ctferio/ctfd-setup:v1.6.0@sha256:b716c414170b4b17aa317910d8c12e53f2892867791c4912ff3319984a1ea975
+    image: ctferio/ctfd-setup:v1.7.1@sha256:d555410c10f66eb88a6579078d3f2c9131279e3057c21831a69feb447479b877
     container_name: ctfd-setup
     environment:
       URL: http://ctfd-ui-1:8000

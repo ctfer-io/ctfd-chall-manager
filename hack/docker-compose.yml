@@ -47,7 +47,7 @@ services:
       - testing
 
   ctfd-setup:
-    image: ctferio/ctfd-setup:v1.6.0@sha256:b716c414170b4b17aa317910d8c12e53f2892867791c4912ff3319984a1ea975
+    image: ctferio/ctfd-setup:v1.7.1@sha256:d555410c10f66eb88a6579078d3f2c9131279e3057c21831a69feb447479b877
     environment:
       URL: http://ctfd:8000
       FILE: /.ctfd.yaml
