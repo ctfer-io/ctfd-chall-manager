@@ -7,7 +7,7 @@ This module describes the 3 API endpoints of the plugin:
 
 import json
 
-from CTFd.plugins.ctfd_chall_manager.decorators import challenge_visible
+from CTFd.plugins.ctfd_chall_manager.utils.decorators import challenge_visible
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
