@@ -1,5 +1,5 @@
 """
-This module defines the common functions inside api module.
+This module defines the helpers functions.
 """
 
 from CTFd.utils import user as current_user

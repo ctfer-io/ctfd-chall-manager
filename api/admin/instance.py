@@ -5,10 +5,10 @@ Route: /api/v1/plugins/ctfd-chall-manager/admin/instance.
 
 import json
 
-from CTFd.plugins.ctfd_chall_manager.api.common import retrieve_all_ids
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
+from CTFd.plugins.ctfd_chall_manager.utils.helpers import retrieve_all_ids
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     create_instance,
     delete_instance,
