@@ -9,7 +9,6 @@ from CTFd.plugins.ctfd_chall_manager.api.mana import UserMana
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from flask_restx import Namespace
 
-
 # Configure logger for this module
 logger = configure_logger(__name__)
 
