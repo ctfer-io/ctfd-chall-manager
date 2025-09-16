@@ -11,6 +11,7 @@ archives:
       - assets/**
       - templates/**
       - utils/**
+      - api/**
       - "*.py"
       - config.json
     
