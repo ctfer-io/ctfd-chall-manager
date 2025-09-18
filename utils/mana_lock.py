@@ -14,10 +14,13 @@ logger = configure_logger(__name__)
 # https://github.com/ctfer-io/ctfd-chall-manager/issues/141
 lockers = {}
 lockers_lock = threading.Lock()
-lock_is_local = os.getenv("REDIS_URL") is None
+lock_is_local = REDIS_CLIENT is None
 rw_lock_enabled = (
     os.getenv("PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK", "false").lower() == "true"
 )
+
+logger.debug("distributed redis lock configured: %s", (not lock_is_local))
+logger.debug("experimental rwlock configured: %s", rw_lock_enabled)
 
 
 class ManaLock:
@@ -42,9 +45,7 @@ class ManaLock:
             name (str): The name of the lock.
         """
         self.name = name
-
         if rw_lock_enabled:
-            logger.debug("experimental rwlock configured")
             self.rw = create_rw_lock(name)
 
         self.gr = threading.Lock()
@@ -107,7 +108,6 @@ def load_or_store(name: str) -> ManaLock:
     """
 
     if not lock_is_local:
-        logger.debug("distributed lock activated, use redis remote lock")
         return ManaLock(name)
 
     try:

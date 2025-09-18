@@ -16,8 +16,8 @@ from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
+from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_all_mana_used
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import get_all_mana
 from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
 from CTFd.plugins.migrations import upgrade
 from CTFd.utils import get_config, set_config
@@ -130,8 +130,11 @@ def load(app):  # pylint: disable=too-many-statements
         logger.debug("Accessing admin mana page.")
         user_mode = get_config("user_mode")
 
-        sources = get_all_mana()
-        logger.info("retrieved mana data for %s sources", len(sources))
+        sources = []
+        source_ids = calculate_all_mana_used()
+        for item in source_ids.items():
+            sources.append({"source_id": item[0], "mana": item[1]})
+        logger.info("retrieved mana data for %s sources %s", len(sources), sources)
 
         return render_template(
             "chall_manager_mana.html", user_mode=user_mode, sources=sources

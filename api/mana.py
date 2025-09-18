@@ -3,10 +3,8 @@ This module describes the UserMana API endpoint of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/mana
 """
 
+from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_mana_used
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import (
-    get_source_mana,
-)
 from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
 from CTFd.utils import get_config
 from CTFd.utils import user as current_user
@@ -22,8 +20,6 @@ logger = configure_logger(__name__)
 class UserMana(Resource):
     """
     UserMana class handle R operation on /mana.
-    When the Player use /mana, all coupons will be updated or deleted regarding the
-    actual informations on Chall-Manager.
     """
 
     @staticmethod
@@ -31,7 +27,6 @@ class UserMana(Resource):
     def get():
         """
         Retrieve the actual mana used by the sourceId.
-        All existing coupons without actual instances will be destroyed.
         If CTFd is in Team mode, the mana_used will be amound all players of a team.
         """
         mana_total = int(get_config("chall-manager:chall-manager_mana_total"))
@@ -63,7 +58,8 @@ class UserMana(Resource):
             logger.debug("get /mana acquire the player lock for %s", source_id)
             lock.player_lock()
 
-            mana = get_source_mana(source_id)
+            mana = calculate_mana_used(source_id)
+
             logger.debug("retrieved mana for source_id: %s, mana: %s", source_id, mana)
         finally:
             logger.debug("get /mana release the player lock for %s", source_id)

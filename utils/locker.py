@@ -18,7 +18,6 @@ from abc import ABC, abstractmethod
 
 import redis
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from redis.exceptions import LockError
 
 logger = configure_logger(__name__)
 
@@ -29,10 +28,6 @@ if REDIS_URL:
     logger.info("redis lock configured successfully")
 else:
     logger.info("local lock configured successfully")
-
-
-# pylint: disable=consider-using-with
-# see https://github.com/ctfer-io/ctfd-chall-manager/issues/179
 
 
 class RWLockInterface(ABC):
@@ -91,58 +86,34 @@ class ThreadingRWLock(RWLockInterface):
         self.wcounter = int(0)
 
     def r_lock(self) -> None:
-        try:
-            self.m3.acquire()
-            self.r.acquire()
-            self.m1.acquire()
+        with self.m3:
+            with self.r:
+                with self.m1:
+                    self.rcounter = self.rcounter + 1
 
-            self.rcounter = self.rcounter + 1
-
-            if self.rcounter == 1:
-                self.w.acquire()
-
-        finally:
-            self.m1.release()
-            self.r.release()
-            self.m3.release()
+                    if self.rcounter == 1:
+                        self.w.acquire()  # pylint: disable=consider-using-with
 
     def r_unlock(self) -> None:
-        try:
-            self.m1.acquire()
-
+        with self.m1:
             self.rcounter = self.rcounter - 1
-
             if self.rcounter == 0:
-                self.w.release()
-
-        finally:
-            self.m1.release()
+                self.w.release()  # pylint: disable=consider-using-with
 
     def rw_lock(self) -> None:
-        try:
-            self.m2.acquire()
-
+        with self.m2:
             self.wcounter = self.wcounter + 1
-
             if self.wcounter == 1:
-                self.r.acquire()
+                self.r.acquire()  # pylint: disable=consider-using-with
 
-        finally:
-            self.m2.release()
-            self.w.acquire()
+        self.w.acquire()  # pylint: disable=consider-using-with
 
     def rw_unlock(self) -> None:
-        try:
-            self.w.release()
-            self.m2.acquire()
-
+        self.w.release()
+        with self.m2:
             self.wcounter = self.wcounter - 1
-
             if self.wcounter == 0:
-                self.r.release()
-
-        finally:
-            self.m2.release()
+                self.r.release()  # pylint: disable=consider-using-with
 
 
 # pylint: disable=too-many-instance-attributes
@@ -177,70 +148,35 @@ class RedisRWLock(RWLockInterface):
             REDIS_CLIENT.set(f"{self.name}_writecount", 0)
 
     def r_lock(self) -> None:
-        try:
-            self.m3.acquire()
-            self.r.acquire()
-            self.m1.acquire()
-
-            REDIS_CLIENT.incr(f"{self.name}_readcount")
-
-            if int(REDIS_CLIENT.get(f"{self.name}_readcount")) == 1:
-                self.w.acquire()
-
-        except LockError as e:
-            logger.warning("failed to acquire lock due to error: %s", e)
-
-        finally:
-            self.m1.release()
-            self.r.release()
-            self.m3.release()
+        with self.m3:
+            with self.r:
+                with self.m1:
+                    REDIS_CLIENT.incr(f"{self.name}_readcount")
+                    if int(REDIS_CLIENT.get(f"{self.name}_readcount")) == 1:
+                        self.w.acquire()  # pylint: disable=consider-using-with
 
     def r_unlock(self) -> None:
-        try:
-            self.m1.acquire()
-
+        with self.m1:
             REDIS_CLIENT.decr(f"{self.name}_readcount")
-
             if int(REDIS_CLIENT.get(f"{self.name}_readcount")) == 0:
-                REDIS_CLIENT.delete(f"{self.name}_w")
-
-        except LockError as e:
-            logger.warning("failed to release lock due to error: %s", e)
-
-        finally:
-            self.m1.release()
+                REDIS_CLIENT.delete(f"{self.name}_w")  # release() for redis
 
     def rw_lock(self) -> None:
-        try:
-            self.m2.acquire()
+        with self.m2:
 
             REDIS_CLIENT.incr(f"{self.name}_writecount")
-
             if int(REDIS_CLIENT.get(f"{self.name}_writecount")) == 1:
-                self.r.acquire()
+                self.r.acquire()  # pylint: disable=consider-using-with
 
-        except LockError as e:
-            logger.warning("failed to acquire lock due to error: %s", e)
-
-        finally:
-            self.m2.release()
-            self.w.acquire()
+        self.w.acquire()  # pylint: disable=consider-using-with
 
     def rw_unlock(self) -> None:
-        logger.debug("%s_rw unlocked", self.name)
-        try:
-            REDIS_CLIENT.delete(f"{self.name}_w")
-            self.m2.acquire()
 
+        REDIS_CLIENT.delete(f"{self.name}_w")  # release() for redis
+        with self.m2:
             REDIS_CLIENT.decr(f"{self.name}_writecount")
             if int(REDIS_CLIENT.get(f"{self.name}_writecount")) == 0:
-                REDIS_CLIENT.delete(f"{self.name}_r")
-
-        except LockError as e:
-            logger.warning("failed to release lock due to error: %s", e)
-
-        finally:
-            self.m2.release()
+                REDIS_CLIENT.delete(f"{self.name}_r")  # release() for redis
 
 
 def create_rw_lock(name: str) -> RWLockInterface:
