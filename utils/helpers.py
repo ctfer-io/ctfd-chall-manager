@@ -5,9 +5,6 @@ This module defines the helpers functions.
 
 from CTFd.models import db  # type: ignore
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
-    ChallManagerException,
-)
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
@@ -146,7 +143,7 @@ def check_source_can_edit_instance(challenge_id: int, source_id: int) -> bool:
 def check_source_can_create_instance(challenge_id: int, source_id: int) -> bool:
     """
     Checks that source_id can create instance of challenge_id.
-    - Need challenge to be editable (non-shared).
+    - need challenge to be editable (non-shared).
     - source_id can afford the instance (mana)
     """
     if not check_source_can_edit_instance(challenge_id, source_id):
