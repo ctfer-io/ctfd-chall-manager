@@ -68,12 +68,12 @@ flowchart LR
 ```
 
 Detailed process:
-1. Check that *Mana Total* is greater than 0.
-2. If mana is enable, check that the Source can afford the current *Mana Cost*.
-3. If Source cannot afford the instance, the process end with error.
-4. Create the instance on Chall-Manager.
-5. Check that the instance is running on Chall-Manager.
-6. If it's running correctly, end the process with success.
+1. Check that *Mana Total* is greater than 0;
+2. If mana is enabled, check that the Source can afford the current *Mana Cost*;
+3. If Source cannot afford the instance, the process end with error;
+4. Create the instance on Chall-Manager;
+5. Check that the instance is running on Chall-Manager;
+6. If it's running correctly, end the process with success;
 7. If not, end process with an error.
 
 ## Synchronicity
