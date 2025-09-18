@@ -46,11 +46,7 @@ To set the total mana available to users, go to the Settings section of the plug
 
 ### Mana Cost
 
-Each `dynamic_iac` challenge is assigned a mana cost, which can be set to 0 if no cost is desired. Changes to mana costs can be made during the event, but previously issued coupons will retain the cost at the time of their creation.
-
-### Coupons
-
-When a user requests an instance, a coupon is generated as long as they have enough mana. Administrators can bypass restrictions and deploy instances directly through the admin panel, creating coupons without limits. Each coupon stores the *sourceId*, *challengeId*, and *challengeManaCost* at the time of creation.
+Each `dynamic_iac` challenge is assigned a mana cost, which can be set to 0 if no cost is desired. You can change the mana cost at any moment of the CTF. 
 
 ## Example workflow
 ### Instance creation
@@ -63,26 +59,22 @@ flowchart LR
     End1 --> G{Mana is enabled ?}
     G -->|True|H{Source can afford ?}
     G -->|False|I[Deploy instance on CM]
-    H -->|True|J[Create coupon]
-    H -->|False|End
-    J --> I
+    H -->|False|Error
+    H -->|True| I
     I --> K{Instance is deployed ?}
-    K -->|True|M[End]
-    K -->|False|N{Mana is enabled?}
-    N -->|True|L[Destroy coupon]
-    N -->|False|M
-    L --> M
+    K -->|True|M[Success]
+    K -->|False|N[Error]
+
 ```
 
 Detailed process:
-1. We check that *Mana Total* is greater than 0.
-2. If mana is enable, we check that the Source can afford the current *Mana Cost*.
-3. If Source cannot afford the instance, the process end.
-4. If Source can afford, we create a coupon.
-5. While the coupon is created, or the mana feature is disable, we create the instance on chall-manager.
-6. We check that the instance is running on Chall-Manager.
-7. If it's running correctly, we end the process.
-8. If not, we destroy the coupon if exists, then end process with an error.
+1. Check that *Mana Total* is greater than 0.
+2. If mana is enable, check that the Source can afford the current *Mana Cost*.
+3. If Source cannot afford the instance, the process end with error.
+4. Create the instance on Chall-Manager.
+5. Check that the instance is running on Chall-Manager.
+6. If it's running correctly, end the process with success.
+7. If not, end process with an error.
 
 ## Synchronicity
 
@@ -93,10 +85,6 @@ For scalability, we needed a distributed lock system, and due to CTFd's use of R
 
 ## FAQ
 
-### Why aren't previous coupon prices updated?
-
-We modeled the mana mechanism on a pricing strategy similar to retail: prices can fluctuate during promotions, and when an item is returned, the customer receives the price paid at purchase. This approach allows CTF administrators to adjust challenge costs dynamically while maintaining consistency.
-
 ### Why can administrators bypass the mana check?
 
-During CTF events, administrators might need to deploy instances for users who have exhausted their mana. While coupons will still be generated and mana consumed, administrators can set the cost to 0 at the challenge level to waive the charge if needed.
+During CTF events, administrators have the ability to deploy instances for users who have run out of mana. While users see their mana as consumed, administrators can override this by setting the mana cost to 0 at the challenge level.
