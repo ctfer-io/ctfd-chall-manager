@@ -10,6 +10,11 @@ from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.decorators import challenge_visible
+from CTFd.plugins.ctfd_chall_manager.utils.helpers import (
+    check_source_can_create_instance,
+    check_source_can_edit_instance,
+    check_source_can_patch_instance,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     create_instance,
     delete_instance,
@@ -17,13 +22,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     update_instance,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import (
-    create_coupon,
-    delete_coupon,
-    get_source_mana,
-)
 from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
-from CTFd.utils import get_config
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import authed_only
@@ -140,44 +139,24 @@ class UserInstance(Resource):
                 logger.info("user %s has no team, abort", user_id)
                 return {"success": False, "data": {"message": "unauthorized"}}, 403
 
-        # retrieve all instance deployed by chall-manager
-        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
-        challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
-        if challenge.shared:
-            logger.warning(
-                "unauthorized attempt to create sharing instance challenge_id: %s, source_id: %s",
-                challenge_id,
-                source_id,
-            )
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
-
         # check if source_id can launch the instance
         try:
             lock = load_or_store(str(source_id))
             logger.debug("post /instance acquire the player lock for %s", source_id)
             lock.player_lock()
 
-            if cm_mana_total > 0:
-                challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
-
-                # check current mana
-                source_mana = get_source_mana(int(source_id))
-
-                if source_mana + challenge.mana_cost > cm_mana_total:
-                    logger.warning(
-                        "source_id %s does not have the necessary mana", source_id
-                    )
-                    return (
-                        {
-                            "success": False,
-                            "data": {
-                                "message": "You or your team used up all your mana. \
+            if not check_source_can_create_instance(challenge_id, source_id):
+                return (
+                    {
+                        "success": False,
+                        "data": {
+                            "message": "You or your team used up all your mana. \
                                 You must recover mana by destroying instances \
                                 of other challenges to continue.",
-                            },
                         },
-                        403,
-                    )
+                    },
+                    403,
+                )
 
             logger.debug(
                 "creating instance for challenge_id: %s, source_id: %s",
@@ -190,20 +169,6 @@ class UserInstance(Resource):
                 challenge_id,
                 source_id,
             )
-
-            # create a new coupon
-            if cm_mana_total > 0:
-                logger.debug(
-                    "creating coupon for challenge_id: %s, source_id: %s",
-                    challenge_id,
-                    source_id,
-                )
-                create_coupon(challenge_id, source_id)
-                logger.info(
-                    "coupon for challenge_id: %s, source_id: %s created successfully",
-                    challenge_id,
-                    source_id,
-                )
 
         except ChallManagerException as e:
             if "already exist" in e.message:
@@ -262,31 +227,8 @@ class UserInstance(Resource):
                 logger.info("user %s has no team, abort", user_id)
                 return {"success": False, "data": {"message": "unauthorized"}}, 403
 
-        challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
-        if challenge.shared:
-            logger.warning(
-                "unauthorized attempt to patch sharing instance challenge_id: %s, source_id: %s",
-                challenge_id,
-                source_id,
-            )
+        if not check_source_can_patch_instance(challenge_id, source_id):
             return {"success": False, "data": {"message": "unauthorized"}}, 403
-
-        if not challenge.timeout:
-            logger.warning(
-                "unauthorized attempt to patch non timeout instance challenge_id:%s, source_id: %s",
-                challenge_id,
-                source_id,
-            )
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
-
-        if not challenge_id or not source_id:
-            logger.warning("Missing argument: challenge_id or source_id")
-            return {
-                "success": False,
-                "data": {
-                    "message": "Missing argument : challenge_id or source_id",
-                },
-            }, 400
 
         try:
             logger.debug(
@@ -294,7 +236,7 @@ class UserInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            r = update_instance(challenge_id, source_id)
+            update_instance(challenge_id, source_id)
             logger.info(
                 "instance for challenge_id: %s, source_id: %s updated successfully",
                 challenge_id,
@@ -308,16 +250,10 @@ class UserInstance(Resource):
                 },
             }, 500
 
-        msg = "Your instance has been renewed !"
-        a = json.loads(r.text)
-
-        if challenge.until and challenge.timeout:
-            if challenge.until == a["until"]:
-                msg = (
-                    "You have renewed your instance, but it can't be renewed anymore !"
-                )
-
-        return {"success": True, "data": {"message": msg}}, 200
+        return {
+            "success": True,
+            "data": {"message": "Your instance has been renewed !"},
+        }, 200
 
     @staticmethod
     @authed_only
@@ -346,20 +282,13 @@ class UserInstance(Resource):
                 logger.info("user %s has no team, abort", user_id)
                 return {"success": False, "data": {"message": "unauthorized"}}, 403
 
-        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
-        challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
-        if challenge.shared:
-            logger.warning(
-                "unauthorized attempt to delete shared instance, challenge_id: %s, source_id: %s",
-                challenge_id,
-                source_id,
-            )
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
-
         try:
             lock = load_or_store(f"{source_id}")
             logger.debug("delete /instance acquire the player lock for %s", source_id)
             lock.player_lock()
+
+            if not check_source_can_edit_instance(challenge_id, source_id):
+                return {"success": False, "data": {"message": "unauthorized"}}, 403
 
             logger.debug(
                 "deleting instance for challenge_id: %s, source_id: %s",
@@ -372,19 +301,6 @@ class UserInstance(Resource):
                 challenge_id,
                 source_id,
             )
-
-            if cm_mana_total > 0:
-                logger.debug(
-                    "deleting coupon for challenge_id: %s, source_id: %s",
-                    challenge_id,
-                    source_id,
-                )
-                delete_coupon(challenge_id, source_id)
-                logger.info(
-                    "coupon deleted for challenge_id: %s, source_id: %s",
-                    challenge_id,
-                    source_id,
-                )
 
         except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)

@@ -16,12 +16,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     update_instance,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_coupon import (
-    create_coupon,
-    delete_coupon,
-)
 from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
-from CTFd.utils import get_config
 from CTFd.utils.decorators import admins_only
 from flask_restx import Resource
 
@@ -142,25 +137,9 @@ class AdminInstance(Resource):
             source_id,
         )
 
-        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
-
         try:
             lock = load_or_store(f"{source_id}")
             lock.admin_lock()
-
-            if cm_mana_total > 0:
-                create_coupon(challenge_id, source_id)
-                logger.info(
-                    "coupon created for challenge_id: %s, source_id: %s",
-                    challenge_id,
-                    source_id,
-                )
-
-            logger.debug(
-                "creating instance for challenge_id: %s, source_id: %s",
-                challenge_id,
-                source_id,
-            )
 
             r = create_instance(challenge_id, source_id)
             logger.info(
@@ -188,13 +167,6 @@ class AdminInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            if cm_mana_total > 0:
-                delete_coupon(challenge_id, source_id)
-                logger.info(
-                    "coupon deleted for challenge_id: %s, source_id: %s",
-                    challenge_id,
-                    source_id,
-                )
             return {
                 "success": False,
                 "data": {
@@ -310,8 +282,6 @@ class AdminInstance(Resource):
                 },
             }, 500
 
-        cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
-
         logger.info(
             "admin %s request instance delete for challenge_id: %s, source_id: %s",
             admin_id,
@@ -334,14 +304,6 @@ class AdminInstance(Resource):
                 challenge_id,
                 source_id,
             )
-
-            if cm_mana_total > 0:
-                delete_coupon(challenge_id, source_id)
-                logger.info(
-                    "coupon deleted for challenge_id: %s, source_id: %s",
-                    challenge_id,
-                    source_id,
-                )
 
         except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
