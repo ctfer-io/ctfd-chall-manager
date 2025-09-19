@@ -4,8 +4,7 @@ and all Admins pages endpoints.
 """
 
 import requests
-from CTFd.api import CTFd_API_v1
-from CTFd.plugins import register_plugin_assets_directory
+from CTFd.plugins import register_plugin_assets_directory, register_user_page_menu_bar
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 from CTFd.plugins.ctfd_chall_manager.api import register_api_endpoints
 from CTFd.plugins.ctfd_chall_manager.models import (
@@ -17,12 +16,15 @@ from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
 )
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
 from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_all_mana_used
+from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
 from CTFd.plugins.migrations import upgrade
 from CTFd.utils import get_config, set_config
+from CTFd.utils import user as current_user
 from CTFd.utils.challenges import get_all_challenges
-from CTFd.utils.decorators import admins_only
+from CTFd.utils.config import is_teams_mode
+from CTFd.utils.decorators import admins_only, authed_only
 from flask import Blueprint, render_template, request
 
 # Configure logger for this module
@@ -120,7 +122,9 @@ def load(app):  # pylint: disable=too-many-statements
             logger.debug("instance: %s", i)
 
         return render_template(
-            "chall_manager_instances.html", instances=instances, user_mode=user_mode
+            "chall_manager_admin_instances.html",
+            instances=instances,
+            user_mode=user_mode,
         )
 
     # Route to monitor & manage mana
@@ -167,5 +171,39 @@ def load(app):  # pylint: disable=too-many-statements
             field=field,
         )
 
+    # Route to monitor & manage running instances
+    @page_blueprint.route("/instances")
+    @authed_only
+    def instances():  # pylint: disable=unused-variable
+        user_id = int(current_user.get_current_user().id)
+        source_id = user_id
+        if is_teams_mode():
+            source_id = int(current_user.get_current_user().team_id)
+            # If user has no team
+            if not source_id:
+                logger.info(
+                    "user %s has no team, abort",
+                    user_id,
+                )
+                return {"success": False, "data": {"message": "unauthorized"}}, 403
+        try:
+            instances = query_instance(source_id)
+            logger.info("retrieved %s challenges successfully", len(instances))
+        except ChallManagerException as e:
+            logger.error("error querying challenges: %s", e)
+
+        for i in instances:
+            # Add CTFd infos
+            challenge = get_all_challenges(admin=True, id=i["challengeId"])[0]
+            i["challengeName"] = challenge.name
+            i["challengeCategory"] = challenge.category
+
+            challenge = DynamicIaCChallenge.query.filter_by(id=i["challengeId"]).first()
+            i["manaCost"] = challenge.mana_cost
+            logger.debug("instance: %s", i)
+
+        return render_template("chall_manager_instances.html", instances=instances)
+
     app.register_blueprint(page_blueprint)
+    register_user_page_menu_bar("Instances", "/plugins/ctfd-chall-manager/instances")
     logger.info("Blueprint registered.")
