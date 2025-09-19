@@ -1,106 +1,57 @@
-{% extends "chall_manager_base.html" %}
+{% extends "base.html" %}
 
-{% block menu %}
-    <li class="nav-item">
-        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/settings">🔗 Settings</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link active" href="#">Instances</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/mana">🔗 Mana</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/panel">🔗 Panel</a>
-    </li>
-{% endblock %}
+{% block content %}
+<div class="jumbotron">
+    <div class="container">
+        <h2>Chall-Manager by CTFer.io</h2>
+        {% if mana_enabled %}
+        <h3>Remaining mana: {{ mana_remaining }}/{{ mana_total }}</h3>
+        <small>You regain mana by destroying instances.</small>
+        {% endif %}
+        <small>For more informations about the plugin, refer to the <a href=https://ctfer.io/docs>documentation</a>.</small>
+    </div>
+</div>
 
-{% block panel %}
-<a class="row">    
-    <div class="col-md-12">
-        <div class="col-md-12">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" title="" id="instances-renew-button" data-test-id="cm-button-renew" data-original-title="Renew Instances">
-                    <i class="btn-fa fa-regular fa-clock"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" data-toggle="tooltip" title="" id="instances-restart-button" data-test-id="cm-button-restart" data-original-title="Restart Instances">
-                    <i class="btn-fa fas fa-sync"></i>
-                </button>
-                <button type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="" id="instances-delete-button" data-test-id="cm-button-destroy" data-original-title="Delete Instances">
-                    <i class="btn-fa fas fa-trash-alt"></i>
-                </button>
-            </div>
+<div class="col-md-12">
+    <div class="col-md-12"> 
         <table class="table table-striped border">
             <thead>
             <tr>
-                <th class="border-right" data-checkbox>
-                    <div class="form-check text-center" data-test-id="cm-checkbox-all">&nbsp;
-                        <input type="checkbox" class="form-check-input" data-checkbox-all>
-                    </div>
-                </th>
+                <th class="sort-col text-center"><b>Category</b></td>
                 <th class="sort-col text-center"><b>Challenge</b></td>
-                <th class="sort-col text-center"><b>Source</b></td>
+                {% if mana_enabled %}<th class="text-center"><b>Mana Cost</b></td>{% endif %}
                 <th class="text-center"><b>Connection Info</b></td>
-                <th class="text-center"><b>Flag</b></td>
                 <th class="sort-col text-center"><b>Since</b></td>
                 <th class="sort-col text-center"><b>Until</b></td>
-                <th class="sort-col text-center"><b>Last Renew</b></td>
-                <th class="text-center"><b>Renew</b></td>
-                <th class="text-center"><b>Restart</b></td>
-                <th class="text-center"><b>Delete</b></td>
             </tr>
             </thead>
 
             <tbody>
                 {% for instance in instances %}
                 <tr>
-                    <td class="border-right" data-checkbox>
-                        <div class="form-check text-center">&nbsp;
-                            <input type="checkbox" class="form-check-input" 
-                            data-challenge-id="{{ instance.challengeId }}"
-                            data-source-id="{{ instance.sourceId }}">
+
+                    <td class="text-center">
+                        <div class="form-check" id="challenge-category">
+                                {{ instance.challengeCategory }}
                         </div>
                     </td>
                 
                     <td class="text-center">
-                        <div class="form-check" id="challenge-id-div">
-                            <a href="{{ url_for('admin.challenges_detail', challenge_id=instance.challengeId) }}">
+                        <div class="form-check" id="challenge-name">
                                 {{ instance.challengeName }}
-                            </a>
                         </div>
-                      
-                    </td>
+                    {% if mana_enabled %}
                     <td class="text-center">
-                        {% if user_mode == "teams" %}
-                        <a href="{{ url_for('admin.teams_detail', team_id=instance.sourceId) }}">
-                            {{ instance.sourceId }}
-                        </a>
-                        {% else %}
-                        <a href="{{ url_for('admin.users_detail', user_id=instance.sourceId) }}">
-                            {{ instance.sourceId }}
-                        </a>
-                        {% endif %}
+                        <div class="form-check" id="challenge-mana-cost">
+                                {{ instance.manaCost }}
+                        </div>
                     </td>
+                    {% endif %}
 
                     <td class="text-center">
-                        <button class="btn btn-link p-0 click-copy"
-                            data-copy="{{ instance.connectionInfo }}"
-                            title="{{ instance.connectionInfo }}">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                    </td>
-
-                    <td class="text-center">
-                        {% if instance.flag %}
-                        <button class="btn btn-link p-0 click-copy"
-                            data-test-id="flag-{{ instance.sourceId }}"
-                            data-copy="{{ instance.flag }}"
-                            title="{{ instance.flag }}">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                        {% else %}
-                        -
-                        {% endif %}
+                        <div class="form-check" id="instance-connection-info">
+                                {{ instance.connectionInfo }}
+                        </div>
                     </td>
 
                     <td class="text-center">
@@ -119,42 +70,6 @@
                         {% endif %}
                     </td>
 
-                    <td class="text-center">
-                        {% set list1 = instance.lastRenew.split('T') %}
-                        {{ list1[0] }} &nbsp;
-                        {{ list1[1][0:8] }}
-                    </td>
-
-                    <td class="text-center">                        
-                        <button class="btn btn-link p-0 renew-instance"                            
-                           challenge-id="{{ instance.challengeId }}"
-                           source-id="{{ instance.sourceId }}"
-                           data-placement="top"
-                           data-toggle="tooltip"
-                           title="Renew">
-                           <i class="fa-regular fa-clock"></i>
-                        </button>
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-link p-0 restart-instance"
-                           challenge-id="{{ instance.challengeId }}"
-                           source-id="{{ instance.sourceId }}"
-                           data-placement="top"
-                           data-toggle="tooltip"
-                           title="Restart">
-                            <i class="fas fa-sync"></i>
-                        </button>
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-link p-0 delete-instance"
-                           challenge-id="{{ instance.challengeId }}" 
-                           source-id="{{ instance.sourceId }}" 
-                           data-placement="top"
-                           data-toggle="tooltip"
-                           title="Destroy">
-                           <i class="btn-fa fas fa-trash-alt"></i>
-                    </button>
-                    </td>
                 </tr>
                 {% endfor %}
             
@@ -163,8 +78,4 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block scripts %}
-    <script defer src="{{ url_for('plugins.ctfd_chall_manager.assets', path='instances.js') }}"></script>
 {% endblock %}

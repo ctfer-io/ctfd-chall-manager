@@ -4,8 +4,7 @@ and all Admins pages endpoints.
 """
 
 import requests
-from CTFd.api import CTFd_API_v1
-from CTFd.plugins import register_plugin_assets_directory
+from CTFd.plugins import register_plugin_assets_directory, register_user_page_menu_bar
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 from CTFd.plugins.ctfd_chall_manager.api import register_api_endpoints
 from CTFd.plugins.ctfd_chall_manager.models import (
@@ -16,13 +15,19 @@ from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_all_mana_used
+from CTFd.plugins.ctfd_chall_manager.utils.helpers import (
+    calculate_all_mana_used,
+    calculate_mana_used,
+)
+from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
 from CTFd.plugins.migrations import upgrade
 from CTFd.utils import get_config, set_config
+from CTFd.utils import user as current_user
 from CTFd.utils.challenges import get_all_challenges
-from CTFd.utils.decorators import admins_only
+from CTFd.utils.config import is_teams_mode
+from CTFd.utils.decorators import admins_only, authed_only
 from flask import Blueprint, render_template, request
 
 # Configure logger for this module
@@ -120,7 +125,9 @@ def load(app):  # pylint: disable=too-many-statements
             logger.debug("instance: %s", i)
 
         return render_template(
-            "chall_manager_instances.html", instances=instances, user_mode=user_mode
+            "chall_manager_admin_instances.html",
+            instances=instances,
+            user_mode=user_mode,
         )
 
     # Route to monitor & manage mana
@@ -167,5 +174,67 @@ def load(app):  # pylint: disable=too-many-statements
             field=field,
         )
 
+    # Route to monitor & manage running instances
+    @page_blueprint.route("/instances")
+    @authed_only
+    def instances():  # pylint: disable=unused-variable
+        mana_total = int(get_config("chall-manager:chall-manager_mana_total"))
+        mana_enabled = mana_total > 0
+        mana_remaining = mana_total
+        mana_used = 0
+
+        user_id = int(current_user.get_current_user().id)
+        source_id = user_id
+        if is_teams_mode():
+            source_id = current_user.get_current_user().team_id
+            # If user has no team
+            if not source_id:
+                logger.info(
+                    "user %s has no team, abort",
+                    user_id,
+                )
+                return render_template(
+                    "chall_manager_instances.html",
+                    instances=[],
+                    mana_remaining=0,  # no mana for no team
+                    mana_total=mana_total,
+                    mana_enabled=mana_enabled,
+                )
+        try:
+            instances = query_instance(int(source_id))
+            logger.info("retrieved %s challenges successfully", len(instances))
+        except ChallManagerException as e:
+            logger.error("error querying challenges: %s", e)
+
+        for i in instances:
+            # Add CTFd infos, admin=False means do no display hidden challenges
+            challenge = get_all_challenges(admin=False, id=i["challengeId"])
+
+            # if challenge is not hidden
+            if len(challenge) == 1:
+                i["challengeName"] = challenge[0].name
+                i["challengeCategory"] = challenge[0].category
+            else:  # if challenge is hidden
+                i["challengeName"] = "hidden"
+                i["challengeCategory"] = "hidden"
+                i["connectionInfo"] = "hidden"
+
+            challenge = DynamicIaCChallenge.query.filter_by(id=i["challengeId"]).first()
+            i["manaCost"] = challenge.mana_cost
+
+        if mana_enabled:
+            # calculate mana only if its enabled
+            mana_used = calculate_mana_used(source_id)
+            mana_remaining = mana_total - mana_used
+
+        return render_template(
+            "chall_manager_instances.html",
+            instances=instances,
+            mana_remaining=mana_remaining,
+            mana_total=mana_total,
+            mana_enabled=mana_enabled,
+        )
+
     app.register_blueprint(page_blueprint)
+    register_user_page_menu_bar("Instances", "/plugins/ctfd-chall-manager/instances")
     logger.info("Blueprint registered.")
