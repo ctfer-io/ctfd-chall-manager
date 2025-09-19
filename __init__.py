@@ -178,16 +178,16 @@ def load(app):  # pylint: disable=too-many-statements
         user_id = int(current_user.get_current_user().id)
         source_id = user_id
         if is_teams_mode():
-            source_id = int(current_user.get_current_user().team_id)
+            source_id = current_user.get_current_user().team_id
             # If user has no team
             if not source_id:
                 logger.info(
                     "user %s has no team, abort",
                     user_id,
                 )
-                return {"success": False, "data": {"message": "unauthorized"}}, 403
+                return render_template("chall_manager_instances.html", instances=[])
         try:
-            instances = query_instance(source_id)
+            instances = query_instance(int(source_id))
             logger.info("retrieved %s challenges successfully", len(instances))
         except ChallManagerException as e:
             logger.error("error querying challenges: %s", e)
@@ -200,7 +200,6 @@ def load(app):  # pylint: disable=too-many-statements
 
             challenge = DynamicIaCChallenge.query.filter_by(id=i["challengeId"]).first()
             i["manaCost"] = challenge.mana_cost
-            logger.debug("instance: %s", i)
 
         return render_template("chall_manager_instances.html", instances=instances)
 
