@@ -15,7 +15,10 @@ from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_all_mana_used
+from CTFd.plugins.ctfd_chall_manager.utils.helpers import (
+    calculate_all_mana_used,
+    calculate_mana_used,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
@@ -175,6 +178,11 @@ def load(app):  # pylint: disable=too-many-statements
     @page_blueprint.route("/instances")
     @authed_only
     def instances():  # pylint: disable=unused-variable
+        mana_total = int(get_config("chall-manager:chall-manager_mana_total"))
+        mana_enabled = mana_total > 0
+        mana_remaining = mana_total
+        mana_used = 0
+
         user_id = int(current_user.get_current_user().id)
         source_id = user_id
         if is_teams_mode():
@@ -185,7 +193,13 @@ def load(app):  # pylint: disable=too-many-statements
                     "user %s has no team, abort",
                     user_id,
                 )
-                return render_template("chall_manager_instances.html", instances=[])
+                return render_template(
+                    "chall_manager_instances.html",
+                    instances=[],
+                    mana_remaining=0,  # no mana for no team
+                    mana_total=mana_total,
+                    mana_enabled=mana_enabled,
+                )
         try:
             instances = query_instance(int(source_id))
             logger.info("retrieved %s challenges successfully", len(instances))
@@ -193,15 +207,33 @@ def load(app):  # pylint: disable=too-many-statements
             logger.error("error querying challenges: %s", e)
 
         for i in instances:
-            # Add CTFd infos
-            challenge = get_all_challenges(admin=True, id=i["challengeId"])[0]
-            i["challengeName"] = challenge.name
-            i["challengeCategory"] = challenge.category
+            # Add CTFd infos, admin=False means do no display hidden challenges
+            challenge = get_all_challenges(admin=False, id=i["challengeId"])
+
+            # if challenge is not hidden
+            if len(challenge) == 1:
+                i["challengeName"] = challenge[0].name
+                i["challengeCategory"] = challenge[0].category
+            else:  # if challenge is hidden
+                i["challengeName"] = "hidden"
+                i["challengeCategory"] = "hidden"
+                i["connectionInfo"] = "hidden"
 
             challenge = DynamicIaCChallenge.query.filter_by(id=i["challengeId"]).first()
             i["manaCost"] = challenge.mana_cost
 
-        return render_template("chall_manager_instances.html", instances=instances)
+        if mana_enabled:
+            # calculate mana only if its enabled
+            mana_used = calculate_mana_used(source_id)
+            mana_remaining = mana_total - mana_used
+
+        return render_template(
+            "chall_manager_instances.html",
+            instances=instances,
+            mana_remaining=mana_remaining,
+            mana_total=mana_total,
+            mana_enabled=mana_enabled,
+        )
 
     app.register_blueprint(page_blueprint)
     register_user_page_menu_bar("Instances", "/plugins/ctfd-chall-manager/instances")

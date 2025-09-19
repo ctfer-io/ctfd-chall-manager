@@ -3,20 +3,23 @@
 {% block content %}
 <div class="jumbotron">
     <div class="container">
-        <h1>Chall-Manager by CTFer.io</h1>
+        <h2>Chall-Manager by CTFer.io</h2>
+        {% if mana_enabled %}
+        <h3>Remaining mana: {{ mana_remaining }}/{{ mana_total }}</h3>
+        <small>You regain mana by destroying instances.</small>
+        {% endif %}
+        <small>For more informations about the plugin, refer to the <a href=https://ctfer.io/docs>documentation</a>.</small>
     </div>
 </div>
 
-
-<a class="row">    
-    <div class="col-md-12">
-        <div class="col-md-12">
+<div class="col-md-12">
+    <div class="col-md-12"> 
         <table class="table table-striped border">
             <thead>
             <tr>
                 <th class="sort-col text-center"><b>Category</b></td>
                 <th class="sort-col text-center"><b>Challenge</b></td>
-                <th class="text-center"><b>Mana Cost</b></td>
+                {% if mana_enabled %}<th class="text-center"><b>Mana Cost</b></td>{% endif %}
                 <th class="text-center"><b>Connection Info</b></td>
                 <th class="sort-col text-center"><b>Since</b></td>
                 <th class="sort-col text-center"><b>Until</b></td>
@@ -28,25 +31,25 @@
                 <tr>
 
                     <td class="text-center">
-                        <div class="form-check" id="challenge-id-div">
+                        <div class="form-check" id="challenge-category">
                                 {{ instance.challengeCategory }}
                         </div>
                     </td>
                 
                     <td class="text-center">
-                        <div class="form-check" id="challenge-id-div">
+                        <div class="form-check" id="challenge-name">
                                 {{ instance.challengeName }}
                         </div>
-                    </td>
-
+                    {% if mana_enabled %}
                     <td class="text-center">
-                        <div class="form-check" id="challenge-id-div">
+                        <div class="form-check" id="challenge-mana-cost">
                                 {{ instance.manaCost }}
                         </div>
                     </td>
+                    {% endif %}
 
                     <td class="text-center">
-                        <div class="form-check" id="challenge-id-div">
+                        <div class="form-check" id="instance-connection-info">
                                 {{ instance.connectionInfo }}
                         </div>
                     </td>
