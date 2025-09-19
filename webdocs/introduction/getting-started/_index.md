@@ -120,10 +120,16 @@ docker ps | grep challenge
 7b22cfa739ac 870ac2311d4b "/opt/CTFd/docker-en…" 22 seconds ago Up 21 seconds 0.0.0.0:32771->8000/tcp challenge-f953808a2ddbcace
 ```
 
-To monitor instances directly from CTFd, go to the instance monitoring page at [http://localhost:8000/plugins/ctfd-chall-manager/admin/instances](http://localhost:8000/plugins/ctfd-chall-manager/admin/instances).
+As Admin, youo monitor all instances directly from CTFd, go to the instance monitoring page at [http://localhost:8000/plugins/ctfd-chall-manager/admin/instances](http://localhost:8000/plugins/ctfd-chall-manager/admin/instances).
 
 {{% imgproc admin_instance Fit "800x800" %}}
 {{% /imgproc %}}
+
+As Player, you can monitor your instance directly from CTFd, go to the instance monitoring page at [http://localhost:8000/plugins/ctfd-chall-manager/instances](http://localhost:8000/plugins/ctfd-chall-manager/instances).
+
+{{% imgproc user_instance Fit "800x800" %}}
+{{% /imgproc %}}
+
 
 ## Conclusion
 
