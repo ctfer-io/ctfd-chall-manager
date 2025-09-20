@@ -28,7 +28,7 @@ from CTFd.utils import user as current_user
 from CTFd.utils.challenges import get_all_challenges
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import admins_only, authed_only
-from flask import Blueprint, render_template, redirect, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for
 
 # Configure logger for this module
 logger = configure_logger(__name__)
