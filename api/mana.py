@@ -3,6 +3,9 @@ This module describes the UserMana API endpoint of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/mana
 """
 
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_mana_used
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
@@ -59,8 +62,13 @@ class UserMana(Resource):
             lock.player_lock()
 
             mana = calculate_mana_used(source_id)
-
             logger.debug("retrieved mana for source_id: %s, mana: %s", source_id, mana)
+        except ChallManagerException as e:
+            logger.error(
+                "error while calculating the mana for source_id %s: %s", source_id, e
+            )
+            return {"success": False, "message": "internal server error"}, 500
+
         finally:
             logger.debug("get /mana release the player lock for %s", source_id)
             lock.player_unlock()
