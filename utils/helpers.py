@@ -5,6 +5,9 @@ This module defines the helpers functions.
 
 from CTFd.models import db  # type: ignore
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
@@ -63,14 +66,18 @@ def retrieve_all_ids(admin=False) -> dict[str, int] | ValueError:
     }
 
 
-def calculate_mana_used(source_id: int) -> int:
+def calculate_mana_used(source_id: int) -> int | ChallManagerException:
     """
     Calculate the mana used by source_id based on existing instances on Chall-Manager.
     return: mana_used (int)
     """
 
     # retrieve all challenge_ids for source_id of running instances
-    instances = query_instance(source_id)
+    try:
+        instances = query_instance(source_id)
+    except ChallManagerException as e:
+        raise e
+
     chall_ids = []
     for i in instances:
         chall_ids.append(i["challengeId"])
@@ -97,15 +104,21 @@ def calculate_mana_used(source_id: int) -> int:
     return int(mana_used)
 
 
-def calculate_all_mana_used():
+def calculate_all_mana_used() -> dict | ChallManagerException:
     """
     Retrieve all instances for all source_id, then calculate the amound of mana used.
+    return: {"source_id": "mana_used"}
+    raise: ChallManagerException
     """
 
     # find all source_id with running instances
     source_ids = {}
     instances = []
-    challenges = query_challenges()
+    try:
+        challenges = query_challenges()
+    except ChallManagerException as e:
+        raise e
+
     for item in challenges:
         instances = instances + list(item["instances"])
 
@@ -151,7 +164,7 @@ def check_source_can_create_instance(challenge_id: int, source_id: int) -> bool:
 
     challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
 
-    # if mana feature is not enable
+    # if mana feature is not enabled
     cm_mana_total = get_config("chall-manager:chall-manager_mana_total")
     if cm_mana_total <= 0:
         logger.debug(
@@ -170,7 +183,11 @@ def check_source_can_create_instance(challenge_id: int, source_id: int) -> bool:
         )
         return True
 
-    mana_used = calculate_mana_used(source_id)
+    try:
+        mana_used = calculate_mana_used(source_id)
+    except ChallManagerException:
+        return False  # block create if CM generate an error
+
     new_mana = mana_used + challenge.mana_cost
     # if source can afford it
     if new_mana <= cm_mana_total:

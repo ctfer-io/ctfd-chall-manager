@@ -28,7 +28,7 @@ from CTFd.utils import user as current_user
 from CTFd.utils.challenges import get_all_challenges
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import admins_only, authed_only
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, redirect, request, url_for
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -138,7 +138,12 @@ def load(app):  # pylint: disable=too-many-statements
         user_mode = get_config("user_mode")
 
         sources = []
-        source_ids = calculate_all_mana_used()
+        source_ids = {}
+        try:
+            source_ids = calculate_all_mana_used()
+        except ChallManagerException as e:
+            logger.error("error while calculating mana for all sources: %s", e)
+
         for item in source_ids.items():
             sources.append({"source_id": item[0], "mana": item[1]})
         logger.info("retrieved mana data for %s sources %s", len(sources), sources)
@@ -193,18 +198,20 @@ def load(app):  # pylint: disable=too-many-statements
                     "user %s has no team, abort",
                     user_id,
                 )
-                return render_template(
-                    "chall_manager_instances.html",
-                    instances=[],
-                    mana_remaining=0,  # no mana for no team
-                    mana_total=mana_total,
-                    mana_enabled=mana_enabled,
-                )
+                # return into team creation
+                return redirect(url_for("teams.private", next=request.full_path))
         try:
             instances = query_instance(int(source_id))
             logger.info("retrieved %s challenges successfully", len(instances))
         except ChallManagerException as e:
             logger.error("error querying challenges: %s", e)
+            return render_template(
+                "chall_manager_instances.html",
+                instances=[],
+                mana_remaining="unknown",
+                mana_total=mana_total,
+                mana_enabled=mana_enabled,
+            )
 
         for i in instances:
             # Add CTFd infos, admin=False means do no display hidden challenges
@@ -224,7 +231,17 @@ def load(app):  # pylint: disable=too-many-statements
 
         if mana_enabled:
             # calculate mana only if its enabled
-            mana_used = calculate_mana_used(source_id)
+            try:
+                mana_used = calculate_mana_used(source_id)
+            except ChallManagerException:
+                return render_template(
+                    "chall_manager_instances.html",
+                    instances=instances,
+                    mana_remaining="unknowned",
+                    mana_total=mana_total,
+                    mana_enabled=mana_enabled,
+                )
+
             mana_remaining = mana_total - mana_used
 
         return render_template(
