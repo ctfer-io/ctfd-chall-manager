@@ -28,7 +28,7 @@ from CTFd.utils import user as current_user
 from CTFd.utils.challenges import get_all_challenges
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import admins_only, authed_only
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, render_template, redirect, request, url_for
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -207,7 +207,7 @@ def load(app):  # pylint: disable=too-many-statements
             logger.error("error querying challenges: %s", e)
             return render_template(
                 "chall_manager_instances.html",
-                instances=[],
+                instances=[],  # empty instances if cm generate error
                 mana_remaining="unknown",
                 mana_total=mana_total,
                 mana_enabled=mana_enabled,
@@ -237,7 +237,7 @@ def load(app):  # pylint: disable=too-many-statements
                 return render_template(
                     "chall_manager_instances.html",
                     instances=instances,
-                    mana_remaining="unknowned",
+                    mana_remaining="unknown",
                     mana_total=mana_total,
                     mana_enabled=mana_enabled,
                 )
