@@ -85,7 +85,7 @@ runs:
         CTFD_PASSWORD: ${{ inputs.ctfd_pass }}
 
     - name: Install Pulumi
-      uses: pulumi/actions@cc7494be991dba0978f7ffafaf995b0449a0998e # v6.5.0
+      uses: pulumi/actions@d7ceb0215da5a14ec84f50b703365ddf0194a9c8 # v6.6.0
 
     - name: Additional configuration for CTFd (users and teams)
       shell: bash
