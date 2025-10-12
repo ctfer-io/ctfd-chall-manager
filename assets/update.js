@@ -89,6 +89,5 @@ function applyAdditional() {
 
 
 displayCurrentUntil()
-displayCurrentScenario()
 displayCurrentAdditional()
 
