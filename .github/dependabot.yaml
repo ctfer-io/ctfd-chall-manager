@@ -16,3 +16,10 @@ updates:
     assignees:
       - "NicoFgrx"
 
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "NicoFgrx"
+

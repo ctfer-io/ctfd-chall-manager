@@ -32,7 +32,7 @@ jobs:
     
     - name: Install Python linter
       run: |
-        pip install isort pylint black
+        pip install -r CTFd/plugins/ctfd_chall_manager/linting.txt
       
     - name: Run formatter & linters
       run: |
