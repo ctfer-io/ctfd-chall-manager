@@ -205,7 +205,8 @@ class Test_F_Challenges(unittest.TestCase):
         r = get_admin_instance(chall_id, get_source_id())
         a = json.loads(r.text)
 
-        payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
+        flags = a["data"]["flags"]
+        payload = {"challenge_id": chall_id, "submission": flags[0]}
 
         r = requests.post(
             f"{config.ctfd_url}/api/v1/challenges/attempt",
@@ -214,7 +215,7 @@ class Test_F_Challenges(unittest.TestCase):
         )
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
-        self.assertEqual(a["data"]["status"], "correct")
+        self.assertEqual(a["data"]["status"], "correct")  # logic = any
 
         # clear
         reset_all_submissions()
@@ -253,7 +254,8 @@ class Test_F_Challenges(unittest.TestCase):
         r = get_admin_instance(chall_id, get_source_id())
         a = json.loads(r.text)
 
-        payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
+        flags = a["data"]["flags"]
+        payload = {"challenge_id": chall_id, "submission": flags[0]}
 
         r = requests.post(
             f"{config.ctfd_url}/api/v1/challenges/attempt",
@@ -303,18 +305,21 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["success"], True)
         self.assertEqual(a["data"]["status"], "partial")
 
-        # provide the second flag provided by Chall-Manager
-        r = get_admin_instance(chall_id, get_source_id())
-        a = json.loads(r.text)
-        payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
-        r = requests.post(
-            f"{config.ctfd_url}/api/v1/challenges/attempt",
-            headers=config.headers_user,
-            data=json.dumps(payload),
-        )
-        a = json.loads(r.text)
-        self.assertEqual(a["success"], True)
-        self.assertEqual(a["data"]["status"], "correct")
+        flags = a["data"]["flags"]
+
+        for f in flags:
+            # provide the other flag provided by Chall-Manager
+            r = get_admin_instance(chall_id, get_source_id())
+            a = json.loads(r.text)
+            payload = {"challenge_id": chall_id, "submission": f}
+            r = requests.post(
+                f"{config.ctfd_url}/api/v1/challenges/attempt",
+                headers=config.headers_user,
+                data=json.dumps(payload),
+            )
+            a = json.loads(r.text)
+            self.assertEqual(a["success"], True)
+            self.assertIn(a["data"]["status"], ["parial", "correct"])
 
         # clear
         reset_all_submissions()
@@ -334,10 +339,12 @@ class Test_F_Challenges(unittest.TestCase):
         a = json.loads(r.text)
         user_mode = a["data"]["value"]
 
+        flags = a["data"]["flags"]
+
         # provide the second flag provided by Chall-Manager
         r = get_admin_instance(chall_id, get_source_id())
         a = json.loads(r.text)
-        payload = {"challenge_id": chall_id, "submission": a["data"]["flag"]}
+        payload = {"challenge_id": chall_id, "submission": flags[0]}
         r = requests.post(
             f"{config.ctfd_url}/api/v1/challenges/attempt",
             headers=config.headers_user,
