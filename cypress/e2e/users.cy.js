@@ -201,7 +201,7 @@ describe("Permform tests for CTFd in the User Land", () => {
     cy.visit(`${Cypress.env("CTFD_URL")}/plugins/ctfd-chall-manager/admin/instances`);
     // Find the index of the "Flag" column
     cy.get('thead tr th').each(($el, index) => {
-        if ($el.text().trim() === 'Flag') {
+        if ($el.text().trim() === 'Flags') {
             cy.wrap(index).as('flagColumnIndex');
         }
         });
