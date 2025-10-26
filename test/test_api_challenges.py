@@ -319,7 +319,7 @@ class Test_F_Challenges(unittest.TestCase):
             )
             a = json.loads(r.text)
             self.assertEqual(a["success"], True)
-            self.assertIn(a["data"]["status"], ["parial", "correct"])
+            self.assertIn(a["data"]["status"], ["partial", "correct"])
 
         # clear
         reset_all_submissions()
