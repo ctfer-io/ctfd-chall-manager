@@ -525,17 +525,21 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 cm_flags,
             )
 
-            # create Flags object to ease compare method
-            # this object is NOT stored in database.
+            # make sure that the flags are sorted before using idx
+            cm_flags.sort()
+
             for idx in range(len(cm_flags)):  # pylint: disable=consider-using-enumerate
-                generated_id = (
-                    f"-{source_id}{challenge.id}{idx}"  # avoid conflict # trust
-                )
+                # the flag id from CM will be -1, -2, ...
+                # in fact, we just want to avoid collision with existing CTFd Flag id here
+                generated_id = int(-(idx + 1))
+
+                # create Flags object to ease compare method
+                # this object is NOT stored in database.
                 ctfd_cm_flag = Flags(
                     challenge_id=challenge.id,
                     type="static",
                     content=cm_flags[idx],
-                    id=int(generated_id),
+                    id=generated_id,
                 )
                 flags.append(ctfd_cm_flag)
 
