@@ -41,7 +41,7 @@
                 <th class="sort-col text-center"><b>Challenge</b></td>
                 <th class="sort-col text-center"><b>Source</b></td>
                 <th class="text-center"><b>Connection Info</b></td>
-                <th class="text-center"><b>Flag</b></td>
+                <th class="text-center"><b>Flags</b></td>
                 <th class="sort-col text-center"><b>Since</b></td>
                 <th class="sort-col text-center"><b>Until</b></td>
                 <th class="sort-col text-center"><b>Last Renew</b></td>
@@ -91,13 +91,15 @@
                     </td>
 
                     <td class="text-center">
-                        {% if instance.flag %}
+                        {% if instance.flags %}
+                        {% for flag in instance.flags %}
                         <button class="btn btn-link p-0 click-copy"
                             data-test-id="flag-{{ instance.sourceId }}"
-                            data-copy="{{ instance.flag }}"
-                            title="{{ instance.flag }}">
+                            data-copy="{{ flag }}"
+                            title="{{ flag }}">
                             <i class="fa-solid fa-copy"></i>
                         </button>
+                        {% endfor %}
                         {% else %}
                         -
                         {% endif %}
