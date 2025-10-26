@@ -9,14 +9,14 @@ services:
       - chall-manager
 
   chall-manager:
-    image: ctferio/chall-manager:v0.5.0@sha256:a197c53b5b64b91ec4397d90c81e3a43808c1349ef5eec38bb611a074d9d11a2 # TODO configure dependabot to monitor this tag
+    image: ctferio/chall-manager:v0.6.0@sha256:4d0a0379a3c12b2203500a7852856ef7202c7c54d58207fb88d4b8919d5f6add # TODO configure dependabot to monitor this tag
     environment:
       OCI_INSECURE: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Used by the example scenario, remove if unecessary
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.5.0@sha256:34f08d0d1968b892a4ddbac7c8736e7187cbe7a06ee97cc2bc419e660a6386ba # TODO configure dependabot to monitor this tag
+    image: ctferio/chall-manager-janitor:v0.6.0@sha256:0194e6652aabe59539c1c167e15cc987309c4f49e65c9f3370f358d822246e6e # TODO configure dependabot to monitor this tag
     environment:
       URL: chall-manager:8080
       TICKER: 1m
