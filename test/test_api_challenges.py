@@ -305,12 +305,12 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["success"], True)
         self.assertEqual(a["data"]["status"], "partial")
 
+        r = get_admin_instance(chall_id, get_source_id())
+        a = json.loads(r.text)
         flags = a["data"]["flags"]
 
+        # provide the other flags provided by Chall-Manager
         for f in flags:
-            # provide the other flag provided by Chall-Manager
-            r = get_admin_instance(chall_id, get_source_id())
-            a = json.loads(r.text)
             payload = {"challenge_id": chall_id, "submission": f}
             r = requests.post(
                 f"{config.ctfd_url}/api/v1/challenges/attempt",
@@ -339,11 +339,11 @@ class Test_F_Challenges(unittest.TestCase):
         a = json.loads(r.text)
         user_mode = a["data"]["value"]
 
-        flags = a["data"]["flags"]
-
         # provide the second flag provided by Chall-Manager
         r = get_admin_instance(chall_id, get_source_id())
         a = json.loads(r.text)
+        flags = a["data"]["flags"]
+
         payload = {"challenge_id": chall_id, "submission": flags[0]}
         r = requests.post(
             f"{config.ctfd_url}/api/v1/challenges/attempt",
