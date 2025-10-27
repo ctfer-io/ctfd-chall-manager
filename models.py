@@ -525,7 +525,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 cm_flags,
             )
 
-            for idx in range(len(cm_flags)):  # pylint: disable=consider-using-enumerate
+            for idx, flag in enumerate(cm_flags):
                 # the flag id from CM will be -1, -2, ...
                 # in fact, we just want to avoid collision with existing CTFd Flag id here
                 generated_id = int(-(idx + 1))
@@ -535,7 +535,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 ctfd_cm_flag = Flags(
                     challenge_id=challenge.id,
                     type="static",
-                    content=cm_flags[idx],
+                    content=flag,
                     id=generated_id,
                 )
                 flags.append(ctfd_cm_flag)
