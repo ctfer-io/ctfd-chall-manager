@@ -525,9 +525,6 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 cm_flags,
             )
 
-            # make sure that the flags are sorted before using idx
-            cm_flags.sort()
-
             for idx in range(len(cm_flags)):  # pylint: disable=consider-using-enumerate
                 # the flag id from CM will be -1, -2, ...
                 # in fact, we just want to avoid collision with existing CTFd Flag id here
