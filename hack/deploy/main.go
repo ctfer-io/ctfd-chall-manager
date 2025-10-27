@@ -34,7 +34,12 @@ func main() {
 			additionalData.ConnectionInfo = "localhost"
 		}
 
-		resp.Flag = pulumi.String(sdk.Variate(req.Config.Identity, additionalData.Flag)).ToStringOutput()
+		flags := pulumi.StringArray{
+			pulumi.String(sdk.Variate(req.Config.Identity, additionalData.Flag)),
+			pulumi.String(sdk.Variate(req.Config.Identity, "BREFCTF{multi_flag}")),
+		}
+
+		resp.Flags = flags.ToStringArrayOutput()
 		resp.ConnectionInfo = pulumi.Sprintf("http://%s.%s", req.Config.Identity, sdk.Variate(req.Config.Identity, additionalData.ConnectionInfo)).ToStringOutput()
 
 		return nil

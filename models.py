@@ -513,22 +513,32 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             )
 
         flags = Flags.query.filter_by(challenge_id=challenge.id).all()
-        logger.debug("check if flag is provided by CM")
-        if "flag" in data.keys():
-            cm_flag = data["flag"]
+        logger.debug("check if flags is provided by CM")
+
+        # Chall-Manager feature since v0.6.0
+        if "flags" in data.keys():
+            cm_flags = list(data["flags"])
             logger.debug(
-                "flag provided by CM for challenge %s source %s: %s",
+                "flags provided by CM for challenge %s source %s: %s",
                 challenge.id,
                 source_id,
-                cm_flag,
+                cm_flags,
             )
 
-            # create Flags object to ease compare method
-            # this object is NOT stored in database.
-            ctfd_cm_flag = Flags(
-                challenge_id=challenge.id, type="static", content=cm_flag
-            )
-            flags.append(ctfd_cm_flag)
+            for idx, flag in enumerate(cm_flags):
+                # the flag id from CM will be -1, -2, ...
+                # in fact, we just want to avoid collision with existing CTFd Flag id here
+                generated_id = int(-(idx + 1))
+
+                # create Flags object to ease compare method
+                # this object is NOT stored in database.
+                ctfd_cm_flag = Flags(
+                    challenge_id=challenge.id,
+                    type="static",
+                    content=flag,
+                    id=generated_id,
+                )
+                flags.append(ctfd_cm_flag)
 
         # CTFd behavior
         # https://github.com/CTFd/CTFd/blob/3.8.0/CTFd/plugins/challenges/__init__.py#L131
