@@ -53,7 +53,7 @@ jobs:
             -e PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK=true \
             -e PLUGIN_SETTINGS_CM_MANA_TOTAL=10 \
             -v ${{ github.workspace }}:/opt/CTFd/CTFd/plugins/ctfd_chall_manager \
-            ctfd/ctfd:3.8.0@sha256:61712c4af6e9cddccfafc4503484c8091f6325be286d407595b922dc9552b5ae
+            ctfd/ctfd:3.8.1@sha256:0de331947204628900fb68e01478dfd6f209aadf4eac269a2be08ee92af8ef0d
 
       - name: Setup basic testing env
         uses: ./.github/workflows/setup-testing
