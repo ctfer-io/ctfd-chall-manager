@@ -57,7 +57,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     timeout = db.Column(db.Integer)
     shared = db.Column(db.Boolean, default=False)
     destroy_on_flag = db.Column(db.Boolean, default=False)
-    additional = db.Column(db.JSON)
+    additional = db.Column(db.JSON, default={})
 
     # Pooler feature
     min = db.Column(db.Integer, default=0)
@@ -201,39 +201,21 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         params = {
             "scenario": challenge.scenario,
         }
-        if "timeout" in data.keys():
-            if data["timeout"] is None:
-                params["timeout"] = (
-                    None  # must explicitely define it as we append a "s" elseway
-                )
-            else:
-                params["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
 
-        if "until" in data.keys():
-            if data["until"] is None:
-                params["until"] = None
-            else:
-                params["until"] = f"{data['until']}"
+        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
+            if key in [
+                "additional",
+                "until",
+                "timeout",
+                "scenario",
+                "min",
+                "max",
+            ]:
+                params[key] = data[key]
 
-        if "min" in data.keys():
-            try:
-                params["min"] = int(data["min"])
-            except ValueError:
-                logger.warning("min cannot be convert into int, got %s", data["min"])
-
-        if "max" in data.keys():
-            try:
-                params["max"] = int(data["max"])
-            except ValueError:
-                logger.warning("min cannot be convert into int, got %s", data["max"])
-
-        if "additional" in data.keys():
-            logger.debug(
-                "retrieving additional configuration for challenge %s : %s",
-                challenge.id,
-                data["additional"],
-            )
-            params["additional"] = data["additional"]
+        # convert to protobuf format
+        if params["timeout"] is not None:
+            params["timeout"] = f"{params['timeout']}s"  # proto
 
         # handle challenge creation on chall-manager
         try:
@@ -372,14 +354,17 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             if key in [
                 "additional",
                 "until",
+                "timeout",
                 "scenario",
                 "min",
                 "max",
                 "updateStrategy",
             ]:
                 params[key] = data[key]
-            if key == "timeout":
-                params["timeout"] = f"{data['timeout']}s"  # proto
+
+        # convert to protobuf format
+        if data["timeout"] is not None:
+            params["timeout"] = f"{data['timeout']}s"  # proto
 
         # send updates to CM
         try:
