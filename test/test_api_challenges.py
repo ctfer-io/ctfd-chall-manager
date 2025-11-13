@@ -180,7 +180,7 @@ class Test_F_Challenges(unittest.TestCase):
         payload = {
             "scenario": config.scenario2,
             "updateStrategy": "recreate",
-            "until": 600,  # FIXME wtf ?
+            "timeout": 600,  # FIXME wtf ?
         }
 
         # update the challenge
