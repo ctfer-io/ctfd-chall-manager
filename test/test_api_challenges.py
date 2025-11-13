@@ -194,6 +194,8 @@ class Test_F_Challenges(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
+        print(a)  # TODO remove before PR
+
         until2 = a["data"]["until"]
 
         # recreate as updateStrategy must destroy then recreate the instance
