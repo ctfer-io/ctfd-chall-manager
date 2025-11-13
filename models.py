@@ -212,10 +212,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "max",
             ]:
                 params[key] = data[key]
-
-        # convert to protobuf format
-        if params["timeout"] is not None:
-            params["timeout"] = f"{params['timeout']}s"  # proto
+            if key == "timeout" and data["timeout"] is not None:
+                params["timeout"] = f"{data['timeout']}s"  # protobuf format
 
         # handle challenge creation on chall-manager
         try:
@@ -361,10 +359,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "updateStrategy",
             ]:
                 params[key] = data[key]
-
-        # convert to protobuf format
-        if data["timeout"] is not None:
-            params["timeout"] = f"{data['timeout']}s"  # proto
+            if key == "timeout" and data["timeout"] is not None:
+                params["timeout"] = f"{data['timeout']}s"  # protobuf format
 
         # send updates to CM
         try:
