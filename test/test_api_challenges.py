@@ -13,6 +13,7 @@ from .utils import (
     delete_challenge,
     delete_instance,
     get_admin_instance,
+    get_instance,
     get_source_id,
     post_instance,
     reset_all_submissions,
@@ -93,12 +94,26 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["data"]["min"], 0)
         self.assertEqual(a["data"]["max"], 0)
 
+        # Check I can update only 1 param
+        payload = {
+            "timeout": "2222",
+        }
+        r = requests.patch(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["timeout"], 2222)  # this one is changed
+        self.assertEqual(a["data"]["until"], None)  # this one not
+
         # Then set other ones
         payload = {
             "shared": "true",
             "destroy_on_flag": "true",
             "until": "2222-02-22T21:22:00Z",
-            "timeout": "2222",
+            "timeout": None,
             "additional": {"test": "test"},
             "min": 1,
             "max": 2,
@@ -117,7 +132,7 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["data"]["shared"], True)
         self.assertEqual(a["data"]["destroy_on_flag"], True)
         self.assertEqual(a["data"]["until"], "2222-02-22T21:22:00Z")
-        self.assertEqual(a["data"]["timeout"], 2222)
+        self.assertEqual(a["data"]["timeout"], None)
         self.assertEqual(a["data"]["additional"], {"test": "test"})
         self.assertEqual(a["data"]["min"], 1)
         self.assertEqual(a["data"]["max"], 2)
@@ -154,6 +169,52 @@ class Test_F_Challenges(unittest.TestCase):
         )
         self.assertEqual(r.status_code, 500)  # CTFd return internal server error
         # https://github.com/CTFd/CTFd/issues/2674
+
+    def test_can_update_scenario(self):
+        """
+        Check the scenario and the associated instances are updated
+        """
+        chall_id = create_challenge(timeout=600)
+
+        r = requests.get(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["scenario"], config.scenario)
+
+        # create instance
+        r = post_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        until1 = a["data"]["until"]
+
+        payload = {"scenario": config.scenario2, "updateStrategy": "recreate"}
+
+        # update the challenge
+        r = requests.patch(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["scenario"], config.scenario2)
+
+        # check that the until has changed (instance recreated)
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        until2 = a["data"]["until"]
+
+        # recreate as updateStrategy must destroy then recreate the instance
+        self.assertNotEqual(until1, until2)
+
+        delete_instance(chall_id)
+        delete_challenge(chall_id)
 
     def test_attempt_ctfd_flag(self):
         """

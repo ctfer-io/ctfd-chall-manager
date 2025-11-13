@@ -11,7 +11,7 @@ import threading
 import requests
 
 
-class Config:  # pylint: disable=too-few-public-methods
+class Config:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """
     Config class purpose is to configure testing environemnt.
     """
@@ -40,6 +40,7 @@ class Config:  # pylint: disable=too-few-public-methods
 
         # This ref need to be pushed before start testing
         self.scenario = "registry:5000/examples/deploy:latest"
+        self.scenario2 = "registry:5000/examples/deploy:v2"
 
     def __repr__(self):
         return f"<Config {self.__dict__}>"
