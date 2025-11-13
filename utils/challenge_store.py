@@ -182,7 +182,9 @@ def update_challenge(
     logger.debug("updating challenge with id=%s", challenge_id)
 
     payload["updateMask"] = ",".join(
-        k for k in ("timeout", "until", "additional", "min", "max") if k in payload
+        k
+        for k in ("timeout", "until", "additional", "min", "max", "scenario")
+        if k in payload
     )
 
     logger.debug(
