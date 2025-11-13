@@ -187,7 +187,7 @@ class Test_F_Challenges(unittest.TestCase):
         )
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
-        self.assertEqual(a["scenario"], config.scenario2)
+        self.assertEqual(a["config"]["scenario"], config.scenario2)
 
         r = get_instance(chall_id)
         a = json.loads(r.text)
