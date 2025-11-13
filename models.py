@@ -121,7 +121,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         logger.debug("creating challenge on CTFd")
         data = request.form or request.get_json()
 
-        # lint the plugin attributes by removing empty values
+        # lint the plugin attributes by removing empty values (UI form)
         for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
             if (
                 key
@@ -306,6 +306,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             if (
                 key
                 in [
+                    "additional",
                     "mana_cost",
                     "until",
                     "timeout",
@@ -330,16 +331,6 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         if "state" in data.keys() and len(data.keys()) == 1:
             setattr(challenge, "state", data["state"])
             return super().calculate_value(challenge)
-
-        # Patch Challenge on CTFd
-        params = {}
-        if "until" not in data.keys():
-            params["until"] = None
-            setattr(challenge, "until", None)
-
-        if "timeout" not in data.keys():
-            params["timeout"] = None
-            setattr(challenge, "timeout", None)
 
         # convert string into dict in CTFd
         if "additional" in data.keys():
@@ -368,47 +359,27 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     found {data['additional']}"
                 ) from e
 
-        # don't touch this
+        # update on database
         for attr, value in data.items():
             # We need to set these to floats so that the next operations don't operate on strings
             if attr in ("initial", "minimum", "decay"):
                 value = float(value)
-            setattr(challenge, attr, value)
+            setattr(challenge, attr, value)  # update on database
 
-        # Patch Challenge on CM
-        if "timeout" in data.keys():
-            if data["timeout"] is None:
-                params["timeout"] = (
-                    None  # must explicitely define it as we append a "s" elseway
-                )
-            else:
-                params["timeout"] = f"{data['timeout']}s"  # 500 -> 500s proto standard
-
-        if "until" in data.keys():
-            if data["until"] is None:
-                params["until"] = None
-            else:
-                params["until"] = f"{data['until']}"
-
-        if "additional" in data.keys():
-            logger.debug(
-                "retrieving additional configuration for challenge %s : %s",
-                challenge.id,
-                data["additional"],
-            )
-            params["additional"] = data["additional"]
-
-        if "updateStrategy" in data.keys():
-            params["updateStrategy"] = data["updateStrategy"]
-
-        if "scenario" in data.keys():
-            params["scenario"] = data["scenario"]
-
-        if "min" in data.keys():
-            params["min"] = data["min"]
-
-        if "max" in data.keys():
-            params["max"] = data["max"]
+        # Patch Challenge on Chall-Manager API
+        params = {}
+        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
+            if key in [
+                "additional",
+                "until",
+                "scenario",
+                "min",
+                "max",
+                "updateStrategy",
+            ]:
+                params[key] = data[key]
+            if key == "timeout":
+                params["timeout"] = f"{data['timeout']}s"  # proto
 
         # send updates to CM
         try:

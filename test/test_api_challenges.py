@@ -177,11 +177,7 @@ class Test_F_Challenges(unittest.TestCase):
 
         until1 = a["data"]["until"]
 
-        payload = {
-            "scenario": config.scenario2,
-            "updateStrategy": "recreate",
-            "timeout": 600,  # FIXME wtf ?
-        }
+        payload = {"scenario": config.scenario2, "updateStrategy": "recreate"}
 
         # update the challenge
         r = requests.patch(
