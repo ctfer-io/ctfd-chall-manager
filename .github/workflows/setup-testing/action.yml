@@ -115,6 +115,7 @@ runs:
         cd hack/deploy
         chmod +x build.sh
         ./build.sh
+        ./build.sh v2
       env:
         CGO_ENABLED: 0
         REGISTRY: localhost:5000/

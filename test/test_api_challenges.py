@@ -13,6 +13,7 @@ from .utils import (
     delete_challenge,
     delete_instance,
     get_admin_instance,
+    get_instance,
     get_source_id,
     post_instance,
     reset_all_submissions,
@@ -154,6 +155,51 @@ class Test_F_Challenges(unittest.TestCase):
         )
         self.assertEqual(r.status_code, 500)  # CTFd return internal server error
         # https://github.com/CTFd/CTFd/issues/2674
+
+    def test_can_update_scenario(self):
+        """
+        Check the scenario and the associated instances are updated
+        """
+        chall_id = create_challenge()
+
+        r = requests.get(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["scenario"], config.scenario)
+
+        # create instance
+        r = post_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        since1 = a["data"]["since"]
+
+        payload = {"scenario": config.scenario2, "updateStrategy": "recreate"}
+
+        # update the challenge
+        r = requests.patch(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["scenario"], config.scenario2)
+
+        r = get_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        since2 = a["data"]["since"]
+
+        # recreate as updateStrategy must destroy then recreate the instance
+        self.assertNotEqual(since1, since2)
+
+        delete_instance(chall_id)
+        delete_challenge(chall_id)
 
     def test_attempt_ctfd_flag(self):
         """
