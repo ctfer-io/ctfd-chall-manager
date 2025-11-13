@@ -160,7 +160,7 @@ class Test_F_Challenges(unittest.TestCase):
         """
         Check the scenario and the associated instances are updated
         """
-        chall_id = create_challenge()
+        chall_id = create_challenge(timeout=600)
 
         r = requests.get(
             f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
@@ -175,7 +175,7 @@ class Test_F_Challenges(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
-        since1 = a["data"]["since"]
+        until1 = a["data"]["until"]
 
         payload = {"scenario": config.scenario2, "updateStrategy": "recreate"}
 
@@ -189,14 +189,15 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["success"], True)
         self.assertEqual(a["data"]["scenario"], config.scenario2)
 
+        # check that the until has changed (instance recreated)
         r = get_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
-        since2 = a["data"]["since"]
+        until2 = a["data"]["until"]
 
         # recreate as updateStrategy must destroy then recreate the instance
-        self.assertNotEqual(since1, since2)
+        self.assertNotEqual(until1, until2)
 
         delete_instance(chall_id)
         delete_challenge(chall_id)
