@@ -3,6 +3,8 @@ This modules defines the entrypoint of the plugin (load)
 and all Admins pages endpoints.
 """
 
+import os
+
 import requests
 from CTFd.plugins import register_plugin_assets_directory, register_user_page_menu_bar
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
@@ -253,5 +255,14 @@ def load(app):  # pylint: disable=too-many-statements
         )
 
     app.register_blueprint(page_blueprint)
-    register_user_page_menu_bar("Instances", "/plugins/ctfd-chall-manager/instances")
     logger.info("Blueprint registered.")
+
+    # https://github.com/ctfer-io/ctfd-chall-manager/issues/226
+    instances_panel_enabled = (
+        os.getenv("PLUGIN_SETTINGS_CM_UI_HIDE_INSTANCES_PANEL", "false").lower()
+        != "true"
+    )
+    if instances_panel_enabled:
+        register_user_page_menu_bar(
+            "Instances", "/plugins/ctfd-chall-manager/instances"
+        )
