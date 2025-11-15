@@ -64,7 +64,7 @@ When you arrive on the modification page, the value displayed is the one configu
 You can change or reset this value, Chall-Manager will update all the computed `until` for instances. 
 
 ## Change the scenario
-When you arrive on the modification page, you can download the current scenario archive.
+When you arrive on the modification page, you can see the current scenario reference.
 
 {{% imgproc challenge-scenario Fit "800x800" %}}
 {{% /imgproc %}}

@@ -16,11 +16,12 @@ This guide assumes you are a CTF administrator and you understand the key concep
 
 To configure the plugin at CTFd startup, you can use the next environment variables:
 
-| Variable                       | Default               | Description                                                        |
-|--------------------------------|-----------------------|--------------------------------------------------------------------|
-| PLUGIN_SETTINGS_CM_API_URL     | http://localhost:8080 | URL of Chall-Manager API                                           |
-| PLUGIN_SETTINGS_CM_API_TIMEOUT | 600                   | Number of seconds before plugin timeout on Chall-Manager API calls |
-| PLUGIN_SETTINGS_CM_MANA_TOTAL  | 0                     | Maximum mana that source are allowed to use                        |
+| Variable                                   | Default               | Description                                                        |
+|--------------------------------------------|-----------------------|--------------------------------------------------------------------|
+| PLUGIN_SETTINGS_CM_API_URL                 | http://localhost:8080 | URL of Chall-Manager API                                           |
+| PLUGIN_SETTINGS_CM_API_TIMEOUT             | 600                   | Number of seconds before plugin timeout on Chall-Manager API calls |
+| PLUGIN_SETTINGS_CM_MANA_TOTAL              | 0                     | Maximum mana that source are allowed to use                        |
+| PLUGIN_SETTINGS_CM_UI_HIDE_INSTANCES_PANEL | false                 | Hide the Instances button on home page                             |
 
 {{% alert title="Note" color="primary" %}}
 The environment variable lookup is triggered at CTFd first startup and insert in database. **To modify settings, you need to change it on CTFd UI**.
@@ -45,3 +46,11 @@ The plugin can optionally use 2 commons variables to configure cache or the logg
 |-----------	|---------	|-----------------------------------------------------------------------------------	|
 | REDIS_URL 	| ""      	| The URI to connect to a Redis server. (e.g. redis://user:password@localhost:6379) 	|
 | LOG_LEVEL  	| "INFO"  	| Enumeration in INFO, DEBUG, ERROR, WARNING                                        	|
+
+### Experimental features
+
+The plugin includes experimental features that can be enabled via environment variables. We welcome any feedback you may have on using these features.
+
+| Variable                               | Default | Description                                                                                 |
+|----------------------------------------|---------|---------------------------------------------------------------------------------------------|
+| PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK | false   | Enable RWLock priority system (see https://github.com/ctfer-io/ctfd-chall-manager/pull/167) |
