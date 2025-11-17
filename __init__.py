@@ -122,8 +122,19 @@ def load(app):  # pylint: disable=too-many-statements
 
         user_mode = get_config("user_mode")
         for i in instances:
-            challenge_name = get_all_challenges(admin=True, id=i["challengeId"])[0].name
-            i["challengeName"] = challenge_name
+            # get_all_challenges() may return an empty list if the underlying challenge
+            # was deleted directly in Chall-Manager. Keep the row but label it clearly.
+            challenge = get_all_challenges(admin=True, id=i["challengeId"])
+
+            if challenge:
+                i["challengeName"] = challenge[0].name
+            else:
+                i["challengeName"] = f"Unknown challenge #{i['challengeId']}"
+                logger.warning(
+                    "challenge_id %s referenced by Chall-Manager does not exist anymore in CTFd",
+                    i["challengeId"],
+                )
+
             logger.debug("instance: %s", i)
 
         return render_template(
@@ -217,19 +228,29 @@ def load(app):  # pylint: disable=too-many-statements
 
         for i in instances:
             # Add CTFd infos, admin=False means do no display hidden challenges
-            challenge = get_all_challenges(admin=False, id=i["challengeId"])
-
+            challenge_entries = get_all_challenges(admin=False, id=i["challengeId"])
+            challenge = DynamicIaCChallenge.query.filter_by(id=i["challengeId"]).first()
             # if challenge is not hidden
-            if len(challenge) == 1:
-                i["challengeName"] = challenge[0].name
-                i["challengeCategory"] = challenge[0].category
-            else:  # if challenge is hidden
+            if len(challenge_entries) == 1:
+                i["challengeName"] = challenge_entries[0].name
+                i["challengeCategory"] = challenge_entries[0].category
+            elif challenge is None:
+                logger.warning(
+                    "challenge_id %s referenced by Chall-Manager does not exist anymore in CTFd",
+                    i["challengeId"],
+                )
+                i["challengeName"] = f"Unknown challenge #{i['challengeId']}"
+                i["challengeCategory"] = "unknown"
+                i["connectionInfo"] = "unavailable"
+            else:  # challenge exists but is hidden
                 i["challengeName"] = "hidden"
                 i["challengeCategory"] = "hidden"
                 i["connectionInfo"] = "hidden"
 
-            challenge = DynamicIaCChallenge.query.filter_by(id=i["challengeId"]).first()
-            i["manaCost"] = challenge.mana_cost
+            if challenge:
+                i["manaCost"] = challenge.mana_cost
+            else:
+                i["manaCost"] = "unknown"
 
         if mana_enabled:
             # calculate mana only if its enabled
