@@ -122,26 +122,17 @@ def load(app):  # pylint: disable=too-many-statements
         for i in instances:
             # get_all_challenges() may return an empty list if the underlying challenge
             # was deleted directly in Chall-Manager. Keep the row but label it clearly.
-            try:
-                challenge = get_all_challenges(admin=True, id=i["challengeId"])
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                logger.error(
-                    "error while retrieving challenge_id %s: %s",
-                    i["challengeId"],
-                    e,
-                )
-                challenge = []
+            challenge = get_all_challenges(admin=True, id=i["challengeId"])
 
             if challenge:
-                challenge_name = challenge[0].name
+                i["challengeName"] = challenge[0].name
             else:
-                challenge_name = f"Unknown challenge #{i['challengeId']}"
+                i["challengeName"] = f"Unknown challenge #{i['challengeId']}"
                 logger.warning(
                     "challenge_id %s referenced by Chall-Manager does not exist anymore in CTFd",
                     i["challengeId"],
                 )
 
-            i["challengeName"] = challenge_name
             logger.debug("instance: %s", i)
 
         return render_template(
