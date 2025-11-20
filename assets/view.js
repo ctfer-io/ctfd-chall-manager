@@ -249,7 +249,7 @@ CTFd._internal.challenge.renew = function () {
             });
         }
     }).finally(() => {
-        $('#whale-button-renew').text("Renew");
+        $('#whale-button-renew').text("Extend");
         $('#whale-button-renew').prop('disabled', false);
     });
 };

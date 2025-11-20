@@ -120,7 +120,7 @@ Cypress.Commands.add('destroy_current_chall', () => {
   cy.popup('Got it!')
 })
 
-Cypress.Commands.add('renew_current_chall', () => {
+Cypress.Commands.add('extend_current_chall', () => {
 
   cy.get('[data-test-id="cm-button-renew"]'
   ).should("be.visible"
@@ -129,4 +129,3 @@ Cypress.Commands.add('renew_current_chall', () => {
   cy.popup('Got it!')
 
 })
-
