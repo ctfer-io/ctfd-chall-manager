@@ -38,10 +38,8 @@ body:
       label: docker-image
       description: Do you use the prebuilt image ctferio/ctfd:<version> ?
       options:
-        - Yes
-        - No
-      validations:
-        required: true
+        - "Yes"
+        - "No"
 
   - type: input
     id: versions
