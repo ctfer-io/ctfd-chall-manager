@@ -8,6 +8,7 @@ import json
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
+    build_error_payload,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.decorators import challenge_visible
 from CTFd.plugins.ctfd_chall_manager.utils.helpers import (
@@ -94,13 +95,9 @@ class UserInstance(Resource):
             r = get_instance(challenge_id, source_id)
             logger.info("instance retrieved successfully : %s", json.loads(r.text))
         except ChallManagerException as e:
-            logger.error("error while getting instance: {e}")
-            return {
-                "success": False,
-                "data": {
-                    "message": f"Error while communicating with CM : {e}",
-                },
-            }, 500
+            logger.error("error while getting instance: %s", e)
+            error_data, status = build_error_payload(e)
+            return {"success": False, "data": error_data}, status
 
         # return only necessary values
         data = {}
@@ -171,19 +168,13 @@ class UserInstance(Resource):
             )
 
         except ChallManagerException as e:
+            error_data, status = build_error_payload(e)
             if "already exist" in e.message:
-                return {
-                    "success": False,
-                    "data": {
-                        "message": "instance already exist",
-                    },
-                }, 200
+                error_data["message"] = "instance already exist"
             return {
                 "success": False,
-                "data": {
-                    "message": f"error from Chall-Manager API: {e.message}",
-                },
-            }, 500
+                "data": error_data,
+            }, status
 
         finally:
             logger.debug("post /instance release the player lock for %s", source_id)
@@ -243,12 +234,11 @@ class UserInstance(Resource):
                 source_id,
             )
         except ChallManagerException as e:
+            error_data, status = build_error_payload(e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"error from Chall-Manager API: {e.message}",
-                },
-            }, 500
+                "data": error_data,
+            }, status
 
         return {
             "success": True,
@@ -304,12 +294,11 @@ class UserInstance(Resource):
 
         except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
+            error_data, status = build_error_payload(e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
-            }, 500
+                "data": error_data,
+            }, status
 
         finally:
             logger.debug("delete /instance release the player lock for %s", source_id)

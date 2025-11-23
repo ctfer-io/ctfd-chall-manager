@@ -7,6 +7,7 @@ import json
 import requests
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
+    build_cm_exception,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
@@ -50,14 +51,15 @@ def create_instance(
     except Exception as e:
         logger.error("error creating instance: %s", e)
         raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
+            message="an exception occurred while communicating with CM",
+            http_status=502,
         ) from e
 
-    if r.status_code != 200:
-        if r.json()["code"] == 2:
-            message = r.json()["message"]
-            logger.error("chall-manager return an error: %s", message)
-            raise ChallManagerException(message=message)
+    if r.status_code >= 400:
+        logger.error("chall-manager returned an error: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while creating the instance"
+        )
 
     return r
 
@@ -88,13 +90,14 @@ def delete_instance(
     except Exception as e:
         logger.error("error deleting instance: %s", e)
         raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
+            message="an exception occurred while communicating with CM",
+            http_status=502,
         ) from e
 
-    if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-Manager returned an error: {json.loads(r.text)}"
+    if r.status_code >= 400:
+        logger.error("error from chall-manager: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while deleting the instance"
         )
 
     return r
@@ -128,13 +131,14 @@ def get_instance(
     except Exception as e:
         logger.error("error getting instance: %s", e)
         raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
+            message="an exception occurred while communicating with CM",
+            http_status=502,
         ) from e
 
-    if r.status_code != 200:
-        logger.info("no instance on chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-Manager returned an error: {json.loads(r.text)}"
+    if r.status_code >= 400:
+        logger.info("no instance on chall-manager: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while retrieving the instance"
         )
 
     return r
@@ -170,13 +174,15 @@ def update_instance(
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("Error updating instance: %s", e)
-        raise ChallManagerException(message="error while communicating with CM") from e
+        raise ChallManagerException(
+            message="error while communicating with CM", http_status=502
+        ) from e
 
-    if r.status_code != 200:
-        if r.json()["code"] == 2:
-            message = r.json()["message"]
-            logger.error("chall-manager return an error: %s", message)
-            raise ChallManagerException(message=message)
+    if r.status_code >= 400:
+        logger.error("chall-manager returned an error while updating: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while updating the instance"
+        )
 
     return r
 
@@ -200,6 +206,12 @@ def query_instance(source_id: int) -> list | ChallManagerException:
 
     try:
         with s.get(url, headers=None, stream=True, timeout=CM_API_TIMEOUT) as resp:
+            if resp.status_code >= 400:
+                logger.error("chall-manager returned an error: %s", resp.text)
+                raise build_cm_exception(
+                    resp,
+                    "Chall-Manager returned an error while querying the instances",
+                )
             for line in resp.iter_lines():
                 if line:
                     res = line.decode("utf-8")
@@ -207,8 +219,10 @@ def query_instance(source_id: int) -> list | ChallManagerException:
                     if "result" in res.keys():
                         result.append(res["result"])
         logger.debug("successfully queried instances: %s", result)
+    except ChallManagerException:
+        raise
     except Exception as e:
         logger.error("connection error: %s", e)
-        raise ChallManagerException(message="connection error") from e
+        raise ChallManagerException(message="connection error", http_status=502) from e
 
     return result

@@ -48,6 +48,7 @@
                 <th class="text-center"><b>Renew</b></td>
                 <th class="text-center"><b>Restart</b></td>
                 <th class="text-center"><b>Delete</b></td>
+                <th class="text-center"><b>Status</b></td>
             </tr>
             </thead>
 
@@ -64,9 +65,14 @@
                 
                     <td class="text-center">
                         <div class="form-check" id="challenge-id-div">
-                            <a href="{{ url_for('admin.challenges_detail', challenge_id=instance.challengeId) }}">
+                            {% set cid = instance.challengeId %}
+                            {% if cid is string and not cid.isdigit() %}
                                 {{ instance.challengeName }}
-                            </a>
+                            {% else %}
+                                <a href="{{ url_for('admin.challenges_detail', challenge_id=cid) }}">
+                                    {{ instance.challengeName }}
+                                </a>
+                            {% endif %}
                         </div>
                       
                     </td>
@@ -147,7 +153,7 @@
                             <i class="fas fa-sync"></i>
                         </button>
                     </td>
-                    <td class="text-center">
+                   <td class="text-center">
                         <button class="btn btn-link p-0 delete-instance"
                            challenge-id="{{ instance.challengeId }}" 
                            source-id="{{ instance.sourceId }}" 
@@ -156,6 +162,9 @@
                            title="Destroy">
                            <i class="btn-fa fas fa-trash-alt"></i>
                     </button>
+                    </td>
+                    <td class="text-center">
+                        <div class="text-danger small cm-admin-error" style="display:none;"></div>
                     </td>
                 </tr>
                 {% endfor %}

@@ -7,6 +7,7 @@ import json
 import requests
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
+    build_cm_exception,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
@@ -33,12 +34,19 @@ def query_challenges() -> list | ChallManagerException:
 
     try:
         with s.get(url, headers=None, stream=True, timeout=CM_API_TIMEOUT) as resp:
+            if resp.status_code >= 400:
+                logger.error("error from chall-manager: %s", resp.text)
+                raise build_cm_exception(
+                    resp, "Chall-Manager returned an error while querying challenges"
+                )
             for line in resp.iter_lines():
                 if line:
                     res = line.decode("utf-8")
                     res = json.loads(res)
                     result.append(res["result"])
         logger.debug("successfully queried challenges: %s", result)
+    except ChallManagerException:
+        raise
     except Exception as e:
         logger.error("error querying challenges: %s", e)
         raise ChallManagerException(message="error querying challenges") from e
@@ -89,13 +97,14 @@ def create_challenge(
     except Exception as e:
         logger.error("error creating challenge: %s", e)
         raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
+            message="an exception occurred while communicating with CM",
+            http_status=502,
         ) from e
 
-    if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-manager returned an error: {json.loads(r.text)}"
+    if r.status_code >= 400:
+        logger.error("error from chall-manager: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while creating the challenge"
         )
 
     return r
@@ -121,6 +130,12 @@ def delete_challenge(challenge_id: int) -> requests.Response | ChallManagerExcep
         logger.error("error deleting challenge: %s", e)
         raise ChallManagerException(message="error deleting challenge") from e
 
+    if r.status_code >= 400:
+        logger.error("error from chall-manager: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while deleting the challenge"
+        )
+
     return r
 
 
@@ -142,13 +157,14 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
     except Exception as e:
         logger.error("error getting challenge: %s", e)
         raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
+            message="an exception occurred while communicating with CM",
+            http_status=502,
         ) from e
 
-    if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-manager returned an error: {json.loads(r.text)}"
+    if r.status_code >= 400:
+        logger.error("error from chall-manager: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while getting the challenge"
         )
 
     return r
@@ -198,12 +214,14 @@ def update_challenge(
         logger.debug("received response: %s %s", r.status_code, r.text)
     except Exception as e:
         logger.error("error updating challenge: %s", e)
-        raise ChallManagerException(message="error while communicating with CM") from e
-
-    if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
         raise ChallManagerException(
-            message=f"Chall-manager returned an error: {json.loads(r.text)}"
+            message="error while communicating with CM", http_status=502
+        ) from e
+
+    if r.status_code >= 400:
+        logger.error("error from chall-manager: %s", r.text)
+        raise build_cm_exception(
+            r, "Chall-Manager returned an error while updating the challenge"
         )
 
     return r
