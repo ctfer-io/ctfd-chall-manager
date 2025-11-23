@@ -325,3 +325,31 @@ CTFd._internal.challenge.restart = function() {
     });
     
 }
+
+
+// // Old behavior in plugin for theme compatibility
+// https://github.com/ctfer-io/ctfd-chall-manager/issues/234
+CTFd._internal.challenge.submit = function(preview) {
+    var challenge_id = parseInt($('#challenge-id').val())
+    var submission = $('#challenge-input').val() // id changed in newer version of CTFd (old: #submission-input)
+
+    var body = {
+        'challenge_id': challenge_id,
+        'submission': submission,
+    }
+    var params = {}
+    if (preview)
+        params['preview'] = true
+
+    return CTFd.api.post_challenge_attempt(params, body).then(function(response) {
+        if (response.status === 429) {
+            // User was ratelimited but process response
+            return response
+        }
+        if (response.status === 403) {
+            // User is not logged in or CTF is paused.
+            return response
+        }
+        return response
+    })
+};
