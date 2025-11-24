@@ -56,22 +56,33 @@ class ManaLock:
     def __repr__(self):
         return f"ManaLock name={self.name}"
 
-    def player_lock(self):
+    def player_lock(self, blocking: bool = True) -> bool:
         """
         Acquires the lock for a player.
+
+        ``blocking`` (bool): attempt to acquire without waiting when False.
+
+        Returns True if the lock was acquired, False otherwise.
         """
+        if not blocking:
+            return self.gr.acquire(blocking=False)
+
         if rw_lock_enabled:
             self.rw.r_lock()
 
         self.gr.acquire()
+        return True
 
-    def player_unlock(self):
+    def player_unlock(self, *, skip_rw: bool = False):
         """
         Releases the lock for a player.
+
+        ``skip_rw`` (bool): if True, do not release the RW lock
+        (used when ``player_lock`` was called with ``blocking=False``).
         """
         self.gr.release()
 
-        if rw_lock_enabled:
+        if rw_lock_enabled and not skip_rw:
             self.rw.r_unlock()
 
     def admin_lock(self):
