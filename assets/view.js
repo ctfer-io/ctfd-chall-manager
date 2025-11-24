@@ -67,11 +67,11 @@ function loadInfo() {
             clearInterval(window.t);
             window.t = undefined;
         }
-        if (response.success) response = response.data;
-        else CTFd._functions.events.eventAlert({
-            title: "Fail",
-            html: response.data.message,
-        });
+        if (response.success) {
+            response = response.data;
+        } else {
+            renderErrorAlert(response);
+        }
         $('#cm-panel-loading').hide();
         $('#cm-panel-until').hide(); 
        
@@ -138,12 +138,12 @@ function loadInfo() {
         }
         return response.json();
     }).then(function (response) {
-        if (response.success) response = response.data;
-        else CTFd._functions.events.eventAlert({
-            title: "Fail",
-            html: response.data.message,
-        });
-        return response
+        if (response.success) {
+            response = response.data;
+        } else {
+            renderErrorAlert(response);
+        }
+        return response;
     }).then(function (response){
         if (response.total == 0){
             $('.cm-panel-mana-cost-div').hide();  // hide the mana cost div if mana is disabled
@@ -154,6 +154,35 @@ function loadInfo() {
         }
     });
 };
+
+function renderErrorAlert(response) {
+    if (!response || !response.data) {
+        CTFd._functions.events.eventAlert({
+            title: "Fail",
+            html: "Something went wrong. Please try again.",
+        });
+        return;
+    }
+
+    const code = response.data.code || response.code;
+    const msg = response.data.message || response.message || "Something went wrong";
+
+    let friendly = msg;
+    if (code === 9) { // FailedPrecondition (expired / renew-not-allowed)
+        friendly = msg;
+    } else if (code === 6 || code === 409) { // AlreadyExists
+        friendly = "Your instance is already starting or running.";
+    } else if (code === 8 || code === 429) { // ResourceExhausted
+        friendly = "No capacity right now. Please try again shortly.";
+    } else if (code === 10 || code === 409) { // Aborted/lock contention
+        friendly = "Another action is in progress. Retry in a moment.";
+    }
+
+    CTFd._functions.events.eventAlert({
+        title: "Fail",
+        html: friendly,
+    });
+}
 
 CTFd._internal.challenge.destroy = function() {
     return new Promise((resolve, reject) => {
@@ -190,13 +219,11 @@ CTFd._internal.challenge.destroy = function() {
                 });
                 resolve();
             } else {
-                CTFd._functions.events.eventAlert({
-                    title: "Fail",
-                    html: response.data.message,
-                });
-                reject(response.message);
+                renderErrorAlert(response);
+                reject(response);
             }
         }).catch(error => {
+            renderErrorAlert(error);
             reject(error);
         }).finally(() => {
             $('#whale-button-destroy').text("Destroy");
@@ -243,10 +270,7 @@ CTFd._internal.challenge.renew = function () {
                 html: response.data.message, // load custom message from api
             });
         } else {
-            CTFd._functions.events.eventAlert({
-                title: "Fail",
-                html: response.data.message,
-            });
+            renderErrorAlert(response);
         }
     }).finally(() => {
         $('#whale-button-renew').text("Renew");
@@ -288,12 +312,11 @@ CTFd._internal.challenge.boot = function() {
                 });
                 resolve();
             } else {
-                CTFd._functions.events.eventAlert({
-                    title: "Fail",
-                    html: response.data.message,
-                });
+                renderErrorAlert(response);
+                reject(response);
             }
         }).catch(error => {
+            renderErrorAlert(error);
             reject(error);
         }).finally(() => {
             $('#whale-button-boot').text("Launch an instance");
@@ -321,7 +344,11 @@ CTFd._internal.challenge.restart = function() {
         $('#whale-button-renew').prop('disabled', false);
         $('#whale-button-destroy').prop('disabled', false);
     }).catch((error) => {
-        console.error('Error during restart:', error);
+        renderErrorAlert(error);
+        $('#whale-button-boot').prop('disabled', false);
+        $('#whale-button-restart').prop('disabled', false);
+        $('#whale-button-renew').prop('disabled', false);
+        $('#whale-button-destroy').prop('disabled', false);
     });
     
 }

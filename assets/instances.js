@@ -15,6 +15,15 @@ async function delete_instance(challengeId, sourceId) {
     console.log(response)
     response = await response.json();
     return response;
+
+function renderAdminError(row, response) {
+    const cell = row.find(".cm-admin-error");
+    if (!cell.length) return;
+    const message = (response && response.data && response.data.message) || (response && response.message) || "Something went wrong";
+    cell.text(message);
+    cell.show();
+}
+
 }
 
 async function renew_instance(challengeId, sourceId) {
@@ -83,8 +92,12 @@ $(".delete-instance").click(function (e) {
         title: "Destroy",
         body: "<span>Are you sure you want to delete this instance?</span>",
         success: async function () {
-            await delete_instance(challengeId, sourceId);
-            location.reload();
+            const resp = await delete_instance(challengeId, sourceId);
+            if (resp.success) {
+                location.reload();
+            } else {
+                renderAdminError($(this).closest("tr"), resp);
+            }
         }
     });
 });
@@ -98,9 +111,18 @@ $(".restart-instance").click(function (e) {
         title: "Restart",
         body: "<span>Are you sure you want to restart this instance?</span>",
         success: async function () {
-            await delete_instance(challengeId, sourceId);
-            await create_instance(challengeId, sourceId);
-            location.reload();
+            const row = $(this).closest("tr");
+            const delResp = await delete_instance(challengeId, sourceId);
+            if (!delResp.success) {
+                renderAdminError(row, delResp);
+                return;
+            }
+            const createResp = await create_instance(challengeId, sourceId);
+            if (createResp.success) {
+                location.reload();
+            } else {
+                renderAdminError(row, createResp);
+            }
         }
     });
 });
@@ -114,8 +136,12 @@ $(".renew-instance").click(function (e) {
         title: "Renew",
         body: "<span>Are you sure you want to renew this instance?</span>",
         success: async function () {
-            await renew_instance(challengeId, sourceId);
-            location.reload();
+            const resp = await renew_instance(challengeId, sourceId);
+            if (resp.success) {
+                location.reload();
+            } else {
+                renderAdminError($(this).closest("tr"), resp);
+            }
         }
     });
 });
