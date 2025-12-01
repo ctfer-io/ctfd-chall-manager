@@ -3,8 +3,6 @@ This module describes the AdminInstance API endpoints of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/admin/instance.
 """
 
-import json
-
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )

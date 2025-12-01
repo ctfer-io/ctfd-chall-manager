@@ -3,8 +3,6 @@ This module describes the UserInstance API endpoint of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/instance.
 """
 
-import json
-
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
