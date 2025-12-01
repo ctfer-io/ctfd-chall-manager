@@ -214,7 +214,6 @@ def query_instance(source_id: int) -> list | ChallManagerException:
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/api/v1/instance?sourceId={source_id}"
-    cache_key = f"instances:{source_id}"
     s = requests.Session()
 
     result = []
