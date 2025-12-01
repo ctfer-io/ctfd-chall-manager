@@ -59,6 +59,7 @@ def create_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
             logger.error("chall-manager return an error: %s", message)
             raise ChallManagerException(message=message)
 
+    # store the informations on cache
     result = r.json()
     cache.set(cache_key, result, timeout=60)
 
@@ -100,7 +101,7 @@ def delete_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
         )
 
     # delete cache to prevent connectionInfo in front
-    cached = cache.get_dict(cache_key)
+    cached = cache.get(cache_key)
     if cached:
         logger.debug("delete cache informations for %s", cache_key)
         cache.delete(cache_key)
@@ -123,7 +124,7 @@ def get_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExcept
     url = f"{cm_api_url}/api/v1/instance/{challenge_id}/{source_id}"
     cache_key = f"instance:{challenge_id}:{source_id}"
 
-    cached = cache.get_dict(cache_key)
+    cached = cache.get(cache_key)
     if cached:
         logger.debug("use cache informations for %s", cache_key)
         return cached
@@ -217,9 +218,6 @@ def query_instance(source_id: int) -> list | ChallManagerException:
     s = requests.Session()
 
     result = []
-    cached = cache.get(cache_key)
-    if cached:
-        return cached
 
     logger.debug("querying instances for sourceId=%s", source_id)
 
@@ -235,7 +233,5 @@ def query_instance(source_id: int) -> list | ChallManagerException:
     except Exception as e:
         logger.error("connection error: %s", e)
         raise ChallManagerException(message="connection error") from e
-
-    cache.set(cache_key, result, timeout=60)
 
     return result
