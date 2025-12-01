@@ -91,8 +91,8 @@ class UserInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            r = get_instance(challenge_id, source_id)
-            logger.info("instance retrieved successfully : %s", json.loads(r.text))
+            result = get_instance(challenge_id, source_id)
+            logger.info("instance retrieved successfully : %s", result)
         except ChallManagerException as e:
             logger.error("error while getting instance: {e}")
             return {
@@ -104,7 +104,6 @@ class UserInstance(Resource):
 
         # return only necessary values
         data = {}
-        result = json.loads(r.text)
         for k in ["connectionInfo", "until", "since"]:
             if k in result.keys():
                 data[k] = result[k]
@@ -163,7 +162,7 @@ class UserInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            r = create_instance(challenge_id, source_id)
+            result = create_instance(challenge_id, source_id)
             logger.info(
                 "instance for challenge_id: %s, source_id: %s created successfully",
                 challenge_id,
@@ -191,7 +190,6 @@ class UserInstance(Resource):
 
         # return only necessary values
         data = {}
-        result = json.loads(r.text)
         for k in ["connectionInfo", "until", "since"]:
             if k in result.keys():
                 data[k] = result[k]
