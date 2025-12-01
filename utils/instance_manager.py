@@ -5,6 +5,7 @@ This module contains all functions to use Chall-Manager InstanceManager group.
 import json
 
 import requests
+from CTFd.cache import cache
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
@@ -77,6 +78,13 @@ def delete_instance(
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/api/v1/instance/{challenge_id}/{source_id}"
+    cache_key = f"instance:{challenge_id}:{source_id}"
+
+    # delete cache to prevent connectionInfo in front
+    cached = cache.get(cache_key)
+    if cached:
+        logger.debug("delete cache informations for %s", cache_key)
+        cache.delete(cache_key)
 
     logger.debug(
         "deleting instance for challenge_id=%s, source_id=%s", challenge_id, source_id
@@ -115,6 +123,12 @@ def get_instance(
 
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/api/v1/instance/{challenge_id}/{source_id}"
+    cache_key = f"instance:{challenge_id}:{source_id}"
+
+    cached = cache.get(cache_key)
+    if cached:
+        logger.debug("use cache informations for %s", cache_key)
+        return cached
 
     logger.debug(
         "getting instance information for challenge_id=%s, source_id=%s",
@@ -136,6 +150,11 @@ def get_instance(
         raise ChallManagerException(
             message=f"Chall-Manager returned an error: {json.loads(r.text)}"
         )
+
+    a = json.loads(r.text)
+    if a["since"] is not None:
+        logger.debug("store result in cache for better performances")
+        cache.set(cache_key, r, timeout=60)
 
     return r
 
