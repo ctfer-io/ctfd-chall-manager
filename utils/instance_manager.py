@@ -152,6 +152,7 @@ def get_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExcept
 
     result = r.json()
     if result["since"] is not None:
+        # store in cache only if the instance exists
         logger.debug("store result in cache for better performances")
         cache.set(cache_key, result, timeout=60)
 
@@ -195,7 +196,7 @@ def update_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
             logger.error("chall-manager return an error: %s", message)
             raise ChallManagerException(message=message)
 
-    # re set le cache pour nouvelle value du until
+    # update informations for the next GET request
     result = r.json()
     if result["since"] is not None:
         logger.debug("store result in cache for better performances")
