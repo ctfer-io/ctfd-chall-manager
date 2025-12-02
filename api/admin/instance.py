@@ -3,8 +3,6 @@ This module describes the AdminInstance API endpoints of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/admin/instance.
 """
 
-import json
-
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
@@ -81,8 +79,8 @@ class AdminInstance(Resource):
                 source_id,
             )
 
-            r = get_instance(challenge_id, source_id)
-            logger.info("instance retrieved successfully: %s", json.loads(r.text))
+            result = get_instance(challenge_id, source_id)
+            logger.info("instance retrieved successfully: %s", result)
         except ChallManagerException as e:
             logger.error("error while communicating with CM: %s", e)
             return {
@@ -92,7 +90,7 @@ class AdminInstance(Resource):
                 },
             }, 500
 
-        return {"success": True, "data": json.loads(r.text)}, 200
+        return {"success": True, "data": result}, 200
 
     @staticmethod
     @admins_only
@@ -141,7 +139,7 @@ class AdminInstance(Resource):
             lock = load_or_store(f"{source_id}")
             lock.admin_lock()
 
-            r = create_instance(challenge_id, source_id)
+            result = create_instance(challenge_id, source_id)
             logger.info(
                 "instance for challenge_id: %s, source_id: %s created successfully",
                 challenge_id,
@@ -178,7 +176,7 @@ class AdminInstance(Resource):
             logger.debug("admin_unlock %s", lock)
             lock.admin_unlock()
 
-        return {"success": True, "data": json.loads(r.text)}, 200
+        return {"success": True, "data": result}, 200
 
     @staticmethod
     @admins_only
@@ -230,7 +228,7 @@ class AdminInstance(Resource):
                 source_id,
             )
 
-            r = update_instance(challenge_id, source_id)
+            result = update_instance(challenge_id, source_id)
             logger.info(
                 "instance for challenge_id: %s, source_id: %s updated successfully",
                 challenge_id,
@@ -245,7 +243,7 @@ class AdminInstance(Resource):
                 },
             }, 500
 
-        return {"success": True, "data": json.loads(r.text)}, 200
+        return {"success": True, "data": result}, 200
 
     @staticmethod
     @admins_only
@@ -298,7 +296,7 @@ class AdminInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            r = delete_instance(challenge_id, source_id)
+            result = delete_instance(challenge_id, source_id)
             logger.info(
                 "instance for challenge_id: %s, source_id: %s delete successfully",
                 challenge_id,
@@ -318,4 +316,4 @@ class AdminInstance(Resource):
             logger.debug("admin_unlock %s", lock)
             lock.admin_unlock()
 
-        return {"success": True, "data": json.loads(r.text)}, 200
+        return {"success": True, "data": result}, 200

@@ -438,14 +438,12 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # checks that the instance is alive
         try:
-            result = get_instance(challenge.id, source_id)
+            data = get_instance(challenge.id, source_id)
         except ChallManagerException as e:
             logger.error("error occurred while getting instance: %s", e)
             return ChallengeResponse(
                 status="incorrect", message="Error occurred, contact admins!"
             )
-
-        data = json.loads(result.text)
 
         # If the instance no longer exists
         if data["since"] is None:
