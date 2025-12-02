@@ -3,8 +3,8 @@ This module defines all tests cases for the CTFd endpoint with plugin extension.
 """
 
 import json
-from time import sleep
 import unittest
+from time import sleep
 
 import requests
 
