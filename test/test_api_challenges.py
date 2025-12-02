@@ -3,6 +3,7 @@ This module defines all tests cases for the CTFd endpoint with plugin extension.
 """
 
 import json
+from time import sleep
 import unittest
 
 import requests
@@ -202,6 +203,9 @@ class Test_F_Challenges(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
         self.assertEqual(a["data"]["scenario"], config.scenario2)
+
+        # waiting for cache clear
+        sleep(60)
 
         # check that the until has changed (instance recreated)
         r = get_instance(chall_id)
