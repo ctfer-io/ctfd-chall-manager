@@ -5,6 +5,7 @@ Route: /api/v1/plugins/ctfd-chall-manager/admin/instance.
 
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
+    build_error_payload,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.helpers import retrieve_all_ids
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
@@ -83,12 +84,11 @@ class AdminInstance(Resource):
             logger.info("instance retrieved successfully: %s", result)
         except ChallManagerException as e:
             logger.error("error while communicating with CM: %s", e)
+            error_data, status = build_error_payload(e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
-            }, 500
+                "data": error_data,
+            }, status
 
         return {"success": True, "data": result}, 200
 
@@ -158,19 +158,19 @@ class AdminInstance(Resource):
                     "data": {
                         "message": "instance already exist",
                     },
-                }, 200
+                }, e.http_status
 
             logger.error(
-                "error while creating instance for challenge_id: %s, source_id: %s",
+                "error while creating instance for challenge_id: %s, source_id: %s: %s",
                 challenge_id,
                 source_id,
+                e,
             )
+            error_data, status = build_error_payload(e)
             return {
                 "success": False,
-                "data": {
-                    "message": e.message,
-                },
-            }, 500
+                "data": error_data,
+            }, status
 
         finally:
             logger.debug("admin_unlock %s", lock)
@@ -236,12 +236,11 @@ class AdminInstance(Resource):
             )
         except ChallManagerException as e:
             logger.error("error while updating instance: %s", e)
+            error_data, status = build_error_payload(e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
-            }, 500
+                "data": error_data,
+            }, status
 
         return {"success": True, "data": result}, 200
 
@@ -305,12 +304,11 @@ class AdminInstance(Resource):
 
         except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
+            error_data, status = build_error_payload(e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
-            }, 500
+                "data": error_data,
+            }, status
 
         finally:
             logger.debug("admin_unlock %s", lock)
