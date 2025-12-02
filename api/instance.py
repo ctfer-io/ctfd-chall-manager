@@ -137,10 +137,28 @@ class UserInstance(Resource):
                 return {"success": False, "data": {"message": "unauthorized"}}, 403
 
         # check if source_id can launch the instance
+        lock_acquired = False
+        lock = None
         try:
             lock = load_or_store(str(source_id))
             logger.debug("post /instance acquire the player lock for %s", source_id)
-            lock.player_lock()
+            lock_acquired = lock.player_lock(blocking=False)
+            if not lock_acquired:
+                logger.info(
+                    "instance creation already in progress for challenge %s / source %s",
+                    challenge_id,
+                    source_id,
+                )
+                return (
+                    {
+                        "success": False,
+                        "data": {
+                            "code": 6,
+                            "message": "instance creation already in progress",
+                        },
+                    },
+                    409,
+                )
 
             if not check_source_can_create_instance(challenge_id, source_id):
                 return (
@@ -183,8 +201,9 @@ class UserInstance(Resource):
             }, 500
 
         finally:
-            logger.debug("post /instance release the player lock for %s", source_id)
-            lock.player_unlock()
+            if lock_acquired and lock is not None:
+                logger.debug("post /instance release the player lock for %s", source_id)
+                lock.player_unlock(skip_rw=True)
 
         # return only necessary values
         data = {}
