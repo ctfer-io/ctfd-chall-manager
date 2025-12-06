@@ -25,7 +25,7 @@ from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import authed_only
 from flask import request
-from flask_restx import Resource
+from flask_restx import Resource, abort
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -54,10 +54,6 @@ class UserInstance(Resource):
 
         # check userMode of CTFd
         user = current_user.get_current_user()
-        if user is None:
-            logger.info()
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
-
         user_id = user.id
         source_id = user_id
         logger.info("user %s request GET on challenge %s", source_id, challenge_id)
@@ -67,16 +63,11 @@ class UserInstance(Resource):
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {"success": False, "data": {"message": "unauthorized"}}, 403
+                abort(403, "unauthorized", success=False)
 
         if not challenge_id or not source_id:
             logger.warning("Missing argument: challenge_id or source_id")
-            return {
-                "success": False,
-                "data": {
-                    "message": "Missing argument : challenge_id or source_id",
-                },
-            }, 403
+            abort(400, "missing argument challenge_id of source_id", success=False)
 
         # if challenge is shared
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
@@ -92,12 +83,10 @@ class UserInstance(Resource):
             result = get_instance(challenge_id, source_id)
             logger.info("instance retrieved successfully : %s", result)
         except ChallManagerException as e:
-            logger.error("error while getting instance: {e}")
+            logger.error("error while getting instance: %s", e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"Error while communicating with CM : {e}",
-                },
+                "message": "error while getting instance info, contact admins",
             }, 500
 
         # return only necessary values
@@ -120,9 +109,6 @@ class UserInstance(Resource):
         challenge_id = data.get("challengeId")
 
         user = current_user.get_current_user()
-        if user is None:
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
-
         user_id = int(user.id)
         source_id = user_id
         logger.info(
@@ -134,26 +120,19 @@ class UserInstance(Resource):
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {"success": False, "data": {"message": "unauthorized"}}, 403
+                abort(403, "unauthorized", success=False)
 
-        # check if source_id can launch the instance
+        lock = load_or_store(str(source_id))
+        if lock.is_global_for_source_locked():
+            logger.debug("instance creation already in progress, abort")
+            abort(429, "instance creation already in progress", success=False)
+
         try:
-            lock = load_or_store(str(source_id))
             logger.debug("post /instance acquire the player lock for %s", source_id)
             lock.player_lock()
 
             if not check_source_can_create_instance(challenge_id, source_id):
-                return (
-                    {
-                        "success": False,
-                        "data": {
-                            "message": "You or your team used up all your mana. \
-                                You must recover mana by destroying instances \
-                                of other challenges to continue.",
-                        },
-                    },
-                    403,
-                )
+                abort(403, "You or your team used up all your mana.", success=False)
 
             logger.debug(
                 "creating instance for challenge_id: %s, source_id: %s",
@@ -177,9 +156,7 @@ class UserInstance(Resource):
                 }, 200
             return {
                 "success": False,
-                "data": {
-                    "message": f"error from Chall-Manager API: {e.message}",
-                },
+                "message": "error while creating instance, contact admins",
             }, 500
 
         finally:
@@ -207,9 +184,6 @@ class UserInstance(Resource):
         challenge_id = data.get("challengeId")
 
         user = current_user.get_current_user()
-        if user is None:
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
-
         user_id = int(user.id)
         source_id = user_id
         logger.info(
@@ -221,10 +195,10 @@ class UserInstance(Resource):
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {"success": False, "data": {"message": "unauthorized"}}, 403
+                abort(403, "unauthorized", success=False)
 
         if not check_source_can_patch_instance(challenge_id, source_id):
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
+            abort(403, "unauthorized", success=False)
 
         try:
             logger.debug(
@@ -239,11 +213,10 @@ class UserInstance(Resource):
                 source_id,
             )
         except ChallManagerException as e:
+            logger.error("error while patching instance : %s", e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"error from Chall-Manager API: {e.message}",
-                },
+                "message": "error while patching instance, contact admins",
             }, 500
 
         return {
@@ -262,9 +235,6 @@ class UserInstance(Resource):
         challenge_id = data.get("challengeId")
 
         user = current_user.get_current_user()
-        if user is None:
-            return {"success": False, "data": {"message": "unauthorized"}}, 403
-
         user_id = int(user.id)
         source_id = user_id
         logger.info(
@@ -276,15 +246,20 @@ class UserInstance(Resource):
             # If user has no team
             if not source_id:
                 logger.info("user %s has no team, abort", user_id)
-                return {"success": False, "data": {"message": "unauthorized"}}, 403
+                abort(403, "unauthorized", success=False)
+
+        lock = load_or_store(str(source_id))
+        if lock.is_global_for_source_locked():
+            logger.debug("instance deletion already in progress, abort")
+            abort(429, "instance deletion already in progress", success=False)
 
         try:
-            lock = load_or_store(f"{source_id}")
+            # lock = load_or_store(f"{source_id}")
             logger.debug("delete /instance acquire the player lock for %s", source_id)
             lock.player_lock()
 
             if not check_source_can_edit_instance(challenge_id, source_id):
-                return {"success": False, "data": {"message": "unauthorized"}}, 403
+                abort(403, "unauthorized", success=False)
 
             logger.debug(
                 "deleting instance for challenge_id: %s, source_id: %s",
@@ -302,9 +277,7 @@ class UserInstance(Resource):
             logger.error("error while deleting instance: %s", e)
             return {
                 "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
+                "message": "error while deleting instance, contact admins",
             }, 500
 
         finally:

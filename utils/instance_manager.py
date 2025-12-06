@@ -95,10 +95,9 @@ def delete_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
         ) from e
 
     if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-Manager returned an error: {json.loads(r.text)}"
-        )
+        data = r.json()
+        logger.error("error from chall-manager: %s", data["message"])
+        raise ChallManagerException(message=data["message"])
 
     # delete cache to prevent connectionInfo in front
     cached = cache.get(cache_key)
