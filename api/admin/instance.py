@@ -100,7 +100,10 @@ class AdminInstance(Resource):
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
         except ValueError:
-            abort(400, "missing challengeId or sourceId", success=False)
+            return {
+                "success": False,
+                "message": "missing challengeId or sourceId",
+            }, 400
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
@@ -148,7 +151,10 @@ class AdminInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            abort(500, f"error while creating instance {e.message}", success=False)
+            return {
+                "success": False,
+                "message": f"error while creating instance : {e.message}",
+            }, 500
 
         finally:
             logger.debug("admin_unlock %s", lock)
@@ -175,7 +181,10 @@ class AdminInstance(Resource):
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
         except ValueError:
-            abort(400, "missing challengeId or sourceId", success=False)
+            return {
+                "success": False,
+                "message": "missing challengeId or sourceId",
+            }, 400
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
@@ -208,11 +217,10 @@ class AdminInstance(Resource):
             )
         except ChallManagerException as e:
             logger.error("error while updating instance: %s", e)
-            abort(
-                500,
-                f"error while updating instance: {e.message}",
-                sucess=False,
-            )
+            return {
+                "success": False,
+                "message": f"error while updating instance : {e.message}",
+            }, 500
 
         return {"success": True, "data": result}, 200
 
@@ -234,7 +242,10 @@ class AdminInstance(Resource):
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
         except ValueError:
-            abort(400, "missing challengeId or sourceId", success=False)
+            return {
+                "success": False,
+                "message": "missing challengeId or sourceId",
+            }, 400
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
@@ -270,11 +281,10 @@ class AdminInstance(Resource):
 
         except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
-            abort(
-                500,
-                f"error while deleting instance : {e.message}",
-                success=False,
-            )
+            return {
+                "success": False,
+                "message": f"error while deleting instance : {e.message}",
+            }, 500
 
         finally:
             logger.debug("admin_unlock %s", lock)

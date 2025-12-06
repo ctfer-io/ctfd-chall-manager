@@ -83,10 +83,11 @@ class UserInstance(Resource):
             result = get_instance(challenge_id, source_id)
             logger.info("instance retrieved successfully : %s", result)
         except ChallManagerException as e:
-            logger.error(f"error while getting instance: {e}")
-            abort(
-                500, "error while fetching instance info, contact admins", success=False
-            )
+            logger.error("error while getting instance: %s", e)
+            return {
+                "success": False,
+                "message": "error while getting instance info, contact admins",
+            }, 500
 
         # return only necessary values
         data = {}
@@ -153,7 +154,10 @@ class UserInstance(Resource):
                         "message": "instance already exist",
                     },
                 }, 200
-            abort(500, "error while creating instance, contact admins", success=False)
+            return {
+                "success": False,
+                "message": "error while creating instance, contact admins",
+            }, 500
 
         finally:
             logger.debug("post /instance release the player lock for %s", source_id)
@@ -209,7 +213,11 @@ class UserInstance(Resource):
                 source_id,
             )
         except ChallManagerException as e:
-            abort(500, "error while patching instance, contact admins", success=False)
+            logger.error("error while patching instance : %s", e)
+            return {
+                "success": False,
+                "message": "error while patching instance, contact admins",
+            }, 500
 
         return {
             "success": True,
@@ -267,7 +275,10 @@ class UserInstance(Resource):
 
         except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
-            abort(500, "error while deleting instance, contact admins", success=False)
+            return {
+                "success": False,
+                "message": "error while deleting instance, contact admins",
+            }, 500
 
         finally:
             logger.debug("delete /instance release the player lock for %s", source_id)
