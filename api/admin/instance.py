@@ -82,7 +82,7 @@ class AdminInstance(Resource):
             logger.error("error while communicating with CM: %s", e)
             return {
                 "success": False,
-                "message": f"error while communicating with CM : {e}",
+                "message": f"error while getting instance info : {e.message}",
             }, 500
 
         return {"success": True, "data": result}, 200
