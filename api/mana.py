@@ -13,7 +13,7 @@ from CTFd.utils import get_config
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import authed_only
-from flask_restx import Resource
+from flask_restx import Resource, abort
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -54,7 +54,7 @@ class UserMana(Resource):
                     "user %s has no team, abort",
                     user_id,
                 )
-                return {"success": False, "data": {"message": "unauthorized"}}, 403
+                abort(403, "unauthorized", success=False)
 
         try:
             lock = load_or_store(str(source_id))
@@ -67,7 +67,7 @@ class UserMana(Resource):
             logger.error(
                 "error while calculating the mana for source_id %s: %s", source_id, e
             )
-            return {"success": False, "message": "internal server error"}, 500
+            abort(500, "error while calculating your mana", success=False)
 
         finally:
             logger.debug("get /mana release the player lock for %s", source_id)

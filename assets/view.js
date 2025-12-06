@@ -70,7 +70,7 @@ function loadInfo() {
         if (response.success) response = response.data;
         else CTFd._functions.events.eventAlert({
             title: "Fail",
-            html: response.data.message,
+            html: response.message,
         });
         $('#cm-panel-loading').hide();
         $('#cm-panel-until').hide(); 
@@ -141,7 +141,7 @@ function loadInfo() {
         if (response.success) response = response.data;
         else CTFd._functions.events.eventAlert({
             title: "Fail",
-            html: response.data.message,
+            html: response.message,
         });
         return response
     }).then(function (response){
@@ -192,7 +192,7 @@ CTFd._internal.challenge.destroy = function() {
             } else {
                 CTFd._functions.events.eventAlert({
                     title: "Fail",
-                    html: response.data.message,
+                    html: response.message,
                 });
                 reject(response.message);
             }
@@ -245,7 +245,7 @@ CTFd._internal.challenge.renew = function () {
         } else {
             CTFd._functions.events.eventAlert({
                 title: "Fail",
-                html: response.data.message,
+                html: response.message,
             });
         }
     }).finally(() => {
@@ -290,7 +290,7 @@ CTFd._internal.challenge.boot = function() {
             } else {
                 CTFd._functions.events.eventAlert({
                     title: "Fail",
-                    html: response.data.message,
+                    html: response.message,
                 });
             }
         }).catch(error => {

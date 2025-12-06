@@ -16,7 +16,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
 from CTFd.utils.decorators import admins_only
-from flask_restx import Resource
+from flask_restx import Resource, abort
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -48,22 +48,16 @@ class AdminInstance(Resource):
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
         except ValueError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "missing challengeId or sourceId",
-                },
-            }, 400
+            abort(400, "missing challengeId or sourceId", success=False)
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {
-                "success": False,
-                "data": {
-                    "message": "internal server error: cannot load challenge_id or admin_id",
-                },
-            }, 500
+            abort(
+                500,
+                "internal server error: cannot load challenge_id or admin_id",
+                sucess=False,
+            )
 
         logger.info(
             "admin %s get instance info for challenge_id: %s, source_id: %s",
@@ -83,12 +77,7 @@ class AdminInstance(Resource):
             logger.info("instance retrieved successfully: %s", result)
         except ChallManagerException as e:
             logger.error("error while communicating with CM: %s", e)
-            return {
-                "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
-            }, 500
+            abort(500, f"error while communicating with CM : {e}", success=False)
 
         return {"success": True, "data": result}, 200
 
@@ -111,22 +100,16 @@ class AdminInstance(Resource):
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
         except ValueError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "missing challengeId or sourceId",
-                },
-            }, 400
+            abort(400, "missing challengeId or sourceId", success=False)
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {
-                "success": False,
-                "data": {
-                    "message": "internal server error: cannot load challenge_id or admin_id",
-                },
-            }, 500
+            abort(
+                500,
+                "internal server error: cannot load challenge_id or admin_id",
+                sucess=False,
+            )
 
         logger.info(
             "admin %s request instance creation for challenge_id: %s, source_id: %s",
@@ -165,12 +148,7 @@ class AdminInstance(Resource):
                 challenge_id,
                 source_id,
             )
-            return {
-                "success": False,
-                "data": {
-                    "message": e.message,
-                },
-            }, 500
+            abort(500, f"error while creating instance {e.message}", success=False)
 
         finally:
             logger.debug("admin_unlock %s", lock)
@@ -197,22 +175,16 @@ class AdminInstance(Resource):
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
         except ValueError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "missing challengeId or sourceId",
-                },
-            }, 400
+            abort(400, "missing challengeId or sourceId", success=False)
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {
-                "success": False,
-                "data": {
-                    "message": "internal server error: cannot load challenge_id or admin_id",
-                },
-            }, 500
+            abort(
+                500,
+                "internal server error: cannot load challenge_id or admin_id",
+                sucess=False,
+            )
 
         logger.info(
             "admin %s request instance update for challenge_id: %s, source_id: %s",
@@ -236,12 +208,11 @@ class AdminInstance(Resource):
             )
         except ChallManagerException as e:
             logger.error("error while updating instance: %s", e)
-            return {
-                "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
-            }, 500
+            abort(
+                500,
+                f"error while updating instance: {e.message}",
+                sucess=False,
+            )
 
         return {"success": True, "data": result}, 200
 
@@ -263,22 +234,16 @@ class AdminInstance(Resource):
             challenge_id = result["challenge_id"]
             source_id = result["source_id"]
         except ValueError:
-            return {
-                "success": False,
-                "data": {
-                    "message": "missing challengeId or sourceId",
-                },
-            }, 400
+            abort(400, "missing challengeId or sourceId", success=False)
 
         # admin_id and challenge_id must be updated by retrieve_all_ids()
         # source_id can be 0 (shared)
         if admin_id == 0 or challenge_id == 0:
-            return {
-                "success": False,
-                "data": {
-                    "message": "internal server error: cannot load challenge_id or admin_id",
-                },
-            }, 500
+            abort(
+                500,
+                "internal server error: cannot load challenge_id or admin_id",
+                success=False,
+            )
 
         logger.info(
             "admin %s request instance delete for challenge_id: %s, source_id: %s",
@@ -305,12 +270,11 @@ class AdminInstance(Resource):
 
         except ChallManagerException as e:
             logger.error("error while deleting instance: %s", e)
-            return {
-                "success": False,
-                "data": {
-                    "message": f"error while communicating with CM : {e}",
-                },
-            }, 500
+            abort(
+                500,
+                f"error while deleting instance : {e.message}",
+                success=False,
+            )
 
         finally:
             logger.debug("admin_unlock %s", lock)
