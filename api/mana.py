@@ -67,7 +67,10 @@ class UserMana(Resource):
             logger.error(
                 "error while calculating the mana for source_id %s: %s", source_id, e
             )
-            abort(500, "error while calculating your mana", success=False)
+            return {
+                "success": False,
+                "message": "error while calculating your mana",
+            }, 500
 
         finally:
             logger.debug("get /mana release the player lock for %s", source_id)
