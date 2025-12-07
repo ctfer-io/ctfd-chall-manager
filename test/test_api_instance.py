@@ -151,8 +151,8 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_create_multi_instances(self):
         """
-        This test perform 3 creation requests in parallel but only 2 must be approved.
-        (mana limitation)
+        This test perform 3 creation requests in parallel but only 1 must be approved.
+        The others will be ratelimited (http 429)
         """
         results = {}
         lock = threading.Lock()
@@ -192,8 +192,8 @@ class Test_F_UserInstance(unittest.TestCase):
             else:
                 formatted_result["failure"].append(instance_id)
 
-        self.assertEqual(len(formatted_result["success"]), 2)
-        self.assertEqual(len(formatted_result["failure"]), 1)
+        self.assertEqual(len(formatted_result["success"]), 1)
+        self.assertEqual(len(formatted_result["failure"]), 2)
 
         # Clean test environment
         for i in formatted_result["success"]:

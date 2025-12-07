@@ -65,6 +65,12 @@ class ManaLock:
 
         self.gr.acquire()
 
+    def is_global_for_source_locked(self) -> bool:
+        """
+        Returns True if this key is locked by any process, otherwise False.
+        """
+        return self.gr.locked()
+
     def player_unlock(self):
         """
         Releases the lock for a player.
