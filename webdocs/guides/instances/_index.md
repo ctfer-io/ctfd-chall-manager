@@ -22,7 +22,7 @@ To monitor instances, go to the plugin settings in the `CTFd Admin Panel` > `Plu
 {{% /imgproc %}}
 
 ### Administration
-You can *Renew* , *Restart* or *Destroy* an individual instance by clicking the corresponding button in the instance row.
+You can *Extend* , *Restart* or *Destroy* an individual instance by clicking the corresponding button in the instance row.
 
 To perform actions on multiple instances, (1) select the instances using the checkboxes, (2) click the associated button, (3) then confirm your choice, as shown below:
 
