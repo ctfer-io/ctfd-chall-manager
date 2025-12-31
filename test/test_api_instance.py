@@ -151,12 +151,14 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_create_multi_instances(self):
         """
-        This test perform 3 creation requests in parallel but only 1 must be approved.
-        The others will be ratelimited (http 429)
+        Tests concurrent creation of 3 instances, ensuring only 1 or 2 is approved.
+        The other requests should be rate-limited (HTTP 429).
+        If thread1 completes before thread2 starts, mana limitation may approve 2.
         """
         results = {}
         lock = threading.Lock()
 
+        # testing setup has 10 mana max
         chall_id1 = create_challenge(mana_cost=5)
         chall_id2 = create_challenge(mana_cost=5)
         chall_id3 = create_challenge(mana_cost=5)
@@ -194,6 +196,13 @@ class Test_F_UserInstance(unittest.TestCase):
 
         self.assertEqual(len(formatted_result["success"]), 1)
         self.assertEqual(len(formatted_result["failure"]), 2)
+
+        self.assertTrue(
+            len(formatted_result["success"]) <= 2
+        )  # can be 2 if the thread1 in completed before thread2 start
+        self.assertTrue(
+            len(formatted_result["failure"]) >= 1
+        )  # at least one cannot be done (mana limitation)
 
         # Clean test environment
         for i in formatted_result["success"]:
