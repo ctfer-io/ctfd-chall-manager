@@ -218,7 +218,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         # handle challenge creation on chall-manager
         try:
             logger.debug("creating challenge %s on CM", challenge.id)
-            create_challenge(int(challenge.id), params)
+            create_challenge(int(challenge.id), **params)
             logger.info("challenge %s created successfully on CM", challenge.id)
         except (ValueError, ChallManagerException) as e:
             logger.error(
@@ -364,7 +364,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # send updates to CM
         try:
-            update_challenge(challenge.id, params)
+            update_challenge(challenge.id, **params)
         except Exception as e:
             logger.error("error while patching the challenge: %s", e)
             raise ChallengeUpdateException("error while patching the challenge") from e

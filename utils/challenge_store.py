@@ -47,35 +47,21 @@ def query_challenges() -> list | ChallManagerException:
 
 
 def create_challenge(
-    challenge_id: int, *args
-) -> requests.Response | ValueError | ChallManagerException:
+    challenge_id: int, **kwargs
+) -> requests.Response | ChallManagerException:
     """
     Create challenge on chall-manager
 
     :param challenge_id: id of challenge to create (e.g: 1)
-    :param *args: additional configuration in dictionary format
+    :param **kwargs: additional configuration in dictionary format
     (e.g {'timeout': '600', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00'})
 
     :return Response: of chall-manager API
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/api/v1/challenge"
-
     headers = {"Content-Type": "application/json"}
-
-    payload = {}
-
-    if len(args) != 0:
-        if not isinstance(args[0], dict):
-            logger.error(
-                "invalid argument, got %s, dict is expected",
-                args[0],
-            )
-            raise ValueError(
-                f"invalid argument, got {args[0]} for type {type(args[0])}, dict is expected"
-            )
-
-        payload = args[0]
+    payload = kwargs
 
     logger.debug("creating challenge with id=%s", challenge_id)
 
@@ -155,29 +141,20 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
 
 
 def update_challenge(
-    challenge_id: int, *args
-) -> requests.Response | ValueError | ChallManagerException:
+    challenge_id: int, **kwargs
+) -> requests.Response | ChallManagerException:
     """
     Update challenge with information provided
 
     :param challenge_id*: 1
-    :param *args: additional configuration in dictionary format
+    :param **kwargs: additional configuration in dictionary format
     (e.g {'timeout': '600s', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00' })
     :return Response: of chall-manager API
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
     url = f"{cm_api_url}/api/v1/challenge/{challenge_id}"
-
     headers = {"Content-Type": "application/json"}
-
-    payload = {}
-
-    if len(args) != 0:
-        if not isinstance(args[0], dict):
-            logger.error("invalid arguments provided for updating challenge")
-            raise ValueError(f"error updating challenge, invalid inputs, got {args}")
-
-        payload = args[0]
+    payload = kwargs
 
     logger.debug("updating challenge with id=%s", challenge_id)
 
