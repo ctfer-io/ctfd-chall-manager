@@ -13,6 +13,72 @@ CTFd._internal.challenge.postRender = function () {
 
 if (window.$ === undefined) window.$ = CTFd.lib.$;
 
+const BOOT_DEFAULT_LABEL = "Launch the challenge";
+const BOOT_STARTING_LABEL = "Starting...";
+const STARTING_KEY_PREFIX = "cm-starting:";
+const STARTING_TTL_MS = 10 * 60 * 1000;
+
+function getStartingKey(challengeId) {
+    return `${STARTING_KEY_PREFIX}${challengeId}`;
+}
+
+function markInstanceStarting(challengeId) {
+    try {
+        localStorage.setItem(
+            getStartingKey(challengeId),
+            JSON.stringify({ ts: Date.now() }),
+        );
+    } catch (e) {
+        // storage unavailable, nothing to do
+    }
+}
+
+function clearInstanceStarting(challengeId) {
+    try {
+        localStorage.removeItem(getStartingKey(challengeId));
+    } catch (e) {
+        // storage unavailable, nothing to do
+    }
+}
+
+function isInstanceStarting(challengeId) {
+    try {
+        const raw = localStorage.getItem(getStartingKey(challengeId));
+        if (!raw) return false;
+
+        const parsed = JSON.parse(raw);
+        if (!parsed.ts) return false;
+
+        const age = Date.now() - parsed.ts;
+        if (age > STARTING_TTL_MS) {
+            clearInstanceStarting(challengeId);
+            return false;
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function setBootButtonStarting() {
+    $('#whale-button-boot').text(BOOT_STARTING_LABEL);
+    $('#whale-button-boot').prop('disabled', true);
+}
+
+function resetBootButton() {
+    $('#whale-button-boot').text(BOOT_DEFAULT_LABEL);
+    $('#whale-button-boot').prop('disabled', false);
+}
+
+function renderStartingState() {
+    $('#cm-panel-loading').hide();
+    $('#cm-panel-until').hide();
+    $('#whale-panel-started').hide();
+    $('#whale-panel-stopped').show();
+    $('#whale-challenge-lan-domain').html('');
+    setBootButtonStarting();
+}
+
 function formatCountDown(countdown) {
 
     // Convert
@@ -42,7 +108,12 @@ function formatCountDown(countdown) {
 function loadInfo() {
     var challenge_id = CTFd._internal.challenge.data.id;
     var url = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
-
+    const pendingStart = isInstanceStarting(challenge_id);
+    if (pendingStart) {
+        setBootButtonStarting();
+    } else {
+        resetBootButton();
+    }
 
     CTFd.fetch(url, {
         method: 'GET',
@@ -67,11 +138,19 @@ function loadInfo() {
             clearInterval(window.t);
             window.t = undefined;
         }
-        if (response.success) response = response.data;
-        else CTFd._functions.events.eventAlert({
-            title: "Fail",
-            html: response.message,
-        });
+        if (response.success) {
+            response = response.data;
+            clearInstanceStarting(challenge_id);
+        } else {
+            const code = response.data?.code || response.code;
+            if (pendingStart && (code === 5 || code === 404 || code === 14)) {
+                renderStartingState();
+                return;
+            }
+            clearInstanceStarting(challenge_id);
+            renderErrorAlert(response);
+            return;
+        }
         $('#cm-panel-loading').hide();
         $('#cm-panel-until').hide(); 
        
@@ -100,9 +179,14 @@ function loadInfo() {
                     $('#whale-challenge-count-down').text(formatCountDown(count_down));
                 }, 1000);
             } else {
-                $('#whale-panel-started').hide(); // hide the panel instance is up       
-                $('#whale-panel-stopped').show(); // show the panel instance is down     
-                $('#whale-challenge-lan-domain').html(''); 
+                // expired but likely still being cleaned up server-side
+                $('#whale-panel-started').show(); // show the panel instance is up
+                $('#whale-panel-stopped').hide(); // hide the panel instance is down
+                $('#whale-challenge-lan-domain').html(response.connectionInfo || '');
+                $('#whale-challenge-count-down').text('terminating...');
+                $('#cm-panel-until').show();
+                // prevent booting a second instance while termination pending
+                $('#whale-button-boot').prop('disabled', true).text('Terminating...');
             }
                     
         } else if (response.since) {    // if instance has no until
@@ -113,6 +197,7 @@ function loadInfo() {
             $('#whale-panel-started').hide(); // hide the panel instance is up       
             $('#whale-panel-stopped').show(); // show the panel instance is down     
             $('#whale-challenge-lan-domain').html(''); 
+            resetBootButton();
         }
  
         
@@ -261,6 +346,8 @@ CTFd._internal.challenge.boot = function() {
 
         $('#whale-button-boot').text("Waiting...");
         $('#whale-button-boot').prop('disabled', true);
+        markInstanceStarting(challenge_id);
+        setBootButtonStarting();
 
         var params = {
             "challengeId": challenge_id.toString()
@@ -286,18 +373,13 @@ CTFd._internal.challenge.boot = function() {
                     title: "Success",
                     html: "Your instance has been deployed!",
                 });
+                clearInstanceStarting(challenge_id);
                 resolve();
             } else {
-                CTFd._functions.events.eventAlert({
-                    title: "Fail",
-                    html: response.message,
-                });
-            }
-        }).catch(error => {
             reject(error);
+            }
         }).finally(() => {
-            $('#whale-button-boot').text("Launch an instance");
-            $('#whale-button-boot').prop('disabled', false);
+            resetBootButton();
         });
     });
 };
