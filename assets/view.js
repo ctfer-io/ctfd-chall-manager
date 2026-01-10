@@ -92,7 +92,7 @@ function loadInfo() {
     })
 
     // Fetch mana information for the user only if the challenge defines mana_cost
-    // And only if the instance is running
+    // And only if the instance is not running
     const fetchMana = mana_cost != 0 && !isValidCache(instanceData) ? CTFd.fetch(manaUrl, {
         method: 'GET',
         credentials: 'same-origin',
