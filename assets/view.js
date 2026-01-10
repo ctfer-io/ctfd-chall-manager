@@ -43,7 +43,7 @@ function loadInfo() {
     const mana_cost = CTFd._internal.challenge.data.mana_cost;
     const instanceUrl = "/api/v1/plugins/ctfd-chall-manager/instance?challengeId=" + challenge_id;
     const manaUrl = "/api/v1/plugins/ctfd-chall-manager/mana"
-    const cacheKey = "instance_" + challenge_id
+    const cacheKey = "CTFd:ctfd-chall-manager:instance_" + challenge_id
     const cacheValidity = 30000 // 30s
 
     const getDataFromLocalStorage = () => {
@@ -178,7 +178,7 @@ CTFd._internal.challenge.destroy = function() {
     return new Promise((resolve, reject) => {
         const challenge_id = CTFd._internal.challenge.data.id;
         const url = "/api/v1/plugins/ctfd-chall-manager/instance"
-        const cacheKey = "instance_" + challenge_id
+        const cacheKey = "CTFd:ctfd-chall-manager:instance_" + challenge_id
 
         $('#whale-button-destroy').text("Waiting...");
         $('#whale-button-destroy').prop('disabled', true);
@@ -225,7 +225,7 @@ CTFd._internal.challenge.destroy = function() {
 CTFd._internal.challenge.renew = function () {
     const challenge_id = CTFd._internal.challenge.data.id;
     const url = "/api/v1/plugins/ctfd-chall-manager/instance";
-    const cacheKey = "instance_" + challenge_id
+    const cacheKey = "CTFd:ctfd-chall-manager:instance_" + challenge_id
 
     $('#whale-button-renew').text("Waiting...");
     $('#whale-button-renew').prop('disabled', true);
