@@ -124,6 +124,7 @@ function loadInfo() {
         // prevent error if instance has no connectionInfo
         // https://github.com/ctfer-io/ctfd-chall-manager/issues/132
         if (instanceResponse.connectionInfo) {
+            $('#whale-challenge-lan-domain').html(instanceResponse.connectionInfo);
             
         }
 
@@ -133,11 +134,8 @@ function loadInfo() {
             var until = new Date(instanceResponse.until);
            //  console.log(until);
             var count_down = until - now;
-            if (count_down > 0) {
-                
-                $('#whale-challenge-lan-domain').html(instanceResponse.connectionInfo);
+            if (count_down > 0) {                
                 $('#whale-challenge-count-down').text(formatCountDown(count_down));
-
                 window.t = setInterval(() => {
                     count_down = until - new Date();
                     if (count_down <= 0) {
