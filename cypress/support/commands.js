@@ -99,6 +99,7 @@ Cypress.Commands.add('popup', (message) => {
 })
 
 Cypress.Commands.add('log_and_go_to_chall', (username, password, challenge_name) => {
+  cy.clearLocalStorage()
   cy.login(username, password)
   cy.visit(`${Cypress.env("CTFD_URL")}/challenges`)
   cy.get("button").contains(challenge_name).click()
