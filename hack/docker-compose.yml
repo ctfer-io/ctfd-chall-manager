@@ -21,7 +21,7 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:v0.6.0@sha256:4d0a0379a3c12b2203500a7852856ef7202c7c54d58207fb88d4b8919d5f6add
+    image: ctferio/chall-manager:v0.6.1@sha256:76f9722ce547de3e8729cd5b24add23cb29c91247eedb0cb325ab56864307376
     container_name: chall-manager
     pull_policy: always
     ports:
@@ -37,7 +37,7 @@ services:
       - testing
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.6.0@sha256:0194e6652aabe59539c1c167e15cc987309c4f49e65c9f3370f358d822246e6e
+    image: ctferio/chall-manager-janitor:v0.6.1@sha256:458cff476b927fb1d51b6146f68fcaa710d0aa5a91588955026d6f694e75450a
     container_name: chall-manager-janitor
     pull_policy: always
     environment:
