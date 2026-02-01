@@ -150,9 +150,7 @@ class UserInstance(Resource):
             if "already exist" in e.message:
                 return {
                     "success": False,
-                    "data": {
-                        "message": "instance already exist",
-                    },
+                    "message": "instance already exists",
                 }, 200
             return {
                 "success": False,
