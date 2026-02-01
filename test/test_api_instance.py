@@ -194,9 +194,6 @@ class Test_F_UserInstance(unittest.TestCase):
             else:
                 formatted_result["failure"].append(instance_id)
 
-        self.assertEqual(len(formatted_result["success"]), 1)
-        self.assertEqual(len(formatted_result["failure"]), 2)
-
         self.assertTrue(
             len(formatted_result["success"]) <= 2
         )  # can be 2 if the thread1 in completed before thread2 start
