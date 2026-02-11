@@ -282,6 +282,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         data = request.form or request.get_json()
 
         # lint the plugin attributes by removing empty values
+        # Note: "timeout" is handled separately below to allow clearing via empty string
         for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
             if (
                 key
@@ -289,7 +290,6 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                     "additional",
                     "mana_cost",
                     "until",
-                    "timeout",
                     "shared",
                     "destroy_on_flag",
                     "scenario",
@@ -299,6 +299,10 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 and data[key] == ""
             ):
                 data.pop(key)
+
+        # Handle timeout separately: empty string means explicitly clear the timeout (set to NULL)
+        if "timeout" in data and data["timeout"] == "":
+            data["timeout"] = None
 
         if "shared" in data.keys():
             data["shared"] = convert_to_boolean(data["shared"])
