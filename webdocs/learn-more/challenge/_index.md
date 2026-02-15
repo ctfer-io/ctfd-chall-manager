@@ -62,7 +62,7 @@ The **timeout** is an integer that specifies, in seconds, how long after startin
 **Example:**  
 As a CTF administrator or challenge creator, you estimate that your challenge takes about 30 minutes to solve. Set the Janitoring Strategy to **Timeout** and set the value to 1800 seconds (30 minutes).
 
-As a player, once you start your instance, it will be destroyed after 30 minutes unless renewed. You can also manually destroy the instance at any time to reclaim your mana.
+As a player, once you start your instance, it will be destroyed after 30 minutes unless extended. You can also manually destroy the instance at any time to reclaim your mana.
 
 {{% alert title="Tips & Tricks" color="primary" %}}
 You can either combine the *Until* and *Timeout* values or leave both undefined.

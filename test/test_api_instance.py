@@ -88,7 +88,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
     def test_patch_valid_challenge_but_no_instance(self):
         """
-        Checks that user cannot renew an instance that NOT exists.
+        Checks that user cannot extend an instance that does NOT exist.
         """
         chall_id = create_challenge()
 
@@ -228,10 +228,10 @@ class Test_F_UserInstance(unittest.TestCase):
         # remove
         delete_challenge(chall_id)
 
-    def test_cannot_renew_until_instance(self):
+    def test_cannot_extend_until_instance(self):
         """
-        This test try to renew an instance with params until only.
-        User cannot renew an instance if a timeout is not defined.
+        This test tries to extend an instance with params until only.
+        User cannot extend an instance if a timeout is not defined.
         """
         # create a challenge
         chall_id = create_challenge(until="2222-12-22T22:22:22Z")
@@ -247,9 +247,9 @@ class Test_F_UserInstance(unittest.TestCase):
         # remove
         delete_challenge(chall_id)
 
-    def test_renew_until_timeout_instance_ok(self):
+    def test_extend_until_timeout_instance_ok(self):
         """
-        This test try to renew an instance with until and timeout define.
+        This test tries to extend an instance with until and timeout defined.
         User can deploy an instance if a timeout is defined and now+timeout is less than until.
         """
         # create a challenge
@@ -266,9 +266,9 @@ class Test_F_UserInstance(unittest.TestCase):
         # remove
         delete_challenge(chall_id)
 
-    def test_renew_until_timeout_instance_ko(self):
+    def test_extend_until_timeout_instance_ko(self):
         """
-        This test try to renew an instance with until and timeout define.
+        This test tries to extend an instance with until and timeout defined.
         User cannot deploy an instance if a timeout is defined and now+timeout
         is greater than until.
         """
