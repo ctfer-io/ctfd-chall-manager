@@ -1,26 +1,17 @@
 # pylint: disable=no-member
 """
-This module contains DynamicIac models and CRUD methods.
-The DynamicIaC type of challenge inherits from CTFd built-in Dynamic challenges
-
+module for dynamic infrastructure-as-code (iac) challenge models and crud methods.
+inherits from ctfd's built-in dynamic challenges.
 """
 
 import json
-
-# CTFd imports
-from CTFd.exceptions.challenges import (
-    ChallengeCreateException,
-    ChallengeUpdateException,
-)
+from flask import Blueprint
 from CTFd.models import Flags, db
 from CTFd.plugins.challenges import ChallengeResponse
 from CTFd.plugins.challenges.logic import (
     challenge_attempt_all,
     challenge_attempt_any,
     challenge_attempt_team,
-)
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
-    ChallManagerException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
     create_challenge,
@@ -36,15 +27,21 @@ from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
-from flask import Blueprint
+from CTFd.exceptions.challenges import (
+    ChallengeCreateException,
+    ChallengeUpdateException,
+)
+from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+    ChallManagerException,
+    InternalPluginException,
+)
 
 logger = configure_logger(__name__)
 
 
+# --- models ---
 class DynamicIaCChallenge(DynamicChallenge):
-    """
-    DynamicIaCChallenge defines the columns of the dynamic_iac challenge type.
-    """
+    """defines the columns specific to the dynamic_iac challenge type."""
 
     __mapper_args__ = {"polymorphic_identity": "dynamic_iac"}
     id = db.Column(
@@ -58,50 +55,39 @@ class DynamicIaCChallenge(DynamicChallenge):
     shared = db.Column(db.Boolean, default=False)
     destroy_on_flag = db.Column(db.Boolean, default=False)
     additional = db.Column(db.JSON, default={})
-
-    # Pooler feature
     min = db.Column(db.Integer, default=0)
     max = db.Column(db.Integer, default=0)
-
-    scenario = db.Column(db.Text)
+    scenario = db.Column(db.Text, nullable=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
         self.value = kwargs["initial"]
 
     def __str__(self):
-        return f"DynamicIaCChallenge(id={self.id}, \
-            mana_cost={self.mana_cost}, \
-            until={self.until}, \
-            timeout={self.timeout}, \
-            shared={self.shared}, \
-            destroy_on_flag={self.destroy_on_flag})"
+        return (
+            f"dynamiciacchallenge(id={self.id}, mana_cost={self.mana_cost}, "
+            f"until={self.until}, timeout={self.timeout}, shared={self.shared}, "
+            f"destroy_on_flag={self.destroy_on_flag})"
+        )
 
 
+# --- crud ---
 class DynamicIaCValueChallenge(DynamicValueChallenge):
-    """
-    DynamicIaCValueChallenge defines the function CRUD of a dynamic_iac challenge type.
-    """
+    """handles crud operations for the dynamic_iac challenge type."""
 
-    id = "dynamic_iac"  # Unique identifier used to register challenges
-    name = "dynamic_iac"  # Name of a challenge type
-    templates = (
-        {  # Handlebars templates used for each aspect of challenge editing & viewing
-            "create": "/plugins/ctfd_chall_manager/assets/create.html",
-            "update": "/plugins/ctfd_chall_manager/assets/update.html",
-            "view": "/plugins/ctfd_chall_manager/assets/view.html",
-        }
-    )
-
-    scripts = {  # Scripts that are loaded when a template is loaded
+    id = "dynamic_iac"
+    name = "dynamic_iac"
+    templates = {
+        "create": "/plugins/ctfd_chall_manager/assets/create.html",
+        "update": "/plugins/ctfd_chall_manager/assets/update.html",
+        "view": "/plugins/ctfd_chall_manager/assets/view.html",
+    }
+    scripts = {
         "create": "/plugins/ctfd_chall_manager/assets/create.js",
         "update": "/plugins/ctfd_chall_manager/assets/update.js",
         "view": "/plugins/ctfd_chall_manager/assets/view.js",
     }
-    # Route at which files are accessible.
-    # This must be registered using register_plugin_assets_directory()
     route = "/plugins/ctfd_chall_manager/assets/"
-    # Blueprint used to access the static_folder directory.
     blueprint = Blueprint(
         "ctfd_chall_manager",
         __name__,
@@ -111,142 +97,110 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
     challenge_model = DynamicIaCChallenge
 
     @classmethod
-    def create(cls, request):  # pylint: disable=too-many-branches,too-many-statements
-        """
-        This method is used to process the challenge creation request.
+    def _convert_booleans(cls, data, keys: list) -> InternalPluginException:
+        """converts values to booleans for specified keys."""
+        for key in keys:
+            if key in data:
+                if isinstance(data[key], str):
+                    data[key] = data[key].strip().lower() == "true"
+                try:
+                    data[key] = bool(data[key])
+                except (TypeError, ValueError) as e:
+                    raise InternalPluginException from e
 
-        :param request:
-        :return:
-        """
-        logger.debug("creating challenge on CTFd")
+    @classmethod
+    def _convert_integers(cls, data, keys: list) -> InternalPluginException:
+        """converts values to integers for specified keys."""
+        for key in keys:
+            if key in data:
+                try:
+                    data[key] = int(data[key])
+                except Exception as e:
+                    raise InternalPluginException from e
+
+    @classmethod
+    def _convert_json(cls, data, keys: list) -> InternalPluginException:
+        """converts a value to json for the specified key."""
+        for key in keys:
+            if key in data:
+                if isinstance(data[key], str):
+                    try:
+                        return json.loads(data[key])
+                    except json.JSONDecodeError as e:
+                        logger.error("failed to decode json: %s", e)
+                        raise InternalPluginException(
+                            f"failed to decode json: {data[key]}"
+                        ) from e
+                if not isinstance(data[key], dict):
+                    raise InternalPluginException(
+                        f"expected dict or json string, got {data[key]}"
+                    )
+
+                # if already dict, do nothing
+
+    @classmethod
+    def _prepare_cm_params(cls, data, keys, timeout_key=None):
+        """prepares parameters for the chall-manager api."""
+        params = {}
+        for key in keys:
+            if key in data:
+                params[key] = data[key]
+        if timeout_key and timeout_key in data and data[timeout_key] is not None:
+            params[timeout_key] = f"{data[timeout_key]}s"
+        return params
+
+    @classmethod
+    def create(cls, request):
+        """creates a dynamic_iac challenge."""
+        logger.debug("creating challenge on ctfd")
         data = request.form or request.get_json()
 
-        # lint the plugin attributes by removing empty values (UI form)
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if (
-                key
-                in [
-                    "mana_cost",
-                    "until",
-                    "timeout",
-                    "shared",
-                    "destroy_on_flag",
-                    "scenario",
-                    "min",
-                    "max",
-                ]
-                and data[key] == ""
-            ):
-                data.pop(key)
+        cls._convert_booleans(data, ["shared", "destroy_on_flag"])
+        cls._convert_json(data, "additional")
+        cls._convert_integers(data, ["min", "max", "mana_cost", "timeout"])
 
-        # convert string value to boolean
-        if "shared" in data.keys():
-            data["shared"] = convert_to_boolean(data["shared"])
+        if "scenario" not in data:
+            logger.error("missing mandatory 'scenario' in challenge creation")
+            raise ChallengeCreateException("missing mandatory 'scenario'")
 
-        if "destroy_on_flag" in data.keys():
-            data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
-
-        if "scenario" not in data.keys():
-            logger.error("missing mandatory value in challenge creation")
-            raise ChallengeCreateException(
-                "missing mandatory value in challenge creation"
-            )
-
-        if "min" in data.keys():
-            try:
-                data["min"] = int(data["min"])
-            except ValueError as e:
-                logger.error("min cannot be convert into int, got %s", data["min"])
-                raise ChallengeCreateException(
-                    f"min cannot be convert into int, got {data['min']}"
-                ) from e
-
-        if "max" in data.keys():
-            try:
-                data["max"] = int(data["max"])
-            except ValueError as e:
-                logger.error("max cannot be convert into int, got %s", data["max"])
-                raise ChallengeCreateException(
-                    f"max cannot be convert into int, got {data['max']}"
-                ) from e
-
-        # convert string into dict in CTFd
-        if "additional" in data.keys():
-            if isinstance(data["additional"], str):
-                try:
-                    # Attempt to parse the string as JSON
-                    data["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError as e:
-                    logger.error(
-                        "error while decoding additional configuration, found %s: %s",
-                        data["additional"],
-                        e,
-                    )
-                    raise ChallengeCreateException(
-                        f"error while decoding additional configuration, found {data['additional']}"
-                    ) from e
-            elif not isinstance(data["additional"], dict):
-                raise ChallengeCreateException(
-                    f"error while decoding additional configuration, found {data['additional']}"
-                )
-
+        # create challenge in database
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
         db.session.commit()
+        logger.info("challenge %s created on ctfd", challenge.id)
 
-        logger.info("challenge %s created successfully on CTFd", challenge.id)
-
-        # check params configuration for dynamic_iac
-        # init params configuration
-        params = {
-            "scenario": challenge.scenario,
-        }
-
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if key in [
+        # prepare parameters for chall-manager
+        params = cls._prepare_cm_params(
+            data,
+            keys=[
                 "additional",
                 "until",
                 "timeout",
                 "scenario",
                 "min",
                 "max",
-            ]:
-                params[key] = data[key]
-            if key == "timeout" and data["timeout"] is not None:
-                params["timeout"] = f"{data['timeout']}s"  # protobuf format
+            ],
+            timeout_key="timeout",
+        )
+        params["scenario"] = challenge.scenario
 
-        # handle challenge creation on chall-manager
+        # create challenge on chall-manager
         try:
-            logger.debug("creating challenge %s on CM", challenge.id)
+            logger.debug("creating challenge %s on cm", challenge.id)
             create_challenge(int(challenge.id), **params)
-            logger.info("challenge %s created successfully on CM", challenge.id)
+            logger.info("challenge %s created on cm", challenge.id)
         except (ValueError, ChallManagerException) as e:
-            logger.error(
-                "an exception occurred while sending challenge %s to CM: %s",
-                challenge.id,
-                e,
-            )
-            logger.debug(
-                "deleting challenge on CTFd due to an issue while creating it on CM"
-            )
+            logger.error("failed to create challenge %s on cm: %s", challenge.id, e)
             cls.delete(challenge)
-            logger.info("challenge %s deleted sucessfully", challenge.id)
             raise ChallengeCreateException(
-                f"an exception occurred while sending challenge {challenge.id} to CM: {e}"
+                f"failed to create challenge on cm: {e}"
             ) from e
 
-        # return CTFd Challenge if no error
         return challenge
 
     @classmethod
     def read(cls, challenge):
-        """
-        This method is used to access the data of a challenge
-        in a format processable by the front end.
-
-        :param challenge:
-        :return: Challenge object, data dictionary to be returned to the user
-        """
+        """reads challenge data for the frontend."""
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge.id).first()
         data = super().read(challenge)
         data.update(
@@ -257,99 +211,38 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "shared": challenge.shared,
                 "destroy_on_flag": challenge.destroy_on_flag,
                 "scenario": challenge.scenario,
-                "additional": (
-                    challenge.additional if current_user.is_admin() else {}
-                ),  # do not display additional for all user, can contains secrets
+                "additional": challenge.additional if current_user.is_admin() else {},
                 "min": challenge.min,
                 "max": challenge.max,
             }
         )
-
         return data
 
     @classmethod
-    def update(
-        cls, challenge, request
-    ):  # pylint: disable=too-many-branches,too-many-statements
-        """
-        This method is used to update the information associated with a challenge.
-        This should be kept strictly to the Challenges table and any child tables.
-
-        :param challenge:
-        :param request:
-        :return:
-        """
+    def update(cls, challenge, request):
+        """updates a dynamic_iac challenge."""
         data = request.form or request.get_json()
 
-        # lint the plugin attributes by removing empty values
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if (
-                key
-                in [
-                    "additional",
-                    "mana_cost",
-                    "until",
-                    "timeout",
-                    "shared",
-                    "destroy_on_flag",
-                    "scenario",
-                    "min",
-                    "max",
-                ]
-                and data[key] == ""
-            ):
-                data.pop(key)
+        # convert data
+        cls._convert_booleans(data, ["shared", "destroy_on_flag"])
+        cls._convert_json(data, "additional")
+        cls._convert_integers(data, ["min", "max", "mana_cost", "timeout"])
 
-        if "shared" in data.keys():
-            data["shared"] = convert_to_boolean(data["shared"])
-
-        # Update the destroy on flag boolean
-        if "destroy_on_flag" in data.keys():
-            data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
-
-        # Workaround
-        if "state" in data.keys() and len(data.keys()) == 1:
+        # special case: only updating state
+        if "state" in data and len(data) == 1:
             setattr(challenge, "state", data["state"])
             return super().calculate_value(challenge)
 
-        # convert string into dict in CTFd
-        if "additional" in data.keys():
-            if isinstance(data["additional"], str):
-                try:
-                    # Attempt to parse the string as JSON
-                    data["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError as e:
-                    logger.error(
-                        "error while decoding additional configuration, found %s : %s",
-                        data["additional"],
-                        e,
-                    )
-                    raise ChallengeUpdateException(
-                        f"error while decoding additional configuration, \
-                        found {data['additional']}"
-                    ) from e
-            elif not isinstance(data["additional"], dict):
-                logger.error(
-                    "error while decoding additional configuration, found %s : %s",
-                    data["additional"],
-                    e,
-                )
-                raise ChallengeUpdateException(
-                    f"error while decoding additional configuration,\
-                    found {data['additional']}"
-                ) from e
-
-        # update on database
+        # update challenge attributes in database
         for attr, value in data.items():
-            # We need to set these to floats so that the next operations don't operate on strings
             if attr in ("initial", "minimum", "decay"):
                 value = float(value)
-            setattr(challenge, attr, value)  # update on database
+            setattr(challenge, attr, value)
 
-        # Patch Challenge on Chall-Manager API
-        params = {}
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if key in [
+        # prepare parameters for chall-manager
+        params = cls._prepare_cm_params(
+            data,
+            keys=[
                 "additional",
                 "until",
                 "timeout",
@@ -357,188 +250,144 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "min",
                 "max",
                 "updateStrategy",
-            ]:
-                params[key] = data[key]
-            if key == "timeout" and data["timeout"] is not None:
-                params["timeout"] = f"{data['timeout']}s"  # protobuf format
+            ],
+            timeout_key="timeout",
+        )
 
-        # send updates to CM
+        # update challenge on chall-manager
         try:
             update_challenge(challenge.id, **params)
         except Exception as e:
-            logger.error("error while patching the challenge: %s", e)
-            raise ChallengeUpdateException("error while patching the challenge") from e
+            logger.error("failed to update challenge %s on cm: %s", challenge.id, e)
+            raise ChallengeUpdateException(
+                f"failed to update challenge on cm: {e}"
+            ) from e
 
         return super().calculate_value(challenge)
 
     @classmethod
     def delete(cls, challenge):
-        """
-        This method is used to delete the resources used by a challenge.
-
-        :param challenge:
-        :return:
-        """
-
-        # check if challenge exists on CM
+        """deletes a dynamic_iac challenge."""
         try:
             get_challenge(challenge.id)
-        except ChallManagerException as e:
-            logger.info(
-                "ignoring challenge %s as it does not exist on CM: %s", challenge.id, e
-            )
+        except ChallManagerException:
+            logger.info("challenge %s does not exist on cm, skipping", challenge.id)
         else:
             try:
-                logger.debug("deleting challenge %s on CM", challenge.id)
                 delete_challenge(challenge.id)
-                logger.info("challenge %s on CM delete successfully", challenge.id)
+                logger.info("challenge %s deleted from cm", challenge.id)
             except ChallManagerException as e:
                 logger.error(
-                    "failed to delete challenge %s from CM: %s", challenge.id, e
+                    "failed to delete challenge %s from cm: %s", challenge.id, e
                 )
 
-        # then delete it on CTFd
-        logger.debug("deleting challenge %s on CTFd", challenge.id)
         super().delete(challenge)
-        logger.info("challenge %s on CTFd deleted successfully", challenge.id)
+        logger.info("challenge %s deleted from ctfd", challenge.id)
 
     @classmethod
-    def attempt(
-        cls, challenge, request
-    ):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-        """
-        This method is used to check whether a given input is right or wrong.
-        It does not make any changes and should return a boolean for correctness
-        and a string to be shown to the user. It is also in charge of parsing the
-        user's input from the request itself.
-
-        :param challenge: The Challenge object from the database
-        :param request: The request the user submitted
-        :return: (boolean, string)
-        """
+    def attempt(cls, challenge, request):
+        """checks if a submission is correct."""
         data = request.form or request.get_json()
-        submission = data["submission"].strip()  # user input
+        submission = data["submission"].strip()
 
-        # retrieve source_id
+        # get source_id
         user_id = int(current_user.get_current_user().id)
         source_id = user_id
         if is_teams_mode():
-            team_id = int(current_user.get_current_user().team_id)
-            source_id = team_id
+            source_id = int(current_user.get_current_user().team_id)
         if challenge.shared:
             source_id = 0
 
         logger.info(
-            "submission of user %s as source %s for challenge %s : %s",
+            "submission for challenge %s by user %s (source %s): %s",
+            challenge.id,
             user_id,
             source_id,
-            challenge.id,
             submission,
         )
 
-        # checks that the instance is alive
+        # check if instance exists
         try:
-            data = get_instance(challenge.id, source_id)
+            instance = get_instance(challenge.id, source_id)
         except ChallManagerException as e:
-            logger.error("error occurred while getting instance: %s", e)
+            logger.error("failed to get instance: %s", e)
             return ChallengeResponse(
-                status="incorrect", message="Error occurred, contact admins!"
+                status="incorrect",
+                message="error occurred, contact admins!",
             )
 
-        # If the instance no longer exists
-        if data["since"] is None:
-            logger.debug(
-                "instance for source_id %s and challenge_id %s no longer exists",
-                source_id,
-                challenge.id,
-            )
+        if instance["since"] is None:
             logger.info(
-                "invalid submission due to expired instance for challenge %s source %s",
+                "instance for challenge %s (source %s) is expired",
                 challenge.id,
                 source_id,
             )
             return ChallengeResponse(
                 status="incorrect",
-                message="Expired (the instance must be running to submit)",
+                message="expired (the instance must be running to submit)",
             )
 
+        # get flags
         flags = Flags.query.filter_by(challenge_id=challenge.id).all()
-        logger.debug("check if flags is provided by CM")
-
-        # Chall-Manager feature since v0.6.0
-        if "flags" in data.keys():
-            cm_flags = list(data["flags"])
-            logger.debug(
-                "flags provided by CM for challenge %s source %s: %s",
-                challenge.id,
-                source_id,
-                cm_flags,
-            )
-
-            for idx, flag in enumerate(cm_flags):
-                # the flag id from CM will be -1, -2, ...
-                # in fact, we just want to avoid collision with existing CTFd Flag id here
-                generated_id = int(-(idx + 1))
-
-                # create Flags object to ease compare method
-                # this object is NOT stored in database.
-                ctfd_cm_flag = Flags(
-                    challenge_id=challenge.id,
-                    type="static",
-                    content=flag,
-                    id=generated_id,
+        if "flags" in instance:
+            for idx, flag in enumerate(instance["flags"]):
+                flags.append(
+                    Flags(
+                        challenge_id=challenge.id,
+                        type="static",
+                        content=flag,
+                        id=-(idx + 1),
+                    )
                 )
-                flags.append(ctfd_cm_flag)
 
-        # CTFd behavior
-        # https://github.com/CTFd/CTFd/blob/3.8.0/CTFd/plugins/challenges/__init__.py#L131
+        # check flags logic
         if challenge.logic == "all":
             return challenge_attempt_all(submission, challenge, flags)
         if challenge.logic == "team":
             return challenge_attempt_team(submission, challenge, flags)
-
         return challenge_attempt_any(submission, challenge, flags)
 
     @classmethod
     def solve(cls, user, team, challenge, request):
+        """handles the solving of a challenge."""
         super().solve(user, team, challenge, request)
 
-        # retrieve source_id
+        # get source_id
         user_id = int(current_user.get_current_user().id)
         source_id = user_id
         if is_teams_mode():
-            team_id = int(current_user.get_current_user().team_id)
-            source_id = team_id
+            source_id = int(current_user.get_current_user().team_id)
         if challenge.shared:
             source_id = 0
 
         if challenge.destroy_on_flag:
             logger.info(
-                "challenge %s solved, destroy instance for source %s",
+                "deleting instance for challenge %s (source %s)",
                 challenge.id,
                 source_id,
             )
             try:
                 delete_instance(challenge.id, source_id)
             except ChallManagerException as e:
-                logger.warning(
-                    "failed to delete challenge %s for source %s, \
-                    instance may not exist got %s",
-                    challenge.id,
-                    source_id,
-                    e,
-                )
+                logger.warning("failed to delete instance: %s", e)
 
 
+# --- utility functions ---
 def convert_to_boolean(value):
-    """
-    Check if the value is a string and convert it to boolean
-    if it matches "true" or "false" (case-insensitive)
-    """
+    """converts a value to boolean if possible."""
     if isinstance(value, str):
-        value_lower = value.strip().lower()
-        if value_lower == "true":
-            return True
-        return False
-    # If the value is already a boolean or doesn't match a boolean string, return it as is
+        return value.strip().lower() == "true"
+    return bool(value)
+
+
+def convert_to_json(value):
+    """converts a value to a json dictionary."""
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError as e:
+            logger.error("failed to decode json: %s", e)
+            raise InternalPluginException(f"failed to decode json: {value}") from e
+    if not isinstance(value, dict):
+        raise InternalPluginException(f"expected dict or json string, got {value}")
     return value

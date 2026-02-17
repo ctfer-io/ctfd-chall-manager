@@ -19,3 +19,9 @@ class ChallManagerException(Exception):
     def __str__(self):
         details_str = f", details: {self.details}" if self.details else ""
         return f"ChallManagerError(code={self.code}, message='{self.message}'{details_str})"
+
+
+class InternalPluginException(Exception):
+    """
+    This class handles errors inside the plugin.
+    """
