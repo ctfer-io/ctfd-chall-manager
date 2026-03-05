@@ -37,7 +37,7 @@ def query_challenges() -> list | ChallManagerException:
     :return list: list of challenges [{ . }, { . }]
     """
     cm_api_url = _get_cm_base_url()
-    url = f"{cm_api_url}/api/v1/challenge"
+    url = f"{cm_api_url}/api/v1/challenges"
     s = requests.Session()
     result = []
 
@@ -71,7 +71,7 @@ def create_challenge(
     :return Response: of chall-manager API
     """
     cm_api_url = _get_cm_base_url()
-    url = f"{cm_api_url}/api/v1/challenge"
+    url = f"{cm_api_url}/api/v1/challenges"
     headers = {"Content-Type": "application/json"}
     payload = kwargs
 
@@ -108,7 +108,7 @@ def delete_challenge(challenge_id: int) -> requests.Response | ChallManagerExcep
     :return Response: of chall-manager API
     """
     cm_api_url = _get_cm_base_url()
-    url = f"{cm_api_url}/api/v1/challenge/{challenge_id}"
+    url = f"{cm_api_url}/api/v1/challenges/{challenge_id}"
 
     logger.debug("deleting challenge with id=%s", challenge_id)
 
@@ -130,7 +130,7 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
     :return Response: of chall-manager API
     """
     cm_api_url = _get_cm_base_url()
-    url = f"{cm_api_url}/api/v1/challenge/{challenge_id}"
+    url = f"{cm_api_url}/api/v1/challenges/{challenge_id}"
 
     logger.debug("getting challenge information for id=%s", challenge_id)
 
@@ -172,7 +172,7 @@ def update_challenge(
     :return Response: of chall-manager API
     """
     cm_api_url = _get_cm_base_url()
-    url = f"{cm_api_url}/api/v1/challenge/{challenge_id}"
+    url = f"{cm_api_url}/api/v1/challenges/{challenge_id}"
     headers = {"Content-Type": "application/json"}
     payload = kwargs
 
