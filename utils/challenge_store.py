@@ -136,10 +136,18 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
         ) from e
 
     if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-manager returned an error: {json.loads(r.text)}"
-        )
+        # Try to parse as JSON, fallback to text if it fails (e.g., HTML 404 pages)
+        try:
+            error_data = json.loads(r.text)
+            logger.error("error from chall-manager: %s", error_data)
+            raise ChallManagerException(
+                message=f"Chall-manager returned an error: {error_data}"
+            )
+        except json.JSONDecodeError:
+            logger.error("error from chall-manager (status %s): %s", r.status_code, r.text[:200])
+            raise ChallManagerException(
+                message=f"Chall-manager returned status {r.status_code}"
+            )
 
     return r
 
