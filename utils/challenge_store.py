@@ -23,7 +23,7 @@ def _get_cm_base_url():
     Get the challenge manager base URL without /api/v1 suffix.
     Handles cases where config might already include /api/v1.
     """
-    cm_api_url = _get_cm_base_url()
+    cm_api_url = get_config("chall-manager:chall-manager_api_url")
     # Remove trailing /api/v1 if present to avoid duplication
     if cm_api_url.endswith("/api/v1"):
         cm_api_url = cm_api_url[:-7]  # Remove "/api/v1"
