@@ -17,7 +17,7 @@ import threading
 from abc import ABC, abstractmethod
 
 import redis
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from .utils.logger import configure_logger
 
 logger = configure_logger(__name__)
 

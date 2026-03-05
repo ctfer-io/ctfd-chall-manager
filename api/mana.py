@@ -3,12 +3,12 @@ This module describes the UserMana API endpoint of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/mana
 """
 
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+from ..utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_mana_used
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
+from ..utils.helpers import calculate_mana_used
+from ..utils.logger import configure_logger
+from ..utils.mana_lock import load_or_store
 from CTFd.utils import get_config
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode

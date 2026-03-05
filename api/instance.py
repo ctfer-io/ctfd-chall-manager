@@ -3,24 +3,24 @@ This module describes the UserInstance API endpoint of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/instance.
 """
 
-from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+from ..models import DynamicIaCChallenge
+from ..utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.decorators import challenge_visible
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import (
+from ..utils.decorators import challenge_visible
+from ..utils.helpers import (
     check_source_can_create_instance,
     check_source_can_edit_instance,
     check_source_can_patch_instance,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
+from ..utils.instance_manager import (
     create_instance,
     delete_instance,
     get_instance,
     update_instance,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
+from ..utils.logger import configure_logger
+from ..utils.mana_lock import load_or_store
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import authed_only

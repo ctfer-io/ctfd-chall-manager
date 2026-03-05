@@ -4,13 +4,13 @@ This module defines the helpers functions.
 """
 
 from CTFd.models import db  # type: ignore
-from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+from .models import DynamicIaCChallenge
+from .utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
-from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from .utils.challenge_store import query_challenges
+from .utils.instance_manager import query_instance
+from .utils.logger import configure_logger
 from CTFd.utils import get_config
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode

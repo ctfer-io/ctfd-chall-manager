@@ -3,18 +3,18 @@ This module describes the AdminInstance API endpoints of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/admin/instance.
 """
 
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+from ...utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import retrieve_all_ids
-from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
+from ...utils.helpers import retrieve_all_ids
+from ...utils.instance_manager import (
     create_instance,
     delete_instance,
     get_instance,
     update_instance,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
+from ...utils.logger import configure_logger
+from ...utils.mana_lock import load_or_store
 from CTFd.utils.decorators import admins_only
 from flask_restx import Resource, abort
 

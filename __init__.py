@@ -8,22 +8,22 @@ import os
 import requests
 from CTFd.plugins import register_plugin_assets_directory, register_user_page_menu_bar
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
-from CTFd.plugins.ctfd_chall_manager.api import register_api_endpoints
-from CTFd.plugins.ctfd_chall_manager.models import (
+from .api import register_api_endpoints
+from .models import (
     DynamicIaCChallenge,
     DynamicIaCValueChallenge,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+from .utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import (
+from .utils.challenge_store import query_challenges
+from .utils.helpers import (
     calculate_all_mana_used,
     calculate_mana_used,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.setup import setup_default_configs
+from .utils.instance_manager import query_instance
+from .utils.logger import configure_logger
+from .utils.setup import setup_default_configs
 from CTFd.plugins.migrations import upgrade
 from CTFd.utils import get_config, set_config
 from CTFd.utils import user as current_user

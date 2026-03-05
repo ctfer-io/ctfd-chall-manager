@@ -6,10 +6,10 @@ import json
 
 import requests
 from CTFd.cache import cache
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+from .utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from .utils.logger import configure_logger
 from CTFd.utils import get_config
 
 logger = configure_logger(__name__)

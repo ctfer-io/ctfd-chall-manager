@@ -19,20 +19,20 @@ from CTFd.plugins.challenges.logic import (
     challenge_attempt_any,
     challenge_attempt_team,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
+from .utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
+from .utils.challenge_store import (
     create_challenge,
     delete_challenge,
     get_challenge,
     update_challenge,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
+from .utils.instance_manager import (
     delete_instance,
     get_instance,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from .utils.logger import configure_logger
 from CTFd.plugins.dynamic_challenges import DynamicChallenge, DynamicValueChallenge
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
