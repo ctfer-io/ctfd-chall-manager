@@ -87,20 +87,20 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
     name = "dynamic_iac"  # Name of a challenge type
     templates = (
         {  # Handlebars templates used for each aspect of challenge editing & viewing
-            "create": "/plugins/ctfd_chall_manager/assets/create.html",
-            "update": "/plugins/ctfd_chall_manager/assets/update.html",
-            "view": "/plugins/ctfd_chall_manager/assets/view.html",
+            "create": "/plugins/ctfd-chall-manager/assets/create.html",
+            "update": "/plugins/ctfd-chall-manager/assets/update.html",
+            "view": "/plugins/ctfd-chall-manager/assets/view.html",
         }
     )
 
     scripts = {  # Scripts that are loaded when a template is loaded
-        "create": "/plugins/ctfd_chall_manager/assets/create.js",
-        "update": "/plugins/ctfd_chall_manager/assets/update.js",
-        "view": "/plugins/ctfd_chall_manager/assets/view.js",
+        "create": "/plugins/ctfd-chall-manager/assets/create.js",
+        "update": "/plugins/ctfd-chall-manager/assets/update.js",
+        "view": "/plugins/ctfd-chall-manager/assets/view.js",
     }
     # Route at which files are accessible.
     # This must be registered using register_plugin_assets_directory()
-    route = "/plugins/ctfd_chall_manager/assets/"
+    route = "/plugins/ctfd-chall-manager/assets/"
     # Blueprint used to access the static_folder directory.
     blueprint = Blueprint(
         "ctfd_chall_manager",
@@ -207,6 +207,9 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # check params configuration for dynamic_iac
         # init params configuration
+        # Note: scenario contains the file ID (from old scenario_id), not the content
+        # The challenge manager expects the scenario field, so we just pass it as-is
+        # The CM will handle fetching the file by ID
         params = {
             "scenario": challenge.scenario,
         }
