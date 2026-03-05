@@ -25,6 +25,10 @@ def query_challenges() -> list | ChallManagerException:
     :return list: list of challenges [{ . }, { . }]
     """
     cm_api_url = get_config("chall-manager:chall-manager_api_url")
+    # cm_api_url should be base URL without /api/v1 (e.g., http://challenge_manager:6001)
+    # If it already includes /api/v1, strip it to avoid duplication
+    if cm_api_url.endswith("/api/v1"):
+        cm_api_url = cm_api_url.rstrip("/api/v1")
     url = f"{cm_api_url}/api/v1/challenge"
     s = requests.Session()
     result = []

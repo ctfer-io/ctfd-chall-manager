@@ -113,11 +113,13 @@ def load(app):  # pylint: disable=too-many-statements
             logger.info("retrieved %s challenges successfully", len(result))
         except ChallManagerException as e:
             logger.error("error querying challenges: %s", e)
+            result = []  # Set empty list if query fails
 
         instances = []
 
-        for challenge in result['data']:
-            for instance in challenge["instances"]:
+        # result is a list of challenges, not a dict
+        for challenge in result:
+            for instance in challenge.get("instances", []):
                 instances.append(instance)
 
         user_mode = get_config("user_mode")
