@@ -18,17 +18,25 @@ CM_API_TIMEOUT = get_config("chall-manager:chall-manager_api_timeout")
 # This is false positive
 
 
+def _get_cm_base_url():
+    """
+    Get the challenge manager base URL without /api/v1 suffix.
+    Handles cases where config might already include /api/v1.
+    """
+    cm_api_url = _get_cm_base_url()
+    # Remove trailing /api/v1 if present to avoid duplication
+    if cm_api_url.endswith("/api/v1"):
+        cm_api_url = cm_api_url[:-7]  # Remove "/api/v1"
+    return cm_api_url
+
+
 def query_challenges() -> list | ChallManagerException:
     """
     Query all challenges information and their instances running.
 
     :return list: list of challenges [{ . }, { . }]
     """
-    cm_api_url = get_config("chall-manager:chall-manager_api_url")
-    # cm_api_url should be base URL without /api/v1 (e.g., http://challenge_manager:6001)
-    # If it already includes /api/v1, strip it to avoid duplication
-    if cm_api_url.endswith("/api/v1"):
-        cm_api_url = cm_api_url.rstrip("/api/v1")
+    cm_api_url = _get_cm_base_url()
     url = f"{cm_api_url}/api/v1/challenge"
     s = requests.Session()
     result = []
@@ -62,7 +70,7 @@ def create_challenge(
 
     :return Response: of chall-manager API
     """
-    cm_api_url = get_config("chall-manager:chall-manager_api_url")
+    cm_api_url = _get_cm_base_url()
     url = f"{cm_api_url}/api/v1/challenge"
     headers = {"Content-Type": "application/json"}
     payload = kwargs
@@ -99,7 +107,7 @@ def delete_challenge(challenge_id: int) -> requests.Response | ChallManagerExcep
 
     :return Response: of chall-manager API
     """
-    cm_api_url = get_config("chall-manager:chall-manager_api_url")
+    cm_api_url = _get_cm_base_url()
     url = f"{cm_api_url}/api/v1/challenge/{challenge_id}"
 
     logger.debug("deleting challenge with id=%s", challenge_id)
@@ -121,7 +129,7 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
     :param challenge_id* (int): 1
     :return Response: of chall-manager API
     """
-    cm_api_url = get_config("chall-manager:chall-manager_api_url")
+    cm_api_url = _get_cm_base_url()
     url = f"{cm_api_url}/api/v1/challenge/{challenge_id}"
 
     logger.debug("getting challenge information for id=%s", challenge_id)
@@ -163,7 +171,7 @@ def update_challenge(
     (e.g {'timeout': '600s', 'updateStrategy': 'update_in_place', 'until': '2024-07-10 15:00:00' })
     :return Response: of chall-manager API
     """
-    cm_api_url = get_config("chall-manager:chall-manager_api_url")
+    cm_api_url = _get_cm_base_url()
     url = f"{cm_api_url}/api/v1/challenge/{challenge_id}"
     headers = {"Content-Type": "application/json"}
     payload = kwargs
