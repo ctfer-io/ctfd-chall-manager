@@ -17,7 +17,7 @@ import threading
 from abc import ABC, abstractmethod
 
 import redis
-from .utils.logger import configure_logger
+from .logger import configure_logger
 
 logger = configure_logger(__name__)
 

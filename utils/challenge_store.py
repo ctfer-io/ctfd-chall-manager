@@ -5,10 +5,10 @@ This module contains all functions to use Chall-Manager ChallengeStore group.
 import json
 
 import requests
-from .utils.chall_manager_error import (
+from .chall_manager_error import (
     ChallManagerException,
 )
-from .utils.logger import configure_logger
+from .logger import configure_logger
 from CTFd.utils import get_config
 
 logger = configure_logger(__name__)

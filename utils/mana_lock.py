@@ -6,8 +6,8 @@ on ManaCoupon.
 import os
 import threading
 
-from .utils.locker import REDIS_CLIENT, create_rw_lock
-from .utils.logger import configure_logger
+from .locker import REDIS_CLIENT, create_rw_lock
+from .logger import configure_logger
 
 logger = configure_logger(__name__)
 
