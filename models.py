@@ -147,10 +147,13 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
 
         # Backward compatibility: support both scenario_id (old) and scenario (new)
-        if "scenario_id" in data.keys() and "scenario" not in data.keys():
-            # Convert scenario_id to scenario for backward compatibility
-            logger.debug("scenario_id provided, converting to scenario field")
-            data["scenario"] = str(data["scenario_id"])
+        if "scenario_id" in data.keys():
+            if "scenario" not in data.keys():
+                # Convert scenario_id to scenario for backward compatibility
+                logger.debug("scenario_id provided, converting to scenario field")
+                data["scenario"] = str(data["scenario_id"])
+            # Remove scenario_id from data since the model doesn't have this field
+            data.pop("scenario_id")
         
         if "scenario" not in data.keys():
             logger.error("missing mandatory value in challenge creation (scenario or scenario_id required)")
