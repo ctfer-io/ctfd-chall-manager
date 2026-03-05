@@ -1,10 +1,15 @@
 {% extends "admin/challenges/update.html" %}
 
-<!-- Disable CTFd connection_info -->
-{# block connection_info #}
-{# endblock #}
-
 {% block value %}
+
+<div class="form-group">
+	<label for="value">Current Value<br> 
+		<small class="form-text text-muted">
+			This is how many points the challenge is worth right now.
+		</small>
+	</label>
+	<input type="number" class="form-control chal-value" name="value" value="{{ challenge.value }}" disabled>
+</div>
 
 <!-- CM Plugins -->
 
@@ -50,7 +55,7 @@
 		</small>
 	</label>
 	<input type="datetime-local" id="until-input-local" data-test-id="until-create-id" class="form-control">
-	<input type="hidden" id="until-input-utc" class="form-control" name="until" {% if challenge.until != "" %}value={{challenge.until}}{% endif %}>
+	<input type="hidden" id="until-input-utc" class="form-control" name="until" {% if challenge.until is not none %}value={{challenge.until}}{% endif %}>
 </div>
 
 <div id="cm-mode-timeout" class="form-group">
@@ -59,37 +64,19 @@
 			Timeout: Define a timeout that the instance will be destroyed by the janitor (e.g 600s for 10 min)
 		</small>
 	</label>
-	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout" {% if challenge.timeout != "" %}value={{challenge.timeout}}{% endif %}>
-</div>
-
-<div id="current-scenario-id" style="display: none;">{{ challenge.scenario_id }}</div>
-
-<div class="form-text">
-	<table class="tg">
-		<thead>
-		  <tr>
-			<td class="tg-0lax">
-				<div><b>Current Scenario : </b></div>
-			</td>
-			<td class="tg-0pky">
-				<div id="scenario_file"></div>
-			</td>			
-		  </tr>
-		</thead>
-		</table>	
+	<input type="number" id="timeout-input" data-test-id="timeout-create-id" class="form-control" name="timeout" {% if challenge.timeout is not none %}value={{challenge.timeout}}{% endif %}>
 </div>
 
 <div class="form-group">
-	<label for="value">Scenario archive<br>
+	<label for="value">Scenario<br>
 		<small class="form-text text-muted">
-			This is the IaC Archives
+			Scenario reference (e.g registry.lan/category/challenge-scenario:v0.1.0@sha256:a0b1...c2d3)
 		</small>
 	</label>
-	<input type="file" class="form-control" id="scenario" data-test-id="scenario-create-id" name="scenario" accept=".zip">
-	<input type="hidden" id="scenario_id" class="form-control" name="scenario_id">
+	<input type="text" id="scenario-input" data-test-id="scenario-update-id" class="form-control" name="scenario" required value="{{ challenge.scenario }}">
 </div>
 
-<div id="update-strategy-div" class="form-group" style="display: none;">
+<div id="update-strategy-div" class="form-group">
 	<label for="value">Update Strategy<br>
 		<small class="form-text text-muted">
 			<span>The UpdateStrategy to use in case of a Challenge scenario update with running instances.
@@ -108,62 +95,61 @@
 	</select>
 </div>
 
+<p>
+	<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#advanced" aria-expanded="false" aria-controls="advanced">
+	  Advanced
+	</button>
+  </p>
+  <div class="collapse" id="advanced" >
+	<div class="card card-body">
+		<label for="value">Challenge configuration</label>
 
-<!-- CM Plugins -->
+		<div>
+			<button class="btn btn-primary" type="button" onclick=addRow()>
+				Add + 
+			</button>
+			<button class="btn btn-primary" type="button" onclick=applyAdditional()>
+				Apply
+			</button>
+		</div>
+		
 
-<div class="form-group">
-	<label for="value">Current Value<br> 
-		<small class="form-text text-muted">
-			This is how many points the challenge is worth right now.
-		</small>
-	</label>
-	<input type="number" class="form-control chal-value" name="value" value="{{ challenge.value }}" disabled>
-</div>
+		<div id="table-div-id">
+			<table class="table table-striped border" id="additional-configuration">
+				<thead>
+					<tr>
+						<th class="sort-col text-left"><b></b></td>
+						<th class="sort-col text-left"><b>Key</b></td>
+						<th class="sort-col text-left"><b>Value</b></td>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
 
-<div class="form-group">
-	<label for="value">Initial Value<br>
-		<small class="form-text text-muted">
-			This is how many points the challenge was worth initially.
-		</small>
-	</label>
-	<input type="number" class="form-control chal-initial" name="initial" value="{{ challenge.initial }}" required>
-</div>
+		<input type="hidden" id="additional-json" name="additional" value='{{ challenge.additional | tojson | safe }}'>
+		<input type="hidden" id="current-additional-json"  value='{{ challenge.additional | tojson | safe }}'>
+	</div>
+	<div class="card card-body">
+		<label for="value">Pooler</label>
 
-<div class="form-group">
-	<label for="value">Decay Function<br>
-		<small class="form-text text-muted">
-			<span>How the dynamic value will be calculated based on the Decay value</span>
-			<ul>
-				<li>Linear: Calculated as <code>Initial - (Decay * SolveCount)</code></li>
-				<li>Logarithmic: Calculated as <code>(((Minimum - Initial) / (Decay^2)) * (SolveCount^2)) + Initial</code></li>
-			</ul>
-		</small>
-	</label>
-	<select name="function" class="custom-select">
-		<option value="linear" {% if challenge.function == "linear" %}selected{% endif %}>Linear</option>
-		<option value="logarithmic" {% if challenge.function == "logarithmic" %}selected{% endif %}>Logarithmic</option>
-	</select>
-</div>
+		<label for="value">Min<br>
+			<small class="form-text text-muted">
+				Min from the pooler feature. <br>
+    			Determine the minimum number of instances we want to pre-provision, and make available for claiming later.
+			</small>
+		</label>
+		<input type="number" class="form-control" name="min" value="{{ challenge.min }}">
 
-<div class="form-group">
-	<label for="value">Decay<br>
-		<small class="form-text text-muted">
-			<span>The decay value is used differently depending on the above Decay Function</span>
-			<ul>
-				<li>Linear: The amount of points deducted per solve. Equal deduction per solve.</li>
-				<li>Logarithmic: The amount of solves before the challenge reaches its minimum value. Earlier solves will lose less points. Later solves will lose more points</li>
-			</ul>
-		</small>
-	</label>
-	<input type="number" class="form-control chal-decay" min="1" name="decay" value="{{ challenge.decay }}" required>
-</div>
+		<label for="value">Max<br>
+			<small class="form-text text-muted">
+				Max from the pooler feature. <br>
+				Determine the maximum number of instances that needs to be deployed until we stop pre-provisioning ones in the pool.
+			</small>
+		</label>
+		<input type="number" class="form-control" name="max" value="{{ challenge.max }}">
 
-<div class="form-group">
-	<label for="value">Minimum Value<br>
-		<small class="form-text text-muted">
-			This is the lowest that the challenge can be worth
-		</small>
-	</label>
-	<input type="number" class="form-control chal-minimum" name="minimum" value="{{ challenge.minimum }}" required>
-</div>
+	</div>
+  </div>
 {% endblock %}

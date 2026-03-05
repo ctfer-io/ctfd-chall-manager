@@ -8,14 +8,16 @@
 </div>
 
 > [!CAUTION]
-> CTFd-chall-Manager is currently in public beta phase.
+> CTFd-chall-manager is currently in public beta phase.
 > It could be run in production, but breaking changes are subject to happen in the upcoming months until General Availability.
 > 
 > It has been tested under production workload during the NoBrackets 2024.
 
 This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/chall-manager), to manage scenario and permit Player's to deploy their instances.
 
-Last version tested on: [3.7.6](https://github.com/CTFd/CTFd/releases/tag/3.7.6).
+Last version of CTFd tested on: [3.8.1](https://github.com/CTFd/CTFd/releases/tag/3.8.1).
+
+Last version of Chall-Manager tested on: [v0.6.0](https://github.com/ctfer-io/chall-manager/releases/tag/v0.6.0).
 
 # Features
 ## Main features for Users
@@ -40,12 +42,15 @@ Please [open an issue](https://github.com/ctfer-io/ctfd-chall-manager/issues/new
 
 - 2024/11/20 [NoBracketsCTF 2024](https://github.com/nobrackets-ctf/NoBrackets-2024)
 - 2025/02/09 [ICAISC 2025](https://www.linkedin.com/feed/update/urn:li:ugcPost:7295762712364544001/?actorCompanyId=103798607)
+- 2025/03/08 Hack'lantique 2025
+- 2025/05/17 [WhiteHats TrojanCTF 2025](https://github.com/ESHA-Trojan/TrojanCTF-2025-public)
+- 2025/05/24 [24h IUT 2025](https://www.linkedin.com/feed/update/urn:li:activity:7332827877123506177/)
 
 # How install and use
 To install and use the plugin, refer to the documentation at https://ctfer.io/docs/ctfd-chall-manager.
 
 # Limitations
-- Need to use the `core-beta` theme (cf https://github.com/CTFd/CTFd/pull/2630)
+- Need to use the `core-beta` or derivative theme (cf https://github.com/CTFd/CTFd/pull/2630)
 
 # Glossaries
 

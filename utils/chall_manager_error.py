@@ -1,8 +1,19 @@
+"""
+This module defines custom exception for CTFd-chall-manager plugin.
+"""
+
+
 class ChallManagerException(Exception):
+    """
+    This class handles errors returns by Chall-Manager API.
+    """
+
     def __init__(self, code=2, message="An error occurred", details=None):
         self.code = code
         self.message = message
-        self.details = details or []  # Default to an empty list if no details are provided
+        self.details = (
+            details or []
+        )  # Default to an empty list if no details are provided
         super().__init__(self.message)
 
     def __str__(self):

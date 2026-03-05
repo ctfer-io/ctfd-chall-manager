@@ -70,12 +70,12 @@ function loadInfo() {
         if (response.success) response = response.data;
         else CTFd._functions.events.eventAlert({
             title: "Fail",
-            html: response.data.message,
+            html: response.message,
         });
         $('#cm-panel-loading').hide();
         $('#cm-panel-until').hide(); 
        
-        if (response.connectionInfo && response.until) { // if instance has an until 
+        if (response.since && response.until) { // if instance has an until
            
             // check instance is not expired
             var now = new Date();
@@ -109,7 +109,7 @@ function loadInfo() {
                 $('#whale-challenge-lan-domain').html(''); 
             }
                     
-        } else if (response.connectionInfo) {    // if instance has no until         
+        } else if (response.since) {    // if instance has no until
             $('#whale-panel-stopped').hide();
             $('#whale-panel-started').show();
             $('#whale-challenge-lan-domain').html(response.connectionInfo);
@@ -123,8 +123,43 @@ function loadInfo() {
  
         
     });
-}
 
+    // get renaming mana for user
+    CTFd.fetch("/api/v1/plugins/ctfd-chall-manager/mana", {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+    }).then(function (response) {
+        
+        if (response.status === 429) {
+            // User was ratelimited but process response
+            return response.json();
+        }
+        if (response.status === 403) {
+            // User is not logged in or CTF is paused.
+            return response.json();
+        }
+        return response.json();
+    }).then(function (response) {
+        if (response.success) response = response.data;
+        else CTFd._functions.events.eventAlert({
+            title: "Fail",
+            html: response.message,
+        });
+        return response
+    }).then(function (response){
+        if (response.total == 0){
+            $('.cm-panel-mana-cost-div').hide();  // hide the mana cost div if mana is disabled
+        }
+        else {
+            let remaining = response.total - response.used
+            $('#cm-challenge-mana-remaining').html(remaining);
+        }
+    });
+};
 
 CTFd._internal.challenge.destroy = function() {
     return new Promise((resolve, reject) => {
@@ -163,7 +198,7 @@ CTFd._internal.challenge.destroy = function() {
             } else {
                 CTFd._functions.events.eventAlert({
                     title: "Fail",
-                    html: response.data.message,
+                    html: response.message,
                 });
                 reject(response.message);
             }
@@ -211,12 +246,12 @@ CTFd._internal.challenge.renew = function () {
             loadInfo();
             CTFd._functions.events.eventAlert({
                 title: "Success",
-                html: "Your instance has been renewed!",
+                html: response.data.message, // load custom message from api
             });
         } else {
             CTFd._functions.events.eventAlert({
                 title: "Fail",
-                html: response.data.message,
+                html: response.message,
             });
         }
     }).finally(() => {
@@ -261,7 +296,7 @@ CTFd._internal.challenge.boot = function() {
             } else {
                 CTFd._functions.events.eventAlert({
                     title: "Fail",
-                    html: response.data.message,
+                    html: response.message,
                 });
             }
         }).catch(error => {
@@ -296,3 +331,31 @@ CTFd._internal.challenge.restart = function() {
     });
     
 }
+
+
+// // Old behavior in plugin for theme compatibility
+// https://github.com/ctfer-io/ctfd-chall-manager/issues/234
+CTFd._internal.challenge.submit = function(preview) {
+    var challenge_id = parseInt($('#challenge-id').val())
+    var submission = $('#challenge-input').val() // id changed in newer version of CTFd (old: #submission-input)
+
+    var body = {
+        'challenge_id': challenge_id,
+        'submission': submission,
+    }
+    var params = {}
+    if (preview)
+        params['preview'] = true
+
+    return CTFd.api.post_challenge_attempt(params, body).then(function(response) {
+        if (response.status === 429) {
+            // User was ratelimited but process response
+            return response
+        }
+        if (response.status === 403) {
+            // User is not logged in or CTF is paused.
+            return response
+        }
+        return response
+    })
+};

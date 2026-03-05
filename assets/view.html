@@ -28,7 +28,7 @@
                     </h6>
                     <p id="whale-challenge-user-access" class="card-text"></p>
                     {% if not challenge.shared %}
-                    {% if challenge.timeout != "" %}
+                    {% if challenge.timeout %}
                     <button type="button" class="btn btn-success card-link" style="background-color:#ebb850; border-color:#000000" id="whale-button-renew" data-test-id="cm-button-renew"
                             onclick="CTFd._internal.challenge.renew()">
                         Renew

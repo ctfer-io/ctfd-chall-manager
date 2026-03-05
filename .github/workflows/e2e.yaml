@@ -19,29 +19,38 @@ jobs:
 
     services:
       chall-manager: 
-        image: ctferio/chall-manager:v0.3.1@sha256:9b83626cb4418127e79a66d0f9ebc58ff07629c05b4681eadd9ee00bd128bf6b
+        image: ctferio/chall-manager:v0.6.0@sha256:4d0a0379a3c12b2203500a7852856ef7202c7c54d58207fb88d4b8919d5f6add
         ports:
           - 8080:8080
-
-      redis-svc:
-        image: redis:7.0.10@sha256:92b8b307ee28ed74da17578064c73307ad41e43f422f0b7e4e91498b406c59e3
-        ports: 
-          - 6379:6379
-
-      ctfd:
-        image: ctfd/ctfd:3.7.6@sha256:8b424090fae7c143768be19454c707ee2f3754d421fef8122dbe42031efee7aa
-        ports:
-          - 8000:8000
-        options: --mount type=bind,source=${{ github.workspace }},target=/opt/CTFd/CTFd/plugins/ctfd-chall-manager
         env:
-          LOG_LEVEL: DEBUG
-          PLUGIN_SETTINGS_CM_API_URL: http://chall-manager:8080/api/v1
-          PLUGIN_SETTINGS_CM_MANA_TOTAL: 15
-          REDIS_URL: redis://redis-svc:6379
+          OCI_INSECURE: true
+      
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Get GitHub Actions network name
+        id: get_network
+        run: |
+          # Find the network ID (GitHub Actions creates one automatically)
+          NETWORK_NAME=$(docker network ls --filter name=github_network_* --format "{{.Name}}")
+          echo "network_name=$NETWORK_NAME" >> $GITHUB_OUTPUT
+
+      - name: Start CTFd after checkout
+        run: |
+          docker run -d -p 8000:8000 \
+            --name ctfd \
+            --network ${{ steps.get_network.outputs.network_name }} \
+            -e LOG_LEVEL=DEBUG \
+            -e PLUGIN_SETTINGS_CM_API_URL=http://chall-manager:8080 \
+            -e PLUGIN_SETTINGS_CM_MANA_TOTAL=15 \
+            -v ${{ github.workspace }}:/opt/CTFd/CTFd/plugins/ctfd_chall_manager \
+            ctfd/ctfd:3.8.1@sha256:0de331947204628900fb68e01478dfd6f209aadf4eac269a2be08ee92af8ef0d
 
       - name: Setup basic testing env
         uses: ./.github/workflows/setup-testing
@@ -52,19 +61,25 @@ jobs:
 
 
       - name: tests with cypress
-        uses: cypress-io/github-action@108b8684ae52e735ff7891524cbffbcd4be5b19f # v6.7.16
+        uses: cypress-io/github-action@2ad32e649e4db26c07674ebae31a297601dbcbaf # v6.10.8
         env: 
           CYPRESS_CTFD_NAME: ${{ env.NAME }}
           CYPRESS_CTFD_PASSWORD: ${{ env.PASSWORD }}
           CYPRESS_CTFD_URL: "http://localhost:8000" 
-          CYPRESS_SCENARIO_PATH: "${{ github.workspace }}/hack/deploy/demo-deploy.zip"
-          CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:8080/api/v1"
+          CYPRESS_SCENARIO: "registry:5000/examples/deploy:latest"
+          CYPRESS_PLUGIN_SETTINGS_CM_API_URL: "http://chall-manager:8080"
           CYPRESS_PLUGIN_SETTINGS_CM_MANA_TOTAL: "10"
       
-      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
           if-no-files-found: ignore      
  
+      - name: Export Logs and clean CTFd
+        if: always()
+        run : |
+          docker logs ctfd
+          docker stop ctfd
+          docker rm ctfd

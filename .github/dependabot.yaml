@@ -7,3 +7,19 @@ updates:
       interval: "weekly"
     assignees:
       - "NicoFgrx"
+
+  # Github actions for reusable
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows/setup-testing"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "NicoFgrx"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "NicoFgrx"
+

@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
     - name: Wait for CTFd server
       shell: bash
@@ -60,7 +60,7 @@ runs:
         fi
 
     - name: Setup CTFd
-      uses: ctfer-io/ctfd-setup@4f039f18e2e78cb4eeb7a2c89e0c38a5a6afa392 # v1.5.2
+      uses: ctfer-io/ctfd-setup@c3108d5d78162e243f7aad777053c5b6bf33a65e # v1.7.3
       with:
         url: 'http://ctfd:8000'
         appearance_name: CTFer.io
@@ -69,9 +69,12 @@ runs:
         admin_name: ${{ inputs.ctfd_user }}
         admin_email: ctfer-io@protonmail.com
         admin_password: ${{ inputs.ctfd_pass }}
+        accounts_incorrect_submissions_per_minute: 9999
 
     - name: Setup Go
-      uses: actions/setup-go@v5.1.0
+      uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+      with:
+        go-version-file: hack/deploy/go.mod
 
     - name: Generate token and store it for GH Actions
       shell: bash
@@ -84,7 +87,7 @@ runs:
         CTFD_PASSWORD: ${{ inputs.ctfd_pass }}
 
     - name: Install Pulumi
-      uses: pulumi/actions@v6.0.0
+      uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6.6.1
 
     - name: Additional configuration for CTFd (users and teams)
       shell: bash
@@ -97,15 +100,25 @@ runs:
         PULUMI_CONFIG_PASSPHRASE: ""
         CTFD_URL: http://localhost:8000
 
-    - name: Generate demo-deploy.zip for tests
+    - name: Setup oras cli 
+      uses: oras-project/setup-oras@22ce207df3b08e061f537244349aac6ae1d214f6 # v1.2.4
+    
+    - name: Setup yq
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install yq -y
+
+    - name: Generate scenario and push it in regsitry for tests
       shell: bash
       run: |
         cd hack/deploy
-        go build -o main main.go
-        zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip main
-        zip ${{ github.workspace }}/hack/deploy/demo-deploy.zip Pulumi.yaml
+        chmod +x build.sh
+        ./build.sh
+        ./build.sh v2
       env:
         CGO_ENABLED: 0
+        REGISTRY: localhost:5000/
 
     - name: Generate token and store it for GH Actions
       shell: bash
