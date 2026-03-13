@@ -441,25 +441,24 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             data = get_instance(challenge.id, source_id)
         except ChallManagerException as e:
             logger.error("error occurred while getting instance: %s", e)
+            if e.http_code == 404:
+                logger.debug(
+                    "instance for source_id %s and challenge_id %s no longer exists",
+                    source_id,
+                    challenge.id,
+                )
+                logger.info(
+                    "invalid submission due to expired instance for challenge %s source %s",
+                    challenge.id,
+                    source_id,
+                )
+                return ChallengeResponse(
+                    status="incorrect",
+                    message="Expired (the instance must be running to submit)",
+                )
+
             return ChallengeResponse(
                 status="incorrect", message="Error occurred, contact admins!"
-            )
-
-        # If the instance no longer exists
-        if "since" not in data.keys():
-            logger.debug(
-                "instance for source_id %s and challenge_id %s no longer exists",
-                source_id,
-                challenge.id,
-            )
-            logger.info(
-                "invalid submission due to expired instance for challenge %s source %s",
-                challenge.id,
-                source_id,
-            )
-            return ChallengeResponse(
-                status="incorrect",
-                message="Expired (the instance must be running to submit)",
             )
 
         flags = Flags.query.filter_by(challenge_id=challenge.id).all()
