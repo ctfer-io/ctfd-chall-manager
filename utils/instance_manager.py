@@ -134,7 +134,7 @@ def get_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExcept
         raise custom_exception from e
 
     result = r.json()
-    if result["since"] is not None:
+    if "since" in result.keys() and result["since"] is not None:
         # store in cache only if the instance exists
         logger.debug("store result in cache for better performances")
         cache.set(cache_key, result, timeout=60)
@@ -176,7 +176,7 @@ def update_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
 
     # update informations for the next GET request
     result = r.json()
-    if result["since"] is not None:
+    if "since" in result.keys() and result["since"] is not None:
         logger.debug("store result in cache for better performances")
         cache.set(cache_key, result, timeout=60)
 

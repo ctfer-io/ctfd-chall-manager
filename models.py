@@ -446,7 +446,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             )
 
         # If the instance no longer exists
-        if data["since"] is None:
+        if "since" not in data.keys():
             logger.debug(
                 "instance for source_id %s and challenge_id %s no longer exists",
                 source_id,
