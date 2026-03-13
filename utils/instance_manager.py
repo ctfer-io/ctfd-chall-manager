@@ -128,9 +128,6 @@ def get_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExcept
         r.raise_for_status()
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
-        if custom_exception.code == 5:  # INSTANCE_NOT_FOUND
-            return {}
-
         raise custom_exception from e
 
     result = r.json()
