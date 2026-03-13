@@ -28,7 +28,9 @@ class ChallManagerException(Exception):
 
     def __str__(self):
         details_str = f", details: {self.details}" if self.details else ""
-        return f"ChallManagerException(code={self.code}, http_code={self.http_code}, message='{self.message}'{details_str})"
+        return f"ChallManagerException(code={self.code}, \
+            http_code={self.http_code}, \
+            message='{self.message}'{details_str})"
 
 
 def chall_manager_exception_builder(resp: requests.Response) -> ChallManagerException:

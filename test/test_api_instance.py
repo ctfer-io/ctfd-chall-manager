@@ -36,7 +36,7 @@ class Test_F_UserInstance(unittest.TestCase):
 
         r = get_instance(chall_id)
         a = json.loads(r.text)
-        self.assertEqual(a["success"], True)
+        self.assertEqual(a["success"], False)
 
         r = post_instance(chall_id)
         a = json.loads(r.text)
@@ -244,6 +244,10 @@ class Test_F_UserInstance(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], False)
 
+        r = delete_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
         # remove
         delete_challenge(chall_id)
 
@@ -260,6 +264,10 @@ class Test_F_UserInstance(unittest.TestCase):
         self.assertEqual(a["success"], True)
 
         r = patch_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        r = delete_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 
@@ -300,6 +308,10 @@ class Test_F_UserInstance(unittest.TestCase):
         after = a["data"]["until"]
         self.assertEqual(after, before)
 
+        r = delete_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
         # remove
         delete_challenge(chall_id)
 
@@ -317,6 +329,10 @@ class Test_F_UserInstance(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
         # self.assertEqual(a["data"]["additional"]["test"], "test") # check that is not empty ?
+
+        r = delete_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
 
         delete_challenge(chall_id)
 
@@ -339,6 +355,10 @@ class Test_F_UserInstance(unittest.TestCase):
             raise TimeoutError("too slow bro")
 
         r = get_instance(chall_id)
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        r = delete_instance(chall_id)
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)
 

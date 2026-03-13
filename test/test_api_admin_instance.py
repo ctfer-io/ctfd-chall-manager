@@ -241,4 +241,13 @@ class Test_F_AdminInstance(unittest.TestCase):
         a = json.loads(r.text)
         self.assertEqual(a["success"], True)  # admin can deploy instance
 
+        # avoid collision
+        r = requests.delete(
+            f"{config.plugin_url}/admin/instance",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
         delete_challenge(chall_id)
