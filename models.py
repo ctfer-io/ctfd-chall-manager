@@ -220,7 +220,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             logger.debug("creating challenge %s on CM", challenge.id)
             create_challenge(int(challenge.id), **params)
             logger.info("challenge %s created successfully on CM", challenge.id)
-        except (ValueError, ChallManagerException) as e:
+        except ChallManagerException as e:
             logger.error(
                 "an exception occurred while sending challenge %s to CM: %s",
                 challenge.id,
@@ -231,9 +231,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             )
             cls.delete(challenge)
             logger.info("challenge %s deleted sucessfully", challenge.id)
-            raise ChallengeCreateException(
-                f"an exception occurred while sending challenge {challenge.id} to CM: {e}"
-            ) from e
+            raise ChallengeCreateException(f"{e.message}") from e
 
         # return CTFd Challenge if no error
         return challenge
@@ -365,9 +363,11 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         # send updates to CM
         try:
             update_challenge(challenge.id, **params)
-        except Exception as e:
+        except ChallManagerException as e:
             logger.error("error while patching the challenge: %s", e)
-            raise ChallengeUpdateException("error while patching the challenge") from e
+            raise ChallengeUpdateException(
+                f"error while patching the challenge : {e.message}"
+            ) from e
 
         return super().calculate_value(challenge)
 

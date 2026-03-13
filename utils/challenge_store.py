@@ -7,6 +7,7 @@ import json
 import requests
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
+    chall_manager_exception_builder,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
@@ -72,17 +73,10 @@ def create_challenge(
             url, data=json.dumps(payload), headers=headers, timeout=CM_API_TIMEOUT
         )
         logger.debug("received response: %s %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("error creating challenge: %s", e)
-        raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
-        ) from e
-
-    if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-manager returned an error: {json.loads(r.text)}"
-        )
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     return r
 
@@ -103,9 +97,10 @@ def delete_challenge(challenge_id: int) -> requests.Response | ChallManagerExcep
     try:
         r = requests.delete(url, timeout=CM_API_TIMEOUT)
         logger.debug("received response: %s %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("error deleting challenge: %s", e)
-        raise ChallManagerException(message="error deleting challenge") from e
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     return r
 
@@ -125,17 +120,10 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
     try:
         r = requests.get(url, timeout=CM_API_TIMEOUT)
         logger.debug("recieved response: %s %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("error getting challenge: %s", e)
-        raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
-        ) from e
-
-    if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-manager returned an error: {json.loads(r.text)}"
-        )
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     return r
 
@@ -173,14 +161,9 @@ def update_challenge(
             url, data=json.dumps(payload), headers=headers, timeout=CM_API_TIMEOUT
         )
         logger.debug("received response: %s %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("error updating challenge: %s", e)
-        raise ChallManagerException(message="error while communicating with CM") from e
-
-    if r.status_code != 200:
-        logger.error("error from chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-manager returned an error: {json.loads(r.text)}"
-        )
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     return r

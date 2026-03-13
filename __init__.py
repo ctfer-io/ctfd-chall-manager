@@ -90,7 +90,7 @@ def load(app):  # pylint: disable=too-many-statements
                 f'{get_config("chall-manager:chall-manager_api_url")}/healthcheck'
             )
             requests.get(health_url, timeout=5).raise_for_status()
-        except Exception as e:  # pylint: disable=broad-exception-caught
+        except requests.HTTPError as e:
             logger.warning("cannot communicate with CM provided got %s", e)
             cm_api_reachable = False
         else:

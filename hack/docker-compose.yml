@@ -21,12 +21,13 @@ services:
       timeout: 10s
 
   chall-manager:
-    image: ctferio/chall-manager:v0.6.1@sha256:76f9722ce547de3e8729cd5b24add23cb29c91247eedb0cb325ab56864307376
+    image: ctferio/chall-manager:dev
     container_name: chall-manager
     pull_policy: always
     ports:
       - 8080:8080
     environment:
+      LOG_LEVEL: DEBUG
       SWAGGER: true
       KUBECONFIG: /tmp/config
       OCI_INSECURE: true
@@ -37,7 +38,7 @@ services:
       - testing
 
   chall-manager-janitor:
-    image: ctferio/chall-manager-janitor:v0.6.1@sha256:458cff476b927fb1d51b6146f68fcaa710d0aa5a91588955026d6f694e75450a
+    image: ctferio/chall-manager-janitor:dev
     container_name: chall-manager-janitor
     pull_policy: always
     environment:
