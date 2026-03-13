@@ -231,7 +231,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             )
             cls.delete(challenge)
             logger.info("challenge %s deleted sucessfully", challenge.id)
-            raise ChallengeCreateException(f"{e.message}") from e
+            raise ChallengeCreateException(e.message) from e
 
         # return CTFd Challenge if no error
         return challenge
@@ -365,9 +365,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             update_challenge(challenge.id, **params)
         except ChallManagerException as e:
             logger.error("error while patching the challenge: %s", e)
-            raise ChallengeUpdateException(
-                f"error while patching the challenge : {e.message}"
-            ) from e
+            raise ChallengeUpdateException(e.message) from e
 
         return super().calculate_value(challenge)
 
