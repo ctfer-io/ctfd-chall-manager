@@ -82,8 +82,8 @@ class AdminInstance(Resource):
             logger.error("error while communicating with CM: %s", e)
             return {
                 "success": False,
-                "message": f"error while getting instance info : {e.message}",
-            }, 500
+                "message": e.message,
+            }, e.http_code
 
         return {"success": True, "data": result}, 200
 
@@ -139,7 +139,7 @@ class AdminInstance(Resource):
             )
 
         except ChallManagerException as e:
-            if "already exist" in e.message:
+            if e.http_code == 409:
                 logger.warning(
                     "instance for challenge_id: %s, source_id: %s already exists, ignoring",
                     challenge_id,
@@ -159,8 +159,8 @@ class AdminInstance(Resource):
             )
             return {
                 "success": False,
-                "message": f"error while creating instance : {e.message}",
-            }, 500
+                "message": e.message,
+            }, e.http_code
 
         finally:
             logger.debug("admin_unlock %s", lock)
@@ -225,8 +225,8 @@ class AdminInstance(Resource):
             logger.error("error while updating instance: %s", e)
             return {
                 "success": False,
-                "message": f"error while updating instance : {e.message}",
-            }, 500
+                "message": e.message,
+            }, e.http_code
 
         return {"success": True, "data": result}, 200
 
@@ -289,8 +289,8 @@ class AdminInstance(Resource):
             logger.error("error while deleting instance: %s", e)
             return {
                 "success": False,
-                "message": f"error while deleting instance : {e.message}",
-            }, 500
+                "message": e.message,
+            }, e.http_code
 
         finally:
             logger.debug("admin_unlock %s", lock)

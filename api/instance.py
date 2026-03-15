@@ -87,7 +87,7 @@ class UserInstance(Resource):
             return {
                 "success": False,
                 "message": "error while getting instance info, contact admins",
-            }, 500
+            }, e.http_code
 
         # return only necessary values
         data = {}
@@ -155,7 +155,7 @@ class UserInstance(Resource):
             return {
                 "success": False,
                 "message": "error while creating instance, contact admins",
-            }, 500
+            }, e.http_code
 
         finally:
             logger.debug("post /instance release the player lock for %s", source_id)
@@ -215,7 +215,7 @@ class UserInstance(Resource):
             return {
                 "success": False,
                 "message": "error while patching instance, contact admins",
-            }, 500
+            }, e.http_code
 
         return {
             "success": True,
@@ -276,7 +276,7 @@ class UserInstance(Resource):
             return {
                 "success": False,
                 "message": "error while deleting instance, contact admins",
-            }, 500
+            }, e.http_code
 
         finally:
             logger.debug("delete /instance release the player lock for %s", source_id)

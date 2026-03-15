@@ -8,6 +8,7 @@ import requests
 from CTFd.cache import cache
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
+    chall_manager_exception_builder,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
@@ -47,17 +48,10 @@ def create_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
             url, data=json.dumps(payload), headers=headers, timeout=CM_API_TIMEOUT
         )
         logger.debug("received response: %s, %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("error creating instance: %s", e)
-        raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
-        ) from e
-
-    if r.status_code != 200:
-        if r.json()["code"] == 2:
-            message = r.json()["message"]
-            logger.error("chall-manager return an error: %s", message)
-            raise ChallManagerException(message=message)
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     # store the informations on cache
     result = r.json()
@@ -88,16 +82,10 @@ def delete_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
     try:
         r = requests.delete(url, timeout=CM_API_TIMEOUT)
         logger.debug("received response: %s %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("error deleting instance: %s", e)
-        raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
-        ) from e
-
-    if r.status_code != 200:
-        data = r.json()
-        logger.error("error from chall-manager: %s", data["message"])
-        raise ChallManagerException(message=data["message"])
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     # delete cache to prevent connectionInfo in front
     cached = cache.get(cache_key)
@@ -137,20 +125,13 @@ def get_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExcept
     try:
         r = requests.get(url, timeout=CM_API_TIMEOUT)
         logger.debug("received response: %s %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("error getting instance: %s", e)
-        raise ChallManagerException(
-            message="an exception occurred while communicating with CM"
-        ) from e
-
-    if r.status_code != 200:
-        logger.info("no instance on chall-manager: %s", json.loads(r.text))
-        raise ChallManagerException(
-            message=f"Chall-Manager returned an error: {json.loads(r.text)}"
-        )
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     result = r.json()
-    if result["since"] is not None:
+    if "since" in result.keys() and result["since"] is not None:
         # store in cache only if the instance exists
         logger.debug("store result in cache for better performances")
         cache.set(cache_key, result, timeout=60)
@@ -185,19 +166,14 @@ def update_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
             url, data=json.dumps(payload), headers=headers, timeout=CM_API_TIMEOUT
         )
         logger.debug("received response: %s %s", r.status_code, r.text)
-    except Exception as e:
-        logger.error("Error updating instance: %s", e)
-        raise ChallManagerException(message="error while communicating with CM") from e
-
-    if r.status_code != 200:
-        if r.json()["code"] == 2:
-            message = r.json()["message"]
-            logger.error("chall-manager return an error: %s", message)
-            raise ChallManagerException(message=message)
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        custom_exception = chall_manager_exception_builder(r)
+        raise custom_exception from e
 
     # update informations for the next GET request
     result = r.json()
-    if result["since"] is not None:
+    if "since" in result.keys() and result["since"] is not None:
         logger.debug("store result in cache for better performances")
         cache.set(cache_key, result, timeout=60)
 

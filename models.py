@@ -220,7 +220,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             logger.debug("creating challenge %s on CM", challenge.id)
             create_challenge(int(challenge.id), **params)
             logger.info("challenge %s created successfully on CM", challenge.id)
-        except (ValueError, ChallManagerException) as e:
+        except ChallManagerException as e:
             logger.error(
                 "an exception occurred while sending challenge %s to CM: %s",
                 challenge.id,
@@ -231,9 +231,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             )
             cls.delete(challenge)
             logger.info("challenge %s deleted sucessfully", challenge.id)
-            raise ChallengeCreateException(
-                f"an exception occurred while sending challenge {challenge.id} to CM: {e}"
-            ) from e
+            raise ChallengeCreateException(e.message) from e
 
         # return CTFd Challenge if no error
         return challenge
@@ -365,9 +363,9 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         # send updates to CM
         try:
             update_challenge(challenge.id, **params)
-        except Exception as e:
+        except ChallManagerException as e:
             logger.error("error while patching the challenge: %s", e)
-            raise ChallengeUpdateException("error while patching the challenge") from e
+            raise ChallengeUpdateException(e.message) from e
 
         return super().calculate_value(challenge)
 
@@ -441,25 +439,24 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             data = get_instance(challenge.id, source_id)
         except ChallManagerException as e:
             logger.error("error occurred while getting instance: %s", e)
+            if e.http_code == 404:
+                logger.debug(
+                    "instance for source_id %s and challenge_id %s no longer exists",
+                    source_id,
+                    challenge.id,
+                )
+                logger.info(
+                    "invalid submission due to expired instance for challenge %s source %s",
+                    challenge.id,
+                    source_id,
+                )
+                return ChallengeResponse(
+                    status="incorrect",
+                    message="Expired (the instance must be running to submit)",
+                )
+
             return ChallengeResponse(
                 status="incorrect", message="Error occurred, contact admins!"
-            )
-
-        # If the instance no longer exists
-        if data["since"] is None:
-            logger.debug(
-                "instance for source_id %s and challenge_id %s no longer exists",
-                source_id,
-                challenge.id,
-            )
-            logger.info(
-                "invalid submission due to expired instance for challenge %s source %s",
-                challenge.id,
-                source_id,
-            )
-            return ChallengeResponse(
-                status="incorrect",
-                message="Expired (the instance must be running to submit)",
             )
 
         flags = Flags.query.filter_by(challenge_id=challenge.id).all()

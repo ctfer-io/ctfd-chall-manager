@@ -76,11 +76,6 @@ function loadInfo() {
          // Handle instance response
         if (instanceResponse.success) {
             instanceResponse = instanceResponse.data;
-        } else {
-            CTFd._functions.events.eventAlert({
-                title: "Fail",
-                html: instanceResponse.message,
-            });
         }
         return instanceResponse
     }).then((instanceResponse) => {
