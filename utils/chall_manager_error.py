@@ -53,5 +53,3 @@ class ChallManagerPluginException(Exception):
     """
     Internal plugin exception
     """
-
-    pass
