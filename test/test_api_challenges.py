@@ -39,6 +39,7 @@ class Test_F_Challenges(unittest.TestCase):
     Test_F_Challenges defines all tests for /challenges endpoint on CTFd.
     """
 
+    # region create
     def test_create_challenge_with_all_params(self):
         """
         Performs tests with all parameters that the plugins can define.
@@ -171,6 +172,7 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(r.status_code, 500)  # CTFd return internal server error
         # https://github.com/CTFd/CTFd/issues/2674
 
+    # region update
     def test_can_update_scenario(self):
         """
         Check the scenario and the associated instances are updated
@@ -220,6 +222,56 @@ class Test_F_Challenges(unittest.TestCase):
         delete_instance(chall_id)
         delete_challenge(chall_id)
 
+    # https://github.com/ctfer-io/ctfd-chall-manager/issues/267
+    def test_can_reset_until(self):
+        """
+        Checks that I can reset until with None or "" value
+        """
+        chall_id = create_challenge(until="2222-12-22T22:22:22Z")
+
+        r = requests.get(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+
+        # Check with None value
+        payload = {"until": None}
+        r = requests.patch(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["until"], None)
+
+        # Redefine a value
+        payload = {"until": "2222-12-22T22:22:22Z"}
+        r = requests.patch(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["until"], "2222-12-22T22:22:22Z")
+
+        # Check with "" value
+        payload = {"until": ""}
+        r = requests.patch(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+            data=json.dumps(payload),
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["until"], None)
+
+        delete_challenge(chall_id)
+
+    # region attempt
     def test_attempt_ctfd_flag(self):
         """
         Performs tests on CTFd flag and check that dynamic flag can be bypassed by CTFd flags.
