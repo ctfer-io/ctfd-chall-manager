@@ -127,6 +127,7 @@ class Test_F_Challenges(unittest.TestCase):
             data=json.dumps(payload),
         )
         a = json.loads(r.text)
+        print(a)
         self.assertEqual(a["success"], True)
 
         # Check updated values

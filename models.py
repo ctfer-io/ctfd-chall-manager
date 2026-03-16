@@ -413,16 +413,16 @@ def prepare_ctfd_database(data) -> dict | ChallManagerPluginException:
         "mana_cost": 0,
         "min": 0,
         "max": 0,
-        "timeout": None,
         # boolean
         "shared": False,
         "destroy_on_flag": False,
         # other
         "additional": {},
         "until": None,
+        "timeout": None,
     }
     # Integer
-    for k in ["min", "max", "mana_cost", "timeout"]:
+    for k in ["min", "max", "mana_cost"]:
         if k in data.keys():
             try:
                 data[k] = int(data[k]) if data[k] != "" else defaults[k]
@@ -438,7 +438,7 @@ def prepare_ctfd_database(data) -> dict | ChallManagerPluginException:
             data[k] = convert_to_boolean(data[k]) if data[k] != "" else defaults[k]
 
     # Other
-    for k in ["until"]:
+    for k in ["until", "timeout"]:
         if k in data.keys():
             data[k] = data[k] if data[k] != "" else defaults[k]
 
