@@ -21,6 +21,7 @@ from CTFd.plugins.challenges.logic import (
 )
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
+    ChallManagerPluginException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
     create_challenge,
@@ -63,7 +64,7 @@ class DynamicIaCChallenge(DynamicChallenge):
     min = db.Column(db.Integer, default=0)
     max = db.Column(db.Integer, default=0)
 
-    scenario = db.Column(db.Text)
+    scenario = db.Column(db.Text, nullable=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
@@ -121,74 +122,10 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         logger.debug("creating challenge on CTFd")
         data = request.form or request.get_json()
 
-        # lint the plugin attributes by removing empty values (UI form)
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if (
-                key
-                in [
-                    "mana_cost",
-                    "until",
-                    "timeout",
-                    "shared",
-                    "destroy_on_flag",
-                    "scenario",
-                    "min",
-                    "max",
-                ]
-                and data[key] == ""
-            ):
-                data.pop(key)
-
-        # convert string value to boolean
-        if "shared" in data.keys():
-            data["shared"] = convert_to_boolean(data["shared"])
-
-        if "destroy_on_flag" in data.keys():
-            data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
-
-        if "scenario" not in data.keys():
-            logger.error("missing mandatory value in challenge creation")
-            raise ChallengeCreateException(
-                "missing mandatory value in challenge creation"
-            )
-
-        if "min" in data.keys():
-            try:
-                data["min"] = int(data["min"])
-            except ValueError as e:
-                logger.error("min cannot be convert into int, got %s", data["min"])
-                raise ChallengeCreateException(
-                    f"min cannot be convert into int, got {data['min']}"
-                ) from e
-
-        if "max" in data.keys():
-            try:
-                data["max"] = int(data["max"])
-            except ValueError as e:
-                logger.error("max cannot be convert into int, got %s", data["max"])
-                raise ChallengeCreateException(
-                    f"max cannot be convert into int, got {data['max']}"
-                ) from e
-
-        # convert string into dict in CTFd
-        if "additional" in data.keys():
-            if isinstance(data["additional"], str):
-                try:
-                    # Attempt to parse the string as JSON
-                    data["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError as e:
-                    logger.error(
-                        "error while decoding additional configuration, found %s: %s",
-                        data["additional"],
-                        e,
-                    )
-                    raise ChallengeCreateException(
-                        f"error while decoding additional configuration, found {data['additional']}"
-                    ) from e
-            elif not isinstance(data["additional"], dict):
-                raise ChallengeCreateException(
-                    f"error while decoding additional configuration, found {data['additional']}"
-                )
+        try:
+            data = prepare_ctfdcm_database(data)
+        except ChallManagerPluginException as e:
+            raise ChallengeCreateException from e
 
         challenge = cls.challenge_model(**data)
         db.session.add(challenge)
@@ -196,24 +133,8 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         logger.info("challenge %s created successfully on CTFd", challenge.id)
 
-        # check params configuration for dynamic_iac
         # init params configuration
-        params = {
-            "scenario": challenge.scenario,
-        }
-
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if key in [
-                "additional",
-                "until",
-                "timeout",
-                "scenario",
-                "min",
-                "max",
-            ]:
-                params[key] = data[key]
-            if key == "timeout" and data["timeout"] is not None:
-                params["timeout"] = f"{data['timeout']}s"  # protobuf format
+        params = prepare_chall_manager_payload(data)
 
         # handle challenge creation on chall-manager
         try:
@@ -279,63 +200,15 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         """
         data = request.form or request.get_json()
 
-        # lint the plugin attributes by removing empty values
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if (
-                key
-                in [
-                    "additional",
-                    "mana_cost",
-                    "until",
-                    "timeout",
-                    "shared",
-                    "destroy_on_flag",
-                    "scenario",
-                    "min",
-                    "max",
-                ]
-                and data[key] == ""
-            ):
-                data.pop(key)
-
-        if "shared" in data.keys():
-            data["shared"] = convert_to_boolean(data["shared"])
-
-        # Update the destroy on flag boolean
-        if "destroy_on_flag" in data.keys():
-            data["destroy_on_flag"] = convert_to_boolean(data["destroy_on_flag"])
-
         # Workaround
         if "state" in data.keys() and len(data.keys()) == 1:
             setattr(challenge, "state", data["state"])
             return super().calculate_value(challenge)
 
-        # convert string into dict in CTFd
-        if "additional" in data.keys():
-            if isinstance(data["additional"], str):
-                try:
-                    # Attempt to parse the string as JSON
-                    data["additional"] = json.loads(data["additional"])
-                except json.JSONDecodeError as e:
-                    logger.error(
-                        "error while decoding additional configuration, found %s : %s",
-                        data["additional"],
-                        e,
-                    )
-                    raise ChallengeUpdateException(
-                        f"error while decoding additional configuration, \
-                        found {data['additional']}"
-                    ) from e
-            elif not isinstance(data["additional"], dict):
-                logger.error(
-                    "error while decoding additional configuration, found %s : %s",
-                    data["additional"],
-                    e,
-                )
-                raise ChallengeUpdateException(
-                    f"error while decoding additional configuration,\
-                    found {data['additional']}"
-                ) from e
+        try:
+            data = prepare_ctfdcm_database(data)
+        except ChallManagerPluginException as e:
+            raise ChallengeUpdateException from e
 
         # update on database
         for attr, value in data.items():
@@ -345,20 +218,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             setattr(challenge, attr, value)  # update on database
 
         # Patch Challenge on Chall-Manager API
-        params = {}
-        for key in list(data.keys()):  # use list(data.keys()) to prevent RuntimeError
-            if key in [
-                "additional",
-                "until",
-                "timeout",
-                "scenario",
-                "min",
-                "max",
-                "updateStrategy",
-            ]:
-                params[key] = data[key]
-            if key == "timeout" and data["timeout"] is not None:
-                params["timeout"] = f"{data['timeout']}s"  # protobuf format
+        params = prepare_chall_manager_payload(data)
 
         # send updates to CM
         try:
@@ -374,7 +234,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         """
         This method is used to delete the resources used by a challenge.
 
-        :param challenge:
+        :param challenge
         :return:
         """
 
@@ -539,3 +399,92 @@ def convert_to_boolean(value):
         return False
     # If the value is already a boolean or doesn't match a boolean string, return it as is
     return value
+
+
+def prepare_ctfdcm_database(data) -> dict | ChallManagerPluginException:
+    """
+    Lint form attributes for the challenge creation.
+    Fallbacks to the same default values as the database
+    to prevent inconsistencies with chall-manager API.
+    """
+
+    defaults = {
+        # integer
+        "mana_cost": 0,
+        "min": 0,
+        "max": 0,
+        # boolean
+        "shared": False,
+        "destroy_on_flag": False,
+        # other
+        "additional": {},
+        "until": None,
+        "timeout": None,
+    }
+    # Integer
+    for k in ["min", "max", "mana_cost"]:
+        if k in data.keys():
+            try:
+                data[k] = int(data[k]) if data[k] != "" else defaults[k]
+            except ValueError as e:
+                logger.error("%s cannot be convert into int, got %s", k, data[k])
+                raise ChallManagerPluginException(
+                    f"{k} cannot be convert into int, got {data[k]}"
+                ) from e
+
+    # Boolean
+    for k in ["shared", "destroy_on_flag"]:
+        if k in data.keys():
+            data[k] = convert_to_boolean(data[k]) if data[k] != "" else defaults[k]
+
+    # Other
+    for k in ["until", "timeout"]:
+        if k in data.keys():
+            data[k] = data[k] if data[k] != "" else defaults[k]
+
+    # convert string into dict in CTFd
+    if "additional" in data.keys():
+        if isinstance(data["additional"], str):
+            try:
+                # Attempt to parse the string as JSON
+                data["additional"] = json.loads(data["additional"])
+            except json.JSONDecodeError as e:
+                logger.error(
+                    "error while decoding additional configuration, found %s : %s",
+                    data["additional"],
+                    e,
+                )
+                raise ChallManagerPluginException(
+                    f"error while decoding additional configuration, \
+                    found {data['additional']}"
+                ) from e
+        elif not isinstance(data["additional"], dict):
+            logger.error(
+                "error while decoding additional configuration, found %s : %s",
+                data["additional"],
+                e,
+            )
+            raise ChallManagerPluginException(
+                f"error while decoding additional configuration,\
+                found {data['additional']}"
+            ) from e
+
+    return data
+
+
+def prepare_chall_manager_payload(data) -> dict:
+    """
+    Build chall-manager API payload with timeout specific protobuf format
+    """
+    payload = {}
+    for key in list(data.keys()):
+        if key in ["additional", "until", "scenario", "min", "max", "updateStrategy"]:
+            payload[key] = data[key]
+
+    # timeout is protobuf format, store as integer in database
+    if "timeout" in data.keys():
+        payload["timeout"] = f"{data['timeout']}s"
+        if data["timeout"] in (None, ""):
+            payload["timeout"] = None
+
+    return payload

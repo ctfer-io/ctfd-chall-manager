@@ -47,3 +47,9 @@ def chall_manager_exception_builder(resp: requests.Response) -> ChallManagerExce
     )
 
     return cm_exception
+
+
+class ChallManagerPluginException(Exception):
+    """
+    Internal plugin exception
+    """

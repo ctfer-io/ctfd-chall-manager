@@ -26,6 +26,7 @@ cd -
 cd hack/config
 export PULUMI_CONFIG_PASSPHRASE=""
 pulumi login --local 
+pulumi stack rm -f --yes test
 pulumi stack init test
 pulumi up -y
 cd -
@@ -48,6 +49,8 @@ cd -
 ```bash
 cd hack/deploy
 bash build.sh
+bash build.sh v1
+bash build.sh v2
 cd -
 ```
 
