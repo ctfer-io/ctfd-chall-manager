@@ -123,7 +123,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         data = request.form or request.get_json()
 
         try:
-            data = prepare_ctfd_database(data)
+            data = prepare_ctfdcm_database(data)
         except ChallManagerPluginException as e:
             raise ChallengeCreateException from e
 
@@ -206,7 +206,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
             return super().calculate_value(challenge)
 
         try:
-            data = prepare_ctfd_database(data)
+            data = prepare_ctfdcm_database(data)
         except ChallManagerPluginException as e:
             raise ChallengeUpdateException from e
 
@@ -234,7 +234,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         """
         This method is used to delete the resources used by a challenge.
 
-        :param challenge:raise
+        :param challenge
         :return:
         """
 
@@ -401,7 +401,7 @@ def convert_to_boolean(value):
     return value
 
 
-def prepare_ctfd_database(data) -> dict | ChallManagerPluginException:
+def prepare_ctfdcm_database(data) -> dict | ChallManagerPluginException:
     """
     Lint form attributes for the challenge creation.
     Fallbacks to the same default values as the database
