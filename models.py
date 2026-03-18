@@ -200,11 +200,6 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
         """
         data = request.form or request.get_json()
 
-        # Workaround
-        if "state" in data.keys() and len(data.keys()) == 1:
-            setattr(challenge, "state", data["state"])
-            return super().calculate_value(challenge)
-
         try:
             data = prepare_ctfdcm_database(data)
         except ChallManagerPluginException as e:
@@ -219,6 +214,11 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
 
         # Patch Challenge on Chall-Manager API
         params = prepare_chall_manager_payload(data)
+
+        # if there is no update on chall-manager attributes
+        if not params:
+            logger.debug("do not update challenge attributes on chall-manager")
+            return super().calculate_value(challenge)
 
         # send updates to CM
         try:
