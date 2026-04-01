@@ -111,8 +111,8 @@ $(".renew-instance").click(function (e) {
     let sourceId = $(this).attr("source-id");
 
     CTFd.ui.ezq.ezQuery({
-        title: "Renew",
-        body: "<span>Are you sure you want to renew this instance?</span>",
+        title: "Extend",
+        body: "<span>Are you sure you want to extend this instance?</span>",
         success: async function () {
             await renew_instance(challengeId, sourceId);
             location.reload();
@@ -258,12 +258,12 @@ $('#instances-renew-button').click(function (e) {
     let sourceIds = sourceId.toArray();
 
     CTFd.ui.ezq.ezQuery({
-        title: "Renew Containers",
-        body: `Are you sure you want to renew the selected ${sourceIds.length} instance(s)?`,
+        title: "Extend Containers",
+        body: `Are you sure you want to extend the selected ${sourceIds.length} instance(s)?`,
         success: async function () {
             var pg = CTFd.ui.ezq.ezProgressBar({
                 width: 0,
-                title: "Renewal progress",
+                title: "Extension progress",
             });
 
             let totalInstances = sourceIds.length;
@@ -368,5 +368,4 @@ function copyToClipboard(event, str) {
 $(".click-copy").click(function (e) {
     copyToClipboard(e, $(this).data("copy"));
 })
-
 
