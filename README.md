@@ -11,7 +11,7 @@
 > CTFd-chall-manager is currently in public beta phase.
 > It could be run in production, but breaking changes are subject to happen in the upcoming months until General Availability.
 
-This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/chall-manager) with CTFd, to manage scenario and permit Player's to deploy their instances.
+This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/chall-manager) with CTFd, to manage scenario and permit players to deploy their instances.
 
 Last version of CTFd tested on: [3.8.3](https://github.com/CTFd/CTFd/releases/tag/3.8.3).
 
