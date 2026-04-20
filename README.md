@@ -17,7 +17,7 @@ Last version of CTFd tested on: [3.8.4](https://github.com/CTFd/CTFd/releases/ta
 
 Last version of Chall-Manager tested on: [v0.6.5](https://github.com/ctfer-io/chall-manager/releases/tag/v0.6.5).
 
-## 📦 What CTFd-chall-manager Does
+## 🚀 What CTFd-chall-manager Does
 - **On-Demand Instances**: Players can deploy and destroy their own isolated challenge instances.
 - **Shared Instances**: Teams or users can use on a single instance, depending on challenge settings.
 - **Rate Limiting**: Mana-based system prevents infrastructure overload by controlling instance deployment.
@@ -30,6 +30,17 @@ Last version of Chall-Manager tested on: [v0.6.5](https://github.com/ctfer-io/ch
 ## 📦 Installation
 
 For installation and usage instructions, see the [official documentation](https://ctfer.io/docs/ctfd-chall-manager).
+
+## ⚡ Quickstart
+
+```bash
+# Start the infra
+cd hack
+docker compose -f docker-compose-minimal.yml up -d
+
+# Go on login http://localhost:8000/
+```
+You can find more details in this section of the documentation: [Getting Started](https://ctfer.io/docs/ctfd-chall-manager/introduction/getting-started/).
 
 ## 🏆 Trophy list
 
