@@ -60,7 +60,7 @@ describe("Permform tests for CTFd in the User Land", () => {
             expect(connectionInfoUser2).not.to.equal(connectionInfoUser3);
         })  
 
-        // With the third user, renew the instance, check that the until is reset
+        // With the third user, extend the instance, check that the until is reset
         cy.log_and_go_to_chall("user3", "user3", "cypress-timeout") 
         let beforeUntilUser
         let currentUntilUser
@@ -71,7 +71,7 @@ describe("Permform tests for CTFd in the User Land", () => {
             beforeUntilUser = $user3.text();
         }) 
         cy.wait(2000)
-        cy.renew_current_chall()
+        cy.extend_current_chall()
 
         cy.get('[data-test-id="cm-challenge-count-down"]', { timeout: 20000 }
         ).should("be.visible"

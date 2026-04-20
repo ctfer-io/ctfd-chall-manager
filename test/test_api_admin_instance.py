@@ -198,7 +198,7 @@ class Test_F_AdminInstance(unittest.TestCase):
 
     def test_patch_valid_challenge_but_no_instance(self):
         """
-        Performs tests to renew an instance that NOT exists.
+        Performs tests to extend an instance that does NOT exist.
 
         Must NOT succeed.
         """
