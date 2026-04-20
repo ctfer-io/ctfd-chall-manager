@@ -23,7 +23,7 @@ services:
 
   # Start a registry if --profile registry is provided
   registry:
-    image: registry:2
+    image: registry:3
     ports:
       - 5000:5000
     profiles: ["registry"]
