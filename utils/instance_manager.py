@@ -52,6 +52,8 @@ def create_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     # store the informations on cache
     result = r.json()
@@ -86,6 +88,8 @@ def delete_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     # delete cache to prevent connectionInfo in front
     cached = cache.get(cache_key)
@@ -129,6 +133,8 @@ def get_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExcept
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     result = r.json()
     if "since" in result.keys() and result["since"] is not None:
@@ -170,6 +176,8 @@ def update_instance(challenge_id: int, source_id: int) -> dict | ChallManagerExc
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     # update informations for the next GET request
     result = r.json()

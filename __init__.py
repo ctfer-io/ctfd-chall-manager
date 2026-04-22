@@ -83,6 +83,7 @@ def load(app):  # pylint: disable=too-many-statements
     @admins_only
     def admin_settings():  # pylint: disable=unused-variable
         logger.debug("Accessing admin settings page.")
+        cm_api_reachable = False
 
         try:
             logger.debug("getting connection status with chall-manager")
@@ -91,8 +92,9 @@ def load(app):  # pylint: disable=too-many-statements
             )
             requests.get(health_url, timeout=5).raise_for_status()
         except requests.HTTPError as e:
-            logger.warning("cannot communicate with CM provided got %s", e)
-            cm_api_reachable = False
+            logger.warning("can communicate with CM, but got error %s", e)
+        except requests.RequestException as e:
+            logger.warning("cannot communicate with CM, got %s", e)
         else:
             logger.info("communication with CM configured successfully")
             cm_api_reachable = True

@@ -77,6 +77,8 @@ def create_challenge(
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     return r
 
@@ -101,6 +103,8 @@ def delete_challenge(challenge_id: int) -> requests.Response | ChallManagerExcep
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     return r
 
@@ -124,6 +128,8 @@ def get_challenge(challenge_id: int) -> requests.Response | ChallManagerExceptio
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     return r
 
@@ -165,5 +171,7 @@ def update_challenge(
     except requests.HTTPError as e:
         custom_exception = chall_manager_exception_builder(r)
         raise custom_exception from e
+    except requests.RequestException as e:
+        raise ChallManagerException() from e
 
     return r
