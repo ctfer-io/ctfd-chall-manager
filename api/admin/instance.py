@@ -13,8 +13,8 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     get_instance,
     update_instance,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.lock import load_or_store
+from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils.decorators import admins_only
 from flask_restx import Resource, abort
 

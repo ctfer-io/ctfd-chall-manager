@@ -7,8 +7,8 @@ from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_mana_used
-from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.plugins.ctfd_chall_manager.utils.lock import load_or_store
+from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import get_config
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
