@@ -1,12 +1,12 @@
 """
 This module implements the generic class used by the plugin to maintain synchronization
-on ManaCoupon.
+inside the plugin (i.e mana)
 """
 
 import os
 import threading
 
-from CTFd.plugins.ctfd_chall_manager.utils.locker import REDIS_CLIENT, create_rw_lock
+import redis
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 
 logger = configure_logger(__name__)
@@ -14,23 +14,27 @@ logger = configure_logger(__name__)
 # https://github.com/ctfer-io/ctfd-chall-manager/issues/141
 lockers = {}
 lockers_lock = threading.Lock()
+
+
+REDIS_URL = os.getenv("REDIS_URL")
+REDIS_CLIENT = None
+if REDIS_URL:
+    REDIS_CLIENT = redis.Redis.from_url(REDIS_URL)
+    logger.info("redis lock configured successfully")
+else:
+    logger.info("local lock configured successfully")
+
 lock_is_local = REDIS_CLIENT is None
-rw_lock_enabled = (
-    os.getenv("PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK", "false").lower() == "true"
-)
-
 logger.debug("distributed redis lock configured: %s", (not lock_is_local))
-logger.debug("experimental rwlock configured: %s", rw_lock_enabled)
 
 
-class ManaLock:
+class Lock:
     """
-    A class used to manage locks for ManaCoupon synchronization.
+    A class used to manage internal locks for synchronization.
 
     Attributes:
         name (str): The name of the lock.
-        rw (RWLock): An instance of RWLock for read-write locking.
-        gr (threading.Lock or redis_client.lock): A lock object for general locking.
+        gr (threading.Lock or redis_client.lock): A lock object for global locking.
     """
 
     # <name>_gr is a lock made to block concurrency calls to chall-manager instances.
@@ -45,66 +49,40 @@ class ManaLock:
             name (str): The name of the lock.
         """
         self.name = name
-        if rw_lock_enabled:
-            self.rw = create_rw_lock(name)
-
         self.gr = threading.Lock()
         if REDIS_CLIENT is not None:
             logger.debug("redis client found, use distributed cache")
             self.gr = REDIS_CLIENT.lock(name=f"{name}_gr", thread_local=False)
 
     def __repr__(self):
-        return f"ManaLock name={self.name}"
+        return f"Lock name={self.name}"
 
-    def player_lock(self):
-        """
-        Acquires the lock for a player.
-        """
-        if rw_lock_enabled:
-            self.rw.r_lock()
-
-        self.gr.acquire()
-
-    def is_global_for_source_locked(self) -> bool:
+    def is_locked(self) -> bool:
         """
         Returns True if this key is locked by any process, otherwise False.
         """
         return self.gr.locked()
 
-    def player_unlock(self):
+    def lock(self):
         """
-        Releases the lock for a player.
+        Releases the lock for an admin.
         """
-        self.gr.release()
-
-        if rw_lock_enabled:
-            self.rw.r_unlock()
-
-    def admin_lock(self):
-        """
-        Acquires the lock for an admin.
-        """
-        if rw_lock_enabled:
-            self.rw.rw_lock()
         self.gr.acquire()
 
-    def admin_unlock(self):
+    def unlock(self):
         """
         Releases the lock for an admin.
         """
         self.gr.release()
 
-        if rw_lock_enabled:
-            self.rw.rw_unlock()
 
-
-def load_or_store(name: str) -> ManaLock:
+def load_or_store(name: str) -> Lock:
     """
     Loads an existing lock or creates a new one if it doesn't exist.
 
     ``name`` (str): The name of the lock to be loaded or created.
 
-    Return ManaLock: The loaded or newly created lock.
+    Return Lock: The loaded or newly created lock.
 
     Notes:
         - If the distributed lock system is activated, it returns a new ManaLock instance.
@@ -114,7 +92,7 @@ def load_or_store(name: str) -> ManaLock:
     """
 
     if not lock_is_local:
-        return ManaLock(name)
+        return Lock(name)
 
     try:
 
@@ -127,7 +105,7 @@ def load_or_store(name: str) -> ManaLock:
             return lockers[name]
 
         logger.debug("previous lock NOT found, create new one")
-        lock = ManaLock(name)
+        lock = Lock(name)
         lockers[name] = lock
     finally:
         lockers_lock.release()

@@ -20,7 +20,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     update_instance,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
+from CTFd.plugins.ctfd_chall_manager.utils.lock import load_or_store
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import authed_only
@@ -123,13 +123,13 @@ class UserInstance(Resource):
                 abort(403, "unauthorized", success=False)
 
         lock = load_or_store(str(source_id))
-        if lock.is_global_for_source_locked():
+        if lock.is_locked():
             logger.debug("instance creation already in progress, abort")
             abort(429, "instance creation already in progress", success=False)
 
         try:
             logger.debug("post /instance acquire the player lock for %s", source_id)
-            lock.player_lock()
+            lock.lock()
 
             if not check_source_can_create_instance(challenge_id, source_id):
                 abort(403, "You or your team used up all your mana.", success=False)
@@ -159,7 +159,7 @@ class UserInstance(Resource):
 
         finally:
             logger.debug("post /instance release the player lock for %s", source_id)
-            lock.player_unlock()
+            lock.unlock()
 
         # return only necessary values
         data = {}
@@ -247,14 +247,14 @@ class UserInstance(Resource):
                 abort(403, "unauthorized", success=False)
 
         lock = load_or_store(str(source_id))
-        if lock.is_global_for_source_locked():
+        if lock.is_locked():
             logger.debug("instance deletion already in progress, abort")
             abort(429, "instance deletion already in progress", success=False)
 
         try:
             # lock = load_or_store(f"{source_id}")
             logger.debug("delete /instance acquire the player lock for %s", source_id)
-            lock.player_lock()
+            lock.lock()
 
             if not check_source_can_edit_instance(challenge_id, source_id):
                 abort(403, "unauthorized", success=False)
@@ -280,6 +280,6 @@ class UserInstance(Resource):
 
         finally:
             logger.debug("delete /instance release the player lock for %s", source_id)
-            lock.player_unlock()
+            lock.unlock()
 
         return {"success": True, "data": {}}, 200
