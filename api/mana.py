@@ -7,8 +7,8 @@ from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.helpers import calculate_mana_used
+from CTFd.plugins.ctfd_chall_manager.utils.lock import load_or_store
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
 from CTFd.utils import get_config
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
@@ -59,7 +59,7 @@ class UserMana(Resource):
         try:
             lock = load_or_store(str(source_id))
             logger.debug("get /mana acquire the player lock for %s", source_id)
-            lock.player_lock()
+            lock.lock()
 
             mana = calculate_mana_used(source_id)
             logger.debug("retrieved mana for source_id: %s, mana: %s", source_id, mana)
@@ -74,7 +74,7 @@ class UserMana(Resource):
 
         finally:
             logger.debug("get /mana release the player lock for %s", source_id)
-            lock.player_unlock()
+            lock.unlock()
 
         return {
             "success": True,

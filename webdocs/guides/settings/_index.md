@@ -46,11 +46,3 @@ The plugin can optionally use 2 commons variables to configure cache or the logg
 |-----------	|---------	|-----------------------------------------------------------------------------------	|
 | REDIS_URL 	| ""      	| The URI to connect to a Redis server. (e.g. redis://user:password@localhost:6379) 	|
 | LOG_LEVEL  	| "INFO"  	| Enumeration in INFO, DEBUG, ERROR, WARNING                                        	|
-
-### Experimental features
-
-The plugin includes experimental features that can be enabled via environment variables. We welcome any feedback you may have on using these features.
-
-| Variable                               | Default | Description                                                                                 |
-|----------------------------------------|---------|---------------------------------------------------------------------------------------------|
-| PLUGIN_SETTINGS_CM_EXPERIMENTAL_RWLOCK | false   | Enable RWLock priority system (see https://github.com/ctfer-io/ctfd-chall-manager/pull/167) |

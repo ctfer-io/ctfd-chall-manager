@@ -13,8 +13,8 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     get_instance,
     update_instance,
 )
+from CTFd.plugins.ctfd_chall_manager.utils.lock import load_or_store
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
-from CTFd.plugins.ctfd_chall_manager.utils.mana_lock import load_or_store
 from CTFd.utils.decorators import admins_only
 from flask_restx import Resource, abort
 
@@ -129,7 +129,7 @@ class AdminInstance(Resource):
 
         try:
             lock = load_or_store(f"{source_id}")
-            lock.admin_lock()
+            lock.lock()
 
             result = create_instance(challenge_id, source_id)
             logger.info(
@@ -163,8 +163,8 @@ class AdminInstance(Resource):
             }, e.http_code
 
         finally:
-            logger.debug("admin_unlock %s", lock)
-            lock.admin_unlock()
+            logger.debug("unlock %s", lock)
+            lock.unlock()
 
         return {"success": True, "data": result}, 200
 
@@ -271,7 +271,7 @@ class AdminInstance(Resource):
 
         try:
             lock = load_or_store(f"{source_id}")
-            lock.admin_lock()
+            lock.lock()
 
             logger.debug(
                 "deleting instance for challenge_id: %s, source_id: %s",
@@ -293,7 +293,7 @@ class AdminInstance(Resource):
             }, e.http_code
 
         finally:
-            logger.debug("admin_unlock %s", lock)
-            lock.admin_unlock()
+            logger.debug("unlock %s", lock)
+            lock.unlock()
 
         return {"success": True, "data": result}, 200
