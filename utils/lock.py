@@ -65,13 +65,13 @@ class Lock:
 
     def lock(self):
         """
-        Releases the lock for an admin.
+        Acquires the lock.
         """
         self.gr.acquire()
 
     def unlock(self):
         """
-        Releases the lock for an admin.
+        Releases the lock.
         """
         self.gr.release()
 
