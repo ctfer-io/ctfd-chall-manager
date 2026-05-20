@@ -59,7 +59,7 @@ jobs:
             -e WORKERS=2 \
             -e SECRET_KEY=ctfer \
             -v ${{ github.workspace }}:/opt/CTFd/CTFd/plugins/ctfd_chall_manager \
-            ctfd/ctfd:3.8.4@sha256:da25249c41d19556573f11cf3c9fd887d47830310ae8d725ad443644a35b3455
+            ctfd/ctfd:3.8.5@sha256:476211f53cc3e675cce72bcb495484d890da0a6d48d5de919577912c6da8d4ff
 
       - name: Setup basic testing env
         uses: ./.github/workflows/setup-testing
