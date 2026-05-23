@@ -64,14 +64,14 @@ This mode allows you to use the same actions as the *None* and *Until* modes, bu
 {{% imgproc timeout_on Fit "800x800" %}}
 {{% /imgproc %}}
 
-If you see that the Janitor will destroy your instance soon, you can *renew* the instance (reset the timer).
+If you see that the Janitor will destroy your instance soon, you can *extend* the instance (reset the timer).
 
 {{% imgproc timeout_renew Fit "800x800" %}}
 {{% /imgproc %}}
 
 ### Both
 
-With *Timeout* and *Until*, the plugin will display the timeout mode buttons, but Chall-Manager will take care of restricting or not the possibility of renewing the challenge based on the [design](/docs/chall-manager/design/expiration/).
+With *Timeout* and *Until*, the plugin will display the timeout mode buttons, but Chall-Manager will take care of restricting or not the possibility of extending the challenge based on the [design](/docs/chall-manager/design/expiration/).
 
 ## What's Next?
 

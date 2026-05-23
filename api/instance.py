@@ -174,7 +174,7 @@ class UserInstance(Resource):
     @challenge_visible
     def patch():  # pylint: disable=too-many-return-statements
         """
-        Renew instance on Chall-Manager.
+        Extend instance on Chall-Manager.
         If the challengeId provided
         """
         # mandatory
@@ -185,7 +185,9 @@ class UserInstance(Resource):
         user_id = int(user.id)
         source_id = user_id
         logger.info(
-            "user %s request instance renew of challenge %s", source_id, challenge_id
+            "user %s requested instance extension of challenge %s",
+            source_id,
+            challenge_id,
         )
         # check userMode of CTFd
         if is_teams_mode():
@@ -219,7 +221,7 @@ class UserInstance(Resource):
 
         return {
             "success": True,
-            "data": {"message": "Your instance has been renewed !"},
+            "data": {"message": "Your instance has been extended!"},
         }, 200
 
     @staticmethod
