@@ -59,6 +59,7 @@ cd -
 ```bash
 python -m unittest test/test_api_challenges.py
 python -m unittest test/test_api_admin_instance.py
+python -m unittest test/test_api_admin_import.py
 python -m unittest test/test_api_instance.py
 python -m unittest test/test_api_mana.py
 ```

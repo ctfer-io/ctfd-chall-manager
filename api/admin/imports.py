@@ -17,7 +17,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils.decorators import admins_only
 from flask import request
-from flask_restx import Resource
+from flask_restx import Resource, abort
 
 # Configure logger for this module
 logger = configure_logger(__name__)
@@ -40,6 +40,9 @@ class AdminImport(Resource):
         data = request.get_json()
         challenge_id = data.get("challengeId")
         logger.info("trying to import challenge %d", challenge_id)
+
+        if not challenge_id:
+            abort(400, "missing argument challenge_id", success=False)
 
         # retrieve challenge information on CTFd
         challenge = DynamicIaCChallenge.query.filter_by(id=challenge_id).first()
