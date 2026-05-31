@@ -1,0 +1,90 @@
+{% extends "chall_manager_base.html" %}
+
+{% block menu %}
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/settings">🔗 Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/instances">🔗  Instances</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/mana">🔗 Mana</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/plugins/ctfd-chall-manager/admin/panel">🔗 Panel</a>
+    </li>
+	<li class="nav-item">
+        <a class="nav-link active" href="#">Import</a>
+    </li>
+{% endblock %}
+
+{% block panel %}
+
+
+
+<div class="container">
+
+	<div class="container">
+		This page lets you import an existing CTFd configuration into your configured chall-manager service. 
+		Use it only if you know what you're doing.
+	</div>
+	
+	<hr>
+
+	<div class="row">
+		<div class="col-md-12 table-responsive">
+			<div>
+				<table id="challenges" class="table table-striped border">
+					<thead>
+					<tr>
+						<th class="sort-col text-center"><b>ID</b></th>
+						<th class="sort-col"><b>Name</b></th>
+						<th class="sort-col"><b>Category</b></th>
+						<th class="sort-col text-center"><b>Status on chall-manager</b></th>
+						<th class="sort-col text-center"><b>Import</b></th>
+					</tr>
+					</thead>
+					<tbody>
+					{% for challenge in challenges %}
+						<tr data-href="{{ url_for('admin.challenges_detail', challenge_id=challenge.id) }}">
+							<td class="text-center">{{ challenge.id }}</td>
+							<td><a href="{{ url_for('admin.challenges_detail', challenge_id=challenge.id) }}">{{ challenge.name }}</a></td>
+							<td>{{ challenge.category }}</td>
+							<td class="text-center">
+								{% if cm_api_reachable %}
+								{% if status[challenge.id] %}
+								<i class="btn-fa fas fa-check"></i>
+								{% else %}
+								<i class="btn-fa fas fa-xmark"></i>
+								{% endif %}
+								{% else %}
+								<i class="btn-fa fas fa-question"></i>
+								{% endif %}								
+							</td>
+							<td class="text-center">
+								<button class="btn btn-link p-0 import-challenge"
+								data-placement="top"
+								data-toggle="tooltip"
+								challenge-id="{{ challenge.id }}"
+								{% if status[challenge.id] or not cm_api_reachable %}
+								disabled
+								{% endif %}
+								title="Import">
+								<i class="fas fa-circle-up"></i>
+								</button>
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{% include "config/chall_manager.status.html" %}
+	</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script defer src="{{ url_for('plugins.ctfd_chall_manager.assets', path='import.js') }}"></script>
+{% endblock %}

@@ -3,6 +3,7 @@
 This module defines the helpers functions.
 """
 
+import requests
 from CTFd.models import db  # type: ignore
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
@@ -230,3 +231,25 @@ def check_source_can_patch_instance(challenge_id: int, source_id: int) -> bool:
         challenge_id,
     )
     return True
+
+
+def check_chall_manager_healthcheck() -> bool:
+    """
+    Check that chall-manager api is reachable.
+    Performe a GET request on http://chall-manger-url:port/healthcheck
+    """
+    cm_api_reachable = False
+
+    try:
+        logger.debug("getting connection status with chall-manager")
+        health_url = f'{get_config("chall-manager:chall-manager_api_url")}/healthcheck'
+        requests.get(health_url, timeout=5).raise_for_status()
+    except requests.HTTPError as e:
+        logger.warning("can communicate with CM, but got error %s", e)
+    except requests.RequestException as e:
+        logger.warning("cannot communicate with CM, got %s", e)
+    else:
+        logger.info("communication with CM configured successfully")
+        cm_api_reachable = True
+
+    return cm_api_reachable

@@ -5,7 +5,6 @@ and all Admins pages endpoints.
 
 import os
 
-import requests
 from CTFd.plugins import register_plugin_assets_directory, register_user_page_menu_bar
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 from CTFd.plugins.ctfd_chall_manager.api import register_api_endpoints
@@ -16,10 +15,14 @@ from CTFd.plugins.ctfd_chall_manager.models import (
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import query_challenges
+from CTFd.plugins.ctfd_chall_manager.utils.challenge_store import (
+    get_challenge,
+    query_challenges,
+)
 from CTFd.plugins.ctfd_chall_manager.utils.helpers import (
     calculate_all_mana_used,
     calculate_mana_used,
+    check_chall_manager_healthcheck,
 )
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import query_instance
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
@@ -83,22 +86,8 @@ def load(app):  # pylint: disable=too-many-statements
     @admins_only
     def admin_settings():  # pylint: disable=unused-variable
         logger.debug("Accessing admin settings page.")
-        cm_api_reachable = False
 
-        try:
-            logger.debug("getting connection status with chall-manager")
-            health_url = (
-                f'{get_config("chall-manager:chall-manager_api_url")}/healthcheck'
-            )
-            requests.get(health_url, timeout=5).raise_for_status()
-        except requests.HTTPError as e:
-            logger.warning("can communicate with CM, but got error %s", e)
-        except requests.RequestException as e:
-            logger.warning("cannot communicate with CM, got %s", e)
-        else:
-            logger.info("communication with CM configured successfully")
-            cm_api_reachable = True
-
+        cm_api_reachable = check_chall_manager_healthcheck()
         return render_template(
             "chall_manager_config.html", cm_api_reachable=cm_api_reachable
         )
@@ -192,6 +181,31 @@ def load(app):  # pylint: disable=too-many-statements
             total=total,
             q=q,
             field=field,
+        )
+
+    # Route to import configuration
+    @page_blueprint.route("/admin/import")
+    @admins_only
+    def admin_import():  # pylint: disable=unused-variable
+
+        cm_api_reachable = check_chall_manager_healthcheck()
+
+        query = DynamicIaCChallenge.query.order_by(DynamicIaCChallenge.id.asc())
+        challenges = query.all()
+        status = {}
+
+        for c in challenges:
+            try:
+                get_challenge(c.id)
+                status[c.id] = True
+            except ChallManagerException:
+                status[c.id] = False
+
+        return render_template(
+            "chall_manager_import.html",
+            challenges=challenges,
+            status=status,
+            cm_api_reachable=cm_api_reachable,
         )
 
     # Route to monitor & manage running instances
