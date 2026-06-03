@@ -3,6 +3,7 @@ This module register API endpoints for the plugin in CTFd (/api/v1).
 """
 
 from CTFd.api import CTFd_API_v1
+from CTFd.plugins.ctfd_chall_manager.api.admin.imports import AdminImport
 from CTFd.plugins.ctfd_chall_manager.api.admin.instance import AdminInstance
 from CTFd.plugins.ctfd_chall_manager.api.instance import UserInstance
 from CTFd.plugins.ctfd_chall_manager.api.mana import UserMana
@@ -32,6 +33,7 @@ def register_api_endpoints():
     """
     # add resources to namespaces
     admin_namespace.add_resource(AdminInstance, "/instance")
+    admin_namespace.add_resource(AdminImport, "/import")
     user_namespace.add_resource(UserInstance, "/instance")
     user_namespace.add_resource(UserMana, "/mana")
 
