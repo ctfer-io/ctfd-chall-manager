@@ -188,7 +188,6 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(a["data"]["scenario"], config.scenario)
         self.assertEqual(a["data"]["additional"], {"test": "test"})
 
-
         # User access
         r = requests.get(
             f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
