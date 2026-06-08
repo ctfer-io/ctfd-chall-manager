@@ -175,7 +175,7 @@ class DynamicIaCValueChallenge(DynamicValueChallenge):
                 "timeout": challenge.timeout,
                 "shared": challenge.shared,
                 "destroy_on_flag": challenge.destroy_on_flag,
-                "scenario": challenge.scenario,
+                "scenario": challenge.scenario if current_user.is_admin() else "",
                 "additional": (
                     challenge.additional if current_user.is_admin() else {}
                 ),  # do not display additional for all user, can contains secrets
