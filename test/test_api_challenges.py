@@ -174,6 +174,9 @@ class Test_F_Challenges(unittest.TestCase):
 
     # region get
     def test_user_cannot_get_sensitive_data(self):
+        """
+        Checks that user cannot get sensitive data (i.e additional or scenario)
+        """
         chall_id = create_challenge(
             additional={"test": "test"},
         )
