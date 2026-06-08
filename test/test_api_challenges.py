@@ -172,6 +172,35 @@ class Test_F_Challenges(unittest.TestCase):
         self.assertEqual(r.status_code, 500)  # CTFd return internal server error
         # https://github.com/CTFd/CTFd/issues/2674
 
+    # region get
+    def test_user_cannot_get_sensitive_data(self):
+        chall_id = create_challenge(
+            additional={"test": "test"},
+        )
+
+        # Admin access
+        r = requests.get(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_admin,
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["scenario"], config.scenario)
+        self.assertEqual(a["data"]["additional"], {"test": "test"})
+
+
+        # User access
+        r = requests.get(
+            f"{config.ctfd_url}/api/v1/challenges/{chall_id}",
+            headers=config.headers_user,
+        )
+        a = json.loads(r.text)
+        self.assertEqual(a["success"], True)
+        self.assertEqual(a["data"]["scenario"], "")
+        self.assertEqual(a["data"]["additional"], {})
+
+        delete_challenge(chall_id)
+
     # region update
     def test_can_update_scenario(self):
         """
