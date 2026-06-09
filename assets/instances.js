@@ -12,7 +12,6 @@ async function delete_instance(challengeId, sourceId) {
         },
         body: JSON.stringify(params)
     });
-    console.log(response)
     response = await response.json();
     return response;
 }
@@ -31,7 +30,6 @@ async function renew_instance(challengeId, sourceId) {
         },
         body: JSON.stringify(params)
     });
-    console.log(response)
     response = await response.json();
     return response;
 }
@@ -50,7 +48,6 @@ async function create_instance(challengeId, sourceId) {
         },
         body: JSON.stringify(params)
     });
-    console.log(response)
     response = await response.json();
     return response;
 }
