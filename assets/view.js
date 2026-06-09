@@ -127,7 +127,6 @@ function loadInfo() {
             $('#cm-panel-until').show();
             var now = new Date();
             var until = new Date(instanceResponse.until);
-           //  console.log(until);
             var count_down = until - now;
             if (count_down > 0) {                
                 $('#whale-challenge-count-down').text(formatCountDown(count_down));

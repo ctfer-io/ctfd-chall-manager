@@ -1,7 +1,6 @@
 
 // convert Local into UTC
 document.getElementById('until-input-local').addEventListener('change', function() {
-  console.log("pouet")
   var datetimeLocal = document.getElementById("until-input-local").value;  
   if (datetimeLocal != "") {
     var datetimeUTC =(new Date(datetimeLocal)).toISOString();
@@ -46,7 +45,6 @@ function displayCurrentUntil() {
 
 function displayCurrentAdditional() {
   const jsonData = JSON.parse(document.getElementById('current-additional-json').value);
-  console.log(jsonData)
   const table = document.getElementById('additional-configuration').getElementsByTagName('tbody')[0];
   // const rows = table.getElementsByTagName('tr');
 
