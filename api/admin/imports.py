@@ -34,7 +34,7 @@ class AdminImport(Resource):
 
     @staticmethod
     @admins_only
-    @validate_args({"challengeId": (int)}, location="json")
+    @validate_args({"challengeId": (int, None)}, location="json")
     def post(json_args):
         """
         Trigger an import
@@ -42,7 +42,7 @@ class AdminImport(Resource):
         challenge_id = json_args.pop("challengeId", None)
         logger.info("trying to import challenge %d", challenge_id)
 
-        if not challenge_id:
+        if challenge_id is None:
             abort(400, "missing argument challenge_id", success=False)
 
         # retrieve challenge information on CTFd
