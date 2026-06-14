@@ -3,6 +3,7 @@ This module describes the UserInstance API endpoint of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/instance.
 """
 
+from CTFd.api.v1.helpers.request import validate_args
 from CTFd.plugins.ctfd_chall_manager.models import DynamicIaCChallenge
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
@@ -45,12 +46,18 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    def get():
+    @validate_args(
+        {
+            "challengeId": (int, None)
+        },
+        location="query"
+    )
+    def get(query_args):
         """
         Retrieve instance informations of challengeId provided on Chall-Manager.
         """
         # mandatory
-        challenge_id = request.args.get("challengeId")
+        challenge_id = query_args.pop("challengeId", None)
 
         # check userMode of CTFd
         user = current_user.get_current_user()
@@ -100,13 +107,20 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    def post():  # pylint: disable=too-many-return-statements,too-many-branches
+    @validate_args(
+        {
+            "challengeId": (int, None)
+        },
+        location="json"
+    )
+    def post(json_args):  # pylint: disable=too-many-return-statements,too-many-branches
         """
         Create an instance of challengeId provided on Chall-Manager.
         This method requires user to be authenticated and has suffisant mana to perform creation.
         """
-        data = request.get_json()
-        challenge_id = data.get("challengeId")
+        challenge_id = json_args.pop("challengeId", None)
+        if challenge_id is None:
+            abort(400, "missing challenge_id")
 
         user = current_user.get_current_user()
         user_id = int(user.id)
@@ -172,14 +186,20 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    def patch():  # pylint: disable=too-many-return-statements
+    @validate_args(
+        {
+            "challengeId": (int, None)
+        },
+        location="json"
+    )
+    def patch(json_args):  # pylint: disable=too-many-return-statements
         """
         Renew instance on Chall-Manager.
         If the challengeId provided
         """
-        # mandatory
-        data = request.get_json()
-        challenge_id = data.get("challengeId")
+        challenge_id = json_args.pop("challengeId", None)
+        if challenge_id is None:
+            abort(400, "missing challenge_id")
 
         user = current_user.get_current_user()
         user_id = int(user.id)
@@ -225,12 +245,19 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    def delete():
+    @validate_args(
+        {
+            "challengeId": (int, None)
+        },
+        location="json"
+    )
+    def delete(json_args):
         """
         Delete instance of the challengeId provided
         """
-        data = request.get_json()
-        challenge_id = data.get("challengeId")
+        challenge_id = json_args.pop("challengeId", None)
+        if challenge_id is None:
+            abort(400, "missing challenge_id")
 
         user = current_user.get_current_user()
         user_id = int(user.id)

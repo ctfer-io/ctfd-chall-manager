@@ -3,6 +3,7 @@ This module describes the AdminImport API endpoints of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/admin/import.
 """
 
+from CTFd.api.v1.helpers.request import validate_args
 from CTFd.plugins.ctfd_chall_manager.models import (
     DynamicIaCChallenge,
     prepare_chall_manager_payload,
@@ -33,12 +34,17 @@ class AdminImport(Resource):
 
     @staticmethod
     @admins_only
-    def post():
+    @validate_args(
+        {
+            "challengeId": (int)
+        },
+        location="json"
+    )
+    def post(json_args):
         """
         Trigger an import
         """
-        data = request.get_json()
-        challenge_id = data.get("challengeId")
+        challenge_id = json_args.pop("challengeId", None)
         logger.info("trying to import challenge %d", challenge_id)
 
         if not challenge_id:
