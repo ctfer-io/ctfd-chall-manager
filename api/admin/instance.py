@@ -7,7 +7,6 @@ from CTFd.api.v1.helpers.request import validate_args
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import retrieve_all_ids
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     create_instance,
     delete_instance,
@@ -40,7 +39,7 @@ class AdminInstance(Resource):
             "sourceId": (int, None),
             "challengeId": (int, None),
         },
-        location="query"
+        location="query",
     )
     def get(query_args):
         """

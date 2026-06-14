@@ -25,7 +25,6 @@ from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
 from CTFd.utils import user as current_user
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.decorators import authed_only
-from flask import request
 from flask_restx import Resource, abort
 
 # Configure logger for this module
@@ -46,12 +45,7 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    @validate_args(
-        {
-            "challengeId": (int, None)
-        },
-        location="query"
-    )
+    @validate_args({"challengeId": (int, None)}, location="query")
     def get(query_args):
         """
         Retrieve instance informations of challengeId provided on Chall-Manager.
@@ -107,12 +101,7 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    @validate_args(
-        {
-            "challengeId": (int, None)
-        },
-        location="json"
-    )
+    @validate_args({"challengeId": (int, None)}, location="json")
     def post(json_args):  # pylint: disable=too-many-return-statements,too-many-branches
         """
         Create an instance of challengeId provided on Chall-Manager.
@@ -186,12 +175,7 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    @validate_args(
-        {
-            "challengeId": (int, None)
-        },
-        location="json"
-    )
+    @validate_args({"challengeId": (int, None)}, location="json")
     def patch(json_args):  # pylint: disable=too-many-return-statements
         """
         Renew instance on Chall-Manager.
@@ -245,12 +229,7 @@ class UserInstance(Resource):
     @staticmethod
     @authed_only
     @challenge_visible
-    @validate_args(
-        {
-            "challengeId": (int, None)
-        },
-        location="json"
-    )
+    @validate_args({"challengeId": (int, None)}, location="json")
     def delete(json_args):
         """
         Delete instance of the challengeId provided

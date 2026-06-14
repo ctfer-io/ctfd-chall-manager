@@ -34,12 +34,7 @@ class AdminImport(Resource):
 
     @staticmethod
     @admins_only
-    @validate_args(
-        {
-            "challengeId": (int)
-        },
-        location="json"
-    )
+    @validate_args({"challengeId": (int)}, location="json")
     def post(json_args):
         """
         Trigger an import
