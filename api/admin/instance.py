@@ -3,10 +3,10 @@ This module describes the AdminInstance API endpoints of the plugin:
 Route: /api/v1/plugins/ctfd-chall-manager/admin/instance.
 """
 
+from CTFd.api.v1.helpers.request import validate_args
 from CTFd.plugins.ctfd_chall_manager.utils.chall_manager_error import (
     ChallManagerException,
 )
-from CTFd.plugins.ctfd_chall_manager.utils.helpers import retrieve_all_ids
 from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
     create_instance,
     delete_instance,
@@ -15,6 +15,7 @@ from CTFd.plugins.ctfd_chall_manager.utils.instance_manager import (
 )
 from CTFd.plugins.ctfd_chall_manager.utils.lock import load_or_store
 from CTFd.plugins.ctfd_chall_manager.utils.logger import configure_logger
+from CTFd.utils import user as current_user
 from CTFd.utils.decorators import admins_only
 from flask_restx import Resource, abort
 
@@ -33,34 +34,28 @@ class AdminInstance(Resource):
 
     @staticmethod
     @admins_only
-    def get():
+    @validate_args(
+        {
+            "sourceId": (int, None),
+            "challengeId": (int, None),
+        },
+        location="query",
+    )
+    def get(query_args):
         """
         Retrieve instance infos for the sourceId and challengeId provided.
         The returned value contains all informations given by Chall-Manager API (flag included).
         """
-        admin_id = 0
-        challenge_id = 0
-        source_id = 0
 
-        try:
-            result = retrieve_all_ids(admin=True)
-            admin_id = result["admin_id"]
-            challenge_id = result["challenge_id"]
-            source_id = result["source_id"]
-        except ValueError:
+        admin_id = current_user.get_current_user()
+        challenge_id = query_args.pop("challengeId", None)
+        source_id = query_args.pop("sourceId", None)
+
+        if None in (challenge_id, source_id):
             return {
                 "success": False,
                 "message": "missing challengeId or sourceId",
             }, 400
-
-        # admin_id and challenge_id must be updated by retrieve_all_ids()
-        # source_id can be 0 (shared)
-        if admin_id == 0 or challenge_id == 0:
-            abort(
-                500,
-                "internal server error: cannot load challenge_id or admin_id",
-                sucess=False,
-            )
 
         logger.info(
             "admin %s get instance info for challenge_id: %s, source_id: %s",
@@ -89,36 +84,26 @@ class AdminInstance(Resource):
 
     @staticmethod
     @admins_only
-    def post():
+    @validate_args(
+        {
+            "challengeId": (int, None),
+            "sourceId": (int, None),
+        },
+        location="json",
+    )
+    def post(json_args):
         """
         Create instance for the sourceId and challengeId provided.
         This function will create a coupon, but bypass mana checks and
         deploy instance in all cases.
         The returned value contains all informations given by Chall-Manager API (flag included).
         """
-        admin_id = 0
-        challenge_id = 0
-        source_id = 0
+        admin_id = current_user.get_current_user()
+        challenge_id = json_args.pop("challengeId", None)
+        source_id = json_args.pop("sourceId", None)
 
-        try:
-            result = retrieve_all_ids(admin=True)
-            admin_id = result["admin_id"]
-            challenge_id = result["challenge_id"]
-            source_id = result["source_id"]
-        except ValueError:
-            return {
-                "success": False,
-                "message": "missing challengeId or sourceId",
-            }, 400
-
-        # admin_id and challenge_id must be updated by retrieve_all_ids()
-        # source_id can be 0 (shared)
-        if admin_id == 0 or challenge_id == 0:
-            abort(
-                500,
-                "internal server error: cannot load challenge_id or admin_id",
-                sucess=False,
-            )
+        if None in (challenge_id, source_id):
+            abort(404, "missing challengeId or sourceId")
 
         logger.info(
             "admin %s request instance creation for challenge_id: %s, source_id: %s",
@@ -170,36 +155,25 @@ class AdminInstance(Resource):
 
     @staticmethod
     @admins_only
-    def patch():
+    @validate_args(
+        {
+            "challengeId": (int, None),
+            "sourceId": (int, None),
+        },
+        location="json",
+    )
+    def patch(json_args):
         """
         Renew instance for the sourceId and challengeId provided.
         The returned value contains all informations given by Chall-Manager API (flag included).
         """
 
-        # mandatory
-        admin_id = 0
-        challenge_id = 0
-        source_id = 0
+        admin_id = current_user.get_current_user()
+        challenge_id = json_args.pop("challengeId", None)
+        source_id = json_args.pop("sourceId", None)
 
-        try:
-            result = retrieve_all_ids(admin=True)
-            admin_id = result["admin_id"]
-            challenge_id = result["challenge_id"]
-            source_id = result["source_id"]
-        except ValueError:
-            return {
-                "success": False,
-                "message": "missing challengeId or sourceId",
-            }, 400
-
-        # admin_id and challenge_id must be updated by retrieve_all_ids()
-        # source_id can be 0 (shared)
-        if admin_id == 0 or challenge_id == 0:
-            abort(
-                500,
-                "internal server error: cannot load challenge_id or admin_id",
-                sucess=False,
-            )
+        if None in (challenge_id, source_id):
+            abort(404, "missing challengeId or sourceId")
 
         logger.info(
             "admin %s request instance update for challenge_id: %s, source_id: %s",
@@ -232,35 +206,24 @@ class AdminInstance(Resource):
 
     @staticmethod
     @admins_only
-    def delete():
+    @validate_args(
+        {
+            "challengeId": (int, None),
+            "sourceId": (int, None),
+        },
+        location="json",
+    )
+    def delete(json_args):
         """
         Destroy instance for the sourceId and challengeId provided.
         This function will delete the associated coupon.
         """
-        # mandatory
-        admin_id = 0
-        challenge_id = 0
-        source_id = 0
+        admin_id = current_user.get_current_user()
+        challenge_id = json_args.pop("challengeId", None)
+        source_id = json_args.pop("sourceId", None)
 
-        try:
-            result = retrieve_all_ids(admin=True)
-            admin_id = result["admin_id"]
-            challenge_id = result["challenge_id"]
-            source_id = result["source_id"]
-        except ValueError:
-            return {
-                "success": False,
-                "message": "missing challengeId or sourceId",
-            }, 400
-
-        # admin_id and challenge_id must be updated by retrieve_all_ids()
-        # source_id can be 0 (shared)
-        if admin_id == 0 or challenge_id == 0:
-            abort(
-                500,
-                "internal server error: cannot load challenge_id or admin_id",
-                success=False,
-            )
+        if None in (challenge_id, source_id):
+            abort(404, "missing challengeId or sourceId")
 
         logger.info(
             "admin %s request instance delete for challenge_id: %s, source_id: %s",
