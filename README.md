@@ -15,7 +15,7 @@ This plugin allow you to use the [chall-manager](https://github.com/ctfer-io/cha
 
 Last version of CTFd tested on: [3.8.5](https://github.com/CTFd/CTFd/releases/tag/3.8.5).
 
-Last version of Chall-Manager tested on: [v0.6.5](https://github.com/ctfer-io/chall-manager/releases/tag/v0.6.5).
+Last version of Chall-Manager tested on: [v0.6.6](https://github.com/ctfer-io/chall-manager/releases/tag/v0.6.6).
 
 ## 🚀 What CTFd-chall-manager Does
 - **On-Demand Instances**: Players can deploy and destroy their own isolated challenge instances.
