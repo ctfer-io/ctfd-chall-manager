@@ -13,7 +13,7 @@ services:
     networks:
       - testing
   ctfd-ui-1:
-    image: ctfd/ctfd:3.8.5@sha256:476211f53cc3e675cce72bcb495484d890da0a6d48d5de919577912c6da8d4ff
+    image: ctfd/ctfd:3.8.6@sha256:5b780b3628f2fe7bc0cdf9567d51244c2e8b5bb93f227fdac0532c94ae43f7c7
     container_name: ctfd-ui-1
     networks:
       - testing
@@ -46,7 +46,7 @@ services:
       - "traefik.http.services.web.loadbalancer.server.port=8000"
     
   ctfd-ui-2:
-    image: ctfd/ctfd:3.8.5@sha256:476211f53cc3e675cce72bcb495484d890da0a6d48d5de919577912c6da8d4ff
+    image: ctfd/ctfd:3.8.6@sha256:5b780b3628f2fe7bc0cdf9567d51244c2e8b5bb93f227fdac0532c94ae43f7c7
     container_name: ctfd-ui-2
     networks:
       - testing

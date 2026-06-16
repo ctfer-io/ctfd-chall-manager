@@ -50,7 +50,7 @@ jobs:
             -e PLUGIN_SETTINGS_CM_API_URL=http://chall-manager:8080 \
             -e PLUGIN_SETTINGS_CM_MANA_TOTAL=15 \
             -v ${{ github.workspace }}:/opt/CTFd/CTFd/plugins/ctfd_chall_manager \
-            ctfd/ctfd:3.8.5@sha256:476211f53cc3e675cce72bcb495484d890da0a6d48d5de919577912c6da8d4ff
+            ctfd/ctfd:3.8.6@sha256:5b780b3628f2fe7bc0cdf9567d51244c2e8b5bb93f227fdac0532c94ae43f7c7
 
       - name: Setup basic testing env
         uses: ./.github/workflows/setup-testing
