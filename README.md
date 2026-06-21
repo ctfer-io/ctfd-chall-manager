@@ -52,6 +52,9 @@ The following list contains all known public events where Chall-Manager has been
 - 2025/05/17 [WhiteHats TrojanCTF 2025](https://github.com/ESHA-Trojan/TrojanCTF-2025-public)
 - 2025/05/24 [24h IUT 2025](https://www.linkedin.com/feed/update/urn:li:activity:7332827877123506177/)
 - 2025/11/29 [GreHack25](https://www.linkedin.com/posts/grehack_grehack25-activity-7401272551294787584-8ULF)
+- 2026/05/19 [Hack0 by cyber0ne](https://cyberzone.framer.website/)
+- 2026/05/30 [WhiteHats TrojanCTF 2026](https://eshatrojan.nl/)
+- 2026/06/07 [404CTF 2026](https://www.404ctf.fr/)
 
 Please [open an issue](https://github.com/ctfer-io/ctfd-chall-manager/issues/new) to add your event to the list if we did not ourself.
 
