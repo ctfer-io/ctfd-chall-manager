@@ -7,6 +7,11 @@ updates:
       interval: "weekly"
     assignees:
       - "NicoFgrx"
+    groups:
+      # init/autobuild/analyze must stay on the same version or CodeQL errors out
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
 
   # Github actions for reusable
   - package-ecosystem: "github-actions"
@@ -22,4 +27,3 @@ updates:
       interval: "weekly"
     assignees:
       - "NicoFgrx"
-
