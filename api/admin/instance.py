@@ -164,7 +164,7 @@ class AdminInstance(Resource):
     )
     def patch(json_args):
         """
-        Renew instance for the sourceId and challengeId provided.
+        Extend instance for the sourceId and challengeId provided.
         The returned value contains all informations given by Chall-Manager API (flag included).
         """
 

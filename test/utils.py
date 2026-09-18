@@ -184,7 +184,7 @@ def delete_instance(challenge_id: int):
 
 def patch_instance(challenge_id: int):
     """
-    Renew instance of challenge_id using user account.
+    Extend instance of challenge_id using user account.
     """
     payload = {"challengeId": f"{challenge_id}"}
     r = requests.patch(
